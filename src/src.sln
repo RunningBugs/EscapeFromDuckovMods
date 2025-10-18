@@ -1,0 +1,39 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamSoda.Duckov.Core", "TeamSoda.Duckov.Core/TeamSoda.Duckov.Core.csproj", "{DFD4947F-822C-4DB5-8E1B-797703F57B23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamSoda.Duckov.Utilities", "TeamSoda.Duckov.Utilities/TeamSoda.Duckov.Utilities.csproj", "{D9782EF4-A144-4A16-92C9-79422399D408}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamSoda.MiniLocalizor", "TeamSoda.MiniLocalizor/TeamSoda.MiniLocalizor.csproj", "{4B0C909D-8068-467B-B5B3-1690C619E2CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ItemStatsSystem", "ItemStatsSystem/ItemStatsSystem.csproj", "{0DF81062-93C2-4F62-922E-8AE6E3342B82}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AnyCPU = Debug|AnyCPU
+		Release|AnyCPU = Release|AnyCPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DFD4947F-822C-4DB5-8E1B-797703F57B23}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{DFD4947F-822C-4DB5-8E1B-797703F57B23}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{DFD4947F-822C-4DB5-8E1B-797703F57B23}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{DFD4947F-822C-4DB5-8E1B-797703F57B23}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{D9782EF4-A144-4A16-92C9-79422399D408}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{D9782EF4-A144-4A16-92C9-79422399D408}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{D9782EF4-A144-4A16-92C9-79422399D408}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{D9782EF4-A144-4A16-92C9-79422399D408}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{4B0C909D-8068-467B-B5B3-1690C619E2CD}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{4B0C909D-8068-467B-B5B3-1690C619E2CD}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{4B0C909D-8068-467B-B5B3-1690C619E2CD}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{4B0C909D-8068-467B-B5B3-1690C619E2CD}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{0DF81062-93C2-4F62-922E-8AE6E3342B82}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{0DF81062-93C2-4F62-922E-8AE6E3342B82}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{0DF81062-93C2-4F62-922E-8AE6E3342B82}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{0DF81062-93C2-4F62-922E-8AE6E3342B82}.Release|AnyCPU.Build.0 = Release|AnyCPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+    <DuckovManagedDir>../dlls</DuckovManagedDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/RainNowMod</ReleaseExampleDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/ItemStatsSystem.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/Unity*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="CopyToReleaseExample" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(ReleaseExampleDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).dll" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

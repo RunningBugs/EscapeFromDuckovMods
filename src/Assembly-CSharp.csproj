@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net40</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DuckovDllDir>~/mine/workspace/duckov/game-source/dlls</DuckovDllDir>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(DuckovDllDir)/UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
+      <HintPath>$(DuckovDllDir)/Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UISplineRenderer">
+      <HintPath>$(DuckovDllDir)/UISplineRenderer.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Splines">
+      <HintPath>$(DuckovDllDir)/Unity.Splines.dll</HintPath>
+    </Reference>
+    <Reference Include="KAnimationCore.Runtime">
+      <HintPath>$(DuckovDllDir)/KAnimationCore.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="FOW">
+      <HintPath>$(DuckovDllDir)/FOW.dll</HintPath>
+    </Reference>
+    <Reference Include="ECM2">
+      <HintPath>$(DuckovDllDir)/ECM2.dll</HintPath>
+    </Reference>
+    <Reference Include="Cinemachine">
+      <HintPath>$(DuckovDllDir)/Cinemachine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>$(DuckovDllDir)/System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>$(DuckovDllDir)/Unity.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(DuckovDllDir)/UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

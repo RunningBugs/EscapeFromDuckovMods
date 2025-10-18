@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+    <DuckovManagedDir>../dlls</DuckovManagedDir>
+    <!-- Do not copy referenced assemblies to output -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <!-- Keep output clean: no TFM in path -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <!-- Destination folder for packaged example -->
+    <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/InfiniteStockMod</ReleaseExampleDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/ItemStatsSystem.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/Unity*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Copy compiled DLL + PDB into the ReleaseExample folder on Release builds -->
+  <Target Name="CopyToReleaseExample" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(ReleaseExampleDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).dll" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

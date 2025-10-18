@@ -1,0 +1,28 @@
+# Build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# VS / Rider / MonoDevelop settings
+.vs/
+.idea/
+*.iml
+
+# Unity / .NET generated
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Packages
+packages/
