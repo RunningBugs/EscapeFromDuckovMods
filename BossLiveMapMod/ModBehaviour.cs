@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Duckov.MiniMaps;
 using Duckov.MiniMaps.UI;
 using Duckov.Scenes;
@@ -32,7 +31,12 @@ namespace BossLiveMapMod
 
         private bool _mapActive;
 
-        private void Awake() => Debug.Log("BossLiveMapMod loaded: live character markers enabled");
+        private void Awake()
+        {
+            Debug.Log("BossLiveMapMod loaded: live character markers enabled");
+            ModConfig.Load();
+            ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
+        }
 
         private void OnEnable()
         {
@@ -80,6 +84,7 @@ namespace BossLiveMapMod
             Health.OnDead -= OnAnyHealthDead;
             ResetMarkers();
         }
+
 
         private void ResetMarkers()
         {
@@ -207,6 +212,20 @@ namespace BossLiveMapMod
             marker.Poi.Color = GetMarkerColor();
             marker.Poi.ShadowColor = Color.black;
             marker.Poi.ShadowDistance = 0f;
+        }
+
+        private void Update()
+        {
+            if (ModConfig.HasPendingUpdate)
+            {
+                ModConfig.ApplyPendingChanges();
+                ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
+                if (_mapActive)
+                {
+                    ResetMarkers();
+                    ScanCharacters();
+                }
+            }
         }
 
         private void LateUpdate()

@@ -9,6 +9,7 @@
     <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/BossLiveMapMod</ReleaseExampleDir>
   </PropertyGroup>
 
+
   <ItemGroup>
     <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
       <Private>false</Private>
