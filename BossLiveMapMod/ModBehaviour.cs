@@ -25,6 +25,8 @@ namespace BossLiveMapMod
             new Dictionary<CharacterMainControl, CharacterMarker>();
         private readonly HashSet<GameObject> _ownedMarkerObjects = new HashSet<GameObject>();
 
+        public static bool ShowNearbyEnemies = false;
+
         private static readonly FieldInfo CreatedCharactersField =
             typeof(CharacterSpawnerRoot).GetField("createdCharacters", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -154,8 +156,13 @@ namespace BossLiveMapMod
                 return;
 
             bool isBoss = IsBoss(character);
-            if (!isBoss && !character.gameObject.activeInHierarchy)
-                return;
+            if (!isBoss)
+            {
+                if (!ShowNearbyEnemies)
+                    return;
+                if (!character.gameObject.activeInHierarchy)
+                    return;
+            }
 
             if (_markers.TryGetValue(character, out var marker))
             {
