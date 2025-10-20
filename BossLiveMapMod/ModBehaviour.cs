@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Duckov.MiniMaps;
@@ -13,6 +12,10 @@ namespace BossLiveMapMod
 {
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
+        /// <summary>
+        /// The data structure for a tracked character marker.
+        /// All information needed to render the marker on the map.
+        /// </summary>
         private sealed class CharacterMarker
         {
             public CharacterMainControl Character;
@@ -20,12 +23,22 @@ namespace BossLiveMapMod
             public SimplePointOfInterest Poi;
         }
 
+        /// <summary>
+        /// Map a character to its marker.
+        /// </summary>
         private readonly Dictionary<CharacterMainControl, CharacterMarker> _markers =
             new Dictionary<CharacterMainControl, CharacterMarker>();
+
+        /// <summary>
+        /// All our marker GameObjects, for cleanup.
+        /// </summary>
         private readonly HashSet<GameObject> _ownedMarkerObjects = new HashSet<GameObject>();
 
         public static bool ShowNearbyEnemies = false;
 
+        /// <summary>
+        /// static reflection field info for CharacterSpawnerRoot.createdCharacters
+        /// </summary>
         private static readonly FieldInfo CreatedCharactersField =
             typeof(CharacterSpawnerRoot).GetField("createdCharacters", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -214,6 +227,9 @@ namespace BossLiveMapMod
             marker.Poi.ShadowDistance = 0f;
         }
 
+        /// <summary>
+        /// Check for configuration changes and only apply changes when config is changed.
+        /// </summary>
         private void Update()
         {
             if (ModConfig.HasPendingUpdate)
@@ -228,6 +244,9 @@ namespace BossLiveMapMod
             }
         }
 
+        /// <summary>
+        /// When map is active, find invalid markers and remove them.
+        /// </summary>
         private void LateUpdate()
         {
             if (!_mapActive || _markers.Count == 0)
@@ -336,7 +355,6 @@ namespace BossLiveMapMod
 
         private static Color GetMarkerColor() => Color.red;
 
-        // Placeholder for future filtering (keeping for compatibility)
         private static bool IsBoss(CharacterMainControl c)
         {
             try
