@@ -4,7 +4,6 @@ using Duckov.MiniMaps;
 using Duckov.MiniMaps.UI;
 using Duckov.Scenes;
 using Duckov.UI;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -35,12 +34,6 @@ namespace BossLiveMapMod
         private readonly HashSet<GameObject> _ownedMarkerObjects = new HashSet<GameObject>();
 
         public static bool ShowNearbyEnemies = false;
-
-        /// <summary>
-        /// static reflection field info for CharacterSpawnerRoot.createdCharacters
-        /// </summary>
-        private static readonly FieldInfo CreatedCharactersField =
-            typeof(CharacterSpawnerRoot).GetField("createdCharacters", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private bool _mapActive;
 
@@ -148,13 +141,7 @@ namespace BossLiveMapMod
                 if (root == null)
                     continue;
 
-                List<CharacterMainControl> list = null;
-                try
-                {
-                    list = CreatedCharactersField?.GetValue(root) as List<CharacterMainControl>;
-                }
-                catch { }
-
+                var list = root.createdCharacters;
                 if (list == null)
                     continue;
 
@@ -370,13 +357,8 @@ namespace BossLiveMapMod
                 if (icon != null && icon.name != null && icon.name.IndexOf("boss", StringComparison.OrdinalIgnoreCase) >= 0)
                     return true;
 
-                var field = typeof(CharacterRandomPreset).GetField("characterIconType", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                if (field != null)
-                {
-                    var value = field.GetValue(preset);
-                    if (value is CharacterIconTypes iconType && iconType == CharacterIconTypes.boss)
-                        return true;
-                }
+                if (preset.characterIconType == CharacterIconTypes.boss)
+                    return true;
             }
             catch { }
             return false;

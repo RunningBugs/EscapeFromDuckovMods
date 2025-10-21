@@ -6,15 +6,11 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/BossLiveMapMod</ReleaseExampleDir>
+    <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/GreenPlayerHealthMod</ReleaseExampleDir>
   </PropertyGroup>
-
 
   <ItemGroup>
     <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="$(DuckovManagedDir)/Eflatun.SceneReference.dll">
       <Private>false</Private>
     </Reference>
     <Reference Include="$(DuckovManagedDir)/ItemStatsSystem.dll">
@@ -23,15 +19,9 @@
     <Reference Include="$(DuckovManagedDir)/Unity*.dll">
       <Private>false</Private>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Publicize Include="TeamSoda.Duckov.Core:CharacterSpawnerRoot.createdCharacters" />
-    <Publicize Include="TeamSoda.Duckov.Core:CharacterRandomPreset.characterIconType" />
+    <Reference Include="$(DuckovManagedDir)/UniTask*.dll">
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <Target Name="CopyToReleaseExample" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
