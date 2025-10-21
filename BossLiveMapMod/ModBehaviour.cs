@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using Duckov.MiniMaps;
 using Duckov.MiniMaps.UI;
 using Duckov.Scenes;
@@ -9,6 +10,53 @@ using UnityEngine.SceneManagement;
 
 namespace BossLiveMapMod
 {
+    public enum CharacterType
+    {
+        Boss,
+        Friend,
+        Neutral,
+        Mobs,
+        None
+    }
+
+    public static class CharacterTypeExtensions
+    {
+        public static Sprite GetMarkerIcon(this CharacterType characterType)
+        {
+
+            try
+
+            {
+                var icons = MapMarkerManager.Icons;
+                return characterType switch
+                {
+                    CharacterType.Boss => (Sprite)icons[3],
+                    CharacterType.Friend => (Sprite)icons[0],
+                    CharacterType.Neutral => (Sprite)icons[6],
+                    CharacterType.Mobs => (Sprite)icons[2],
+                    _ => null,
+                };
+            }
+            catch { }
+            return null;
+        }
+
+        public static Color GetMarkerColor(this CharacterType characterType)
+        {
+            switch (characterType)
+            {
+                case CharacterType.Boss:
+                    return Color.red;
+                case CharacterType.Friend:
+                    return ModBehaviour.AdjustNonBossColor(new Color(0.3f, 0.85f, 0.3f));
+                case CharacterType.Neutral:
+                    return ModBehaviour.AdjustNonBossColor(new Color(1f, 0.9f, 0.3f));
+                case CharacterType.Mobs:
+                default:
+                    return ModBehaviour.AdjustNonBossColor(new Color(1f, 0.3f, 0.3f));
+            }
+        }
+    }
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
         /// <summary>
@@ -36,6 +84,8 @@ namespace BossLiveMapMod
         public static bool ShowNearbyEnemies = false;
 
         private bool _mapActive;
+        private float _scanCooldown;
+        private const float ScanIntervalSeconds = 0.5f;
 
         private void Awake()
         {
@@ -79,6 +129,7 @@ namespace BossLiveMapMod
             _mapActive = true;
             Health.OnDead += OnAnyHealthDead;
             ScanCharacters();
+            _scanCooldown = ScanIntervalSeconds;
         }
 
         private void EndTracking()
@@ -155,13 +206,42 @@ namespace BossLiveMapMod
             }
         }
 
+        public static CharacterType GetCharacterType(CharacterMainControl c)
+        {
+            try
+            {
+                if (c == null)
+                    return CharacterType.None;
+
+                var preset = c.characterPreset;
+                if (preset == null)
+                    return CharacterType.None;
+
+                switch (preset.team)
+                {
+                    case Teams.player:
+                        return CharacterType.Friend;
+                    case Teams.all:
+                        return CharacterType.Neutral;
+                    default:
+                        if (preset.characterIconType == CharacterIconTypes.boss)
+                            return CharacterType.Boss;
+                        return CharacterType.Mobs;
+                }
+            }
+            catch { }
+            return CharacterType.None;
+        }
+
         private void AddOrUpdateMarker(CharacterMainControl character)
         {
             if (character == null)
                 return;
 
-            bool isBoss = IsBoss(character);
-            if (!isBoss)
+            var characterType = GetCharacterType(character);
+
+            /// Mobs are the only type that might be hidden based on config.
+            if (characterType == CharacterType.Mobs)
             {
                 if (!ShowNearbyEnemies)
                     return;
@@ -172,7 +252,7 @@ namespace BossLiveMapMod
             if (_markers.TryGetValue(character, out var marker))
             {
                 marker.Character = character;
-                UpdateMarker(marker, isBoss);
+                UpdateMarker(marker, characterType);
                 return;
             }
 
@@ -184,10 +264,6 @@ namespace BossLiveMapMod
             }
 
             var poi = markerObject.AddComponent<SimplePointOfInterest>();
-            poi.Setup(GetMarkerIcon(isBoss), GetCharacterName(character), followActiveScene: true);
-            poi.Color = GetMarkerColor();
-            poi.ShadowColor = Color.black;
-            poi.ShadowDistance = 0f;
 
             marker = new CharacterMarker
             {
@@ -198,18 +274,19 @@ namespace BossLiveMapMod
 
             _markers[character] = marker;
             _ownedMarkerObjects.Add(markerObject);
+
+            UpdateMarker(marker, characterType);
         }
 
-        private void UpdateMarker(CharacterMarker marker, bool? isBossOverride = null)
+        private void UpdateMarker(CharacterMarker marker, CharacterType characterType)
         {
             if (marker?.MarkerObject == null || marker.Poi == null || marker.Character == null)
                 return;
 
             marker.MarkerObject.name = $"CharacterMarker:{GetCharacterName(marker.Character)}";
             marker.MarkerObject.transform.position = marker.Character.transform.position;
-            bool isBoss = isBossOverride ?? IsBoss(marker.Character);
-            marker.Poi.Setup(GetMarkerIcon(isBoss), GetCharacterName(marker.Character), followActiveScene: true);
-            marker.Poi.Color = GetMarkerColor();
+            marker.Poi.Setup(characterType.GetMarkerIcon(), GetCharacterName(marker.Character), followActiveScene: true);
+            marker.Poi.Color = characterType.GetMarkerColor();
             marker.Poi.ShadowColor = Color.black;
             marker.Poi.ShadowDistance = 0f;
         }
@@ -219,6 +296,23 @@ namespace BossLiveMapMod
         /// </summary>
         private void Update()
         {
+            if (_mapActive)
+            {
+                _scanCooldown -= Time.deltaTime;
+                if (_scanCooldown <= 0f)
+                {
+                    _scanCooldown = ScanIntervalSeconds;
+                    try
+                    {
+                        ScanCharacters();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"BossLiveMapMod scan failed: {ex}");
+                    }
+                }
+            }
+
             if (ModConfig.HasPendingUpdate)
             {
                 ModConfig.ApplyPendingChanges();
@@ -227,6 +321,7 @@ namespace BossLiveMapMod
                 {
                     ResetMarkers();
                     ScanCharacters();
+                    _scanCooldown = ScanIntervalSeconds;
                 }
             }
         }
@@ -251,7 +346,7 @@ namespace BossLiveMapMod
                     continue;
                 }
 
-                UpdateMarker(entry);
+                UpdateMarker(entry, GetCharacterType(entry.Character));
             }
 
             if (stale != null)
@@ -312,9 +407,10 @@ namespace BossLiveMapMod
             try
             {
                 var name = character?.characterPreset?.DisplayName;
-                return string.IsNullOrEmpty(name) ? "Character" : name;
+                // var name = character?.characterPreset?.nameKey;
+                return string.IsNullOrEmpty(name) ? "*" : name;
             }
-            catch { return "Character"; }
+            catch { return "*"; }
         }
 
         private static Sprite GetMarkerIcon(bool isBoss)
@@ -340,28 +436,10 @@ namespace BossLiveMapMod
             return null;
         }
 
-        private static Color GetMarkerColor() => Color.red;
-
-        private static bool IsBoss(CharacterMainControl c)
+        public static Color AdjustNonBossColor(Color baseColor)
         {
-            try
-            {
-                if (c == null)
-                    return false;
-
-                var preset = c.characterPreset;
-                if (preset == null)
-                    return false;
-
-                var icon = preset.GetCharacterIcon();
-                if (icon != null && icon.name != null && icon.name.IndexOf("boss", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return true;
-
-                if (preset.characterIconType == CharacterIconTypes.boss)
-                    return true;
-            }
-            catch { }
-            return false;
+            return Color.Lerp(baseColor, Color.white, 0.35f);
         }
+
     }
 }
