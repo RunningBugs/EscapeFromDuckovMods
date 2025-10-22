@@ -84,6 +84,8 @@ namespace BossLiveMapMod
             public CharacterMainControl Character;
             public GameObject MarkerObject;
             public SimplePointOfInterest Poi;
+            public CharacterType Type;
+            public string DisplayName;
         }
 
         /// <summary>
@@ -92,14 +94,10 @@ namespace BossLiveMapMod
         private readonly Dictionary<CharacterMainControl, CharacterMarker> _markers =
             new Dictionary<CharacterMainControl, CharacterMarker>();
 
-        /// <summary>
-        /// All our marker GameObjects, for cleanup.
-        /// </summary>
-        private readonly HashSet<GameObject> _ownedMarkerObjects = new HashSet<GameObject>();
-
         public static bool ShowNearbyEnemies = false;
 
         private bool _mapActive;
+        private CharacterSpawnerRoot[] _cachedSpawnerRoots;
         private float _scanCooldown;
         private const float ScanIntervalSeconds = 0.5f;
 
@@ -144,7 +142,8 @@ namespace BossLiveMapMod
             ResetMarkers();
             _mapActive = true;
             Health.OnDead += OnAnyHealthDead;
-            TryScanCharacters();
+            _cachedSpawnerRoots = null;
+            ScanCharacters();
             _scanCooldown = ScanIntervalSeconds;
         }
 
@@ -155,6 +154,7 @@ namespace BossLiveMapMod
 
             _mapActive = false;
             Health.OnDead -= OnAnyHealthDead;
+            _cachedSpawnerRoots = null;
             ResetMarkers();
         }
 
@@ -167,11 +167,6 @@ namespace BossLiveMapMod
             }
             _markers.Clear();
 
-            foreach (var obj in _ownedMarkerObjects)
-            {
-                DestroySafely(obj);
-            }
-            _ownedMarkerObjects.Clear();
         }
 
         private void ScanCharacters()
@@ -184,25 +179,13 @@ namespace BossLiveMapMod
 
         private IEnumerable<CharacterMainControl> EnumerateSpawnedCharacters()
         {
-            CharacterSpawnerRoot[] roots;
-            try
-            {
-                roots = Resources.FindObjectsOfTypeAll<CharacterSpawnerRoot>();
-            }
-            catch
-            {
-                yield break;
-            }
-
-            if (roots == null)
+            var roots = GetSpawnerRoots();
+            if (roots == null || roots.Length == 0)
                 yield break;
 
             foreach (var root in roots)
             {
-                if (root == null)
-                    continue;
-
-                var list = root.createdCharacters;
+                var list = root?.createdCharacters;
                 if (list == null)
                     continue;
 
@@ -216,27 +199,30 @@ namespace BossLiveMapMod
             }
         }
 
+        private CharacterSpawnerRoot[] GetSpawnerRoots()
+        {
+            if (_cachedSpawnerRoots == null || _cachedSpawnerRoots.Length == 0 || Array.Exists(_cachedSpawnerRoots, r => r == null))
+            {
+                _cachedSpawnerRoots = Resources.FindObjectsOfTypeAll<CharacterSpawnerRoot>() ?? Array.Empty<CharacterSpawnerRoot>();
+            }
+
+            return _cachedSpawnerRoots;
+        }
+
         public static CharacterType GetCharacterType(CharacterMainControl c)
         {
             if (c == null)
                 return CharacterType.None;
 
-            try
+            var preset = c.characterPreset;
+            return c.Team switch
             {
-                var preset = c.characterPreset;
-                return c.Team switch
-                {
-                    Teams.player => CharacterType.Friend,
-                    Teams.all => CharacterType.Neutral,
-                    _ when preset != null && preset.characterIconType == CharacterIconTypes.boss
-                        => CharacterType.Boss,
-                    _ => CharacterType.Mobs,
-                };
-            }
-            catch
-            {
-                return CharacterType.None;
-            }
+                Teams.player => CharacterType.Friend,
+                Teams.all => CharacterType.Neutral,
+                _ when preset != null && preset.characterIconType == CharacterIconTypes.boss
+                    => CharacterType.Boss,
+                _ => CharacterType.Mobs,
+            };
         }
 
         private void AddOrUpdateMarker(CharacterMainControl character)
@@ -245,18 +231,18 @@ namespace BossLiveMapMod
                 return;
 
             var characterType = GetCharacterType(character);
-
             if (!ShouldTrack(characterType, character))
                 return;
 
+            var displayName = GetCharacterName(character);
+
             if (_markers.TryGetValue(character, out var marker))
             {
-                marker.Character = character;
-                UpdateMarker(marker, characterType);
+                UpdateMarker(marker, characterType, displayName);
                 return;
             }
 
-            var markerObject = new GameObject($"CharacterMarker:{GetCharacterName(character)}");
+            var markerObject = new GameObject($"CharacterMarker:{displayName}");
             markerObject.transform.position = character.transform.position;
             if (MultiSceneCore.MainScene.HasValue)
             {
@@ -270,26 +256,33 @@ namespace BossLiveMapMod
                 Character = character,
                 MarkerObject = markerObject,
                 Poi = poi,
+                Type = characterType,
+                DisplayName = displayName,
             };
 
             _markers[character] = marker;
-            _ownedMarkerObjects.Add(markerObject);
 
-            UpdateMarker(marker, characterType);
+            UpdateMarker(marker, characterType, displayName, forceVisualUpdate: true);
         }
 
-        private void UpdateMarker(CharacterMarker marker, CharacterType characterType)
+        private void UpdateMarker(CharacterMarker marker, CharacterType characterType, string displayName, bool forceVisualUpdate = false)
         {
             if (marker?.MarkerObject == null || marker.Poi == null || marker.Character == null)
                 return;
 
-            var displayName = GetCharacterName(marker.Character);
             marker.MarkerObject.name = $"CharacterMarker:{displayName}";
             marker.MarkerObject.transform.position = marker.Character.transform.position;
-            marker.Poi.Setup(characterType.GetMarkerIcon(), displayName, followActiveScene: true);
-            marker.Poi.Color = characterType.GetMarkerColor();
-            marker.Poi.ShadowColor = Color.black;
+            if (!forceVisualUpdate && marker.Type == characterType && marker.DisplayName == displayName)
+                return;
+
+            marker.Type = characterType;
+            marker.DisplayName = displayName;
+            var color = characterType.GetMarkerColor();
+            color.a = 0.66f;
+            marker.Poi.Color = color;
+            marker.Poi.ShadowColor = Color.clear;
             marker.Poi.ShadowDistance = 0f;
+            marker.Poi.Setup(characterType.GetMarkerIcon(), displayName, followActiveScene: true);
         }
 
         /// <summary>
@@ -299,7 +292,7 @@ namespace BossLiveMapMod
         {
             if (_mapActive && StepScanTimer())
             {
-                TryScanCharacters();
+                ScanCharacters();
             }
 
             if (!ModConfig.HasPendingUpdate)
@@ -310,7 +303,7 @@ namespace BossLiveMapMod
             if (_mapActive)
             {
                 ResetMarkers();
-                TryScanCharacters();
+                ScanCharacters();
                 _scanCooldown = ScanIntervalSeconds;
             }
         }
@@ -328,14 +321,15 @@ namespace BossLiveMapMod
             foreach (var kv in _markers)
             {
                 var entry = kv.Value;
-                if (!IsCharacterValid(entry?.Character))
+                var character = entry?.Character;
+                if (!IsCharacterValid(character) || !ShouldTrack(entry.Type, character))
                 {
                     stale ??= new List<CharacterMainControl>();
                     stale.Add(kv.Key);
                     continue;
                 }
 
-                UpdateMarker(entry, GetCharacterType(entry.Character));
+                UpdateMarker(entry, entry.Type, entry.DisplayName);
             }
 
             if (stale != null)
@@ -356,6 +350,9 @@ namespace BossLiveMapMod
             if (!go.scene.IsValid() || !go.scene.isLoaded)
                 return false;
 
+            if (character.GetComponent<SimplePointOfInterest>() != null)
+                return false;
+
             if (character.Health == null || character.Health.IsDead)
                 return false;
 
@@ -373,7 +370,6 @@ namespace BossLiveMapMod
             _markers.Remove(character);
             if (entry.MarkerObject != null)
             {
-                _ownedMarkerObjects.Remove(entry.MarkerObject);
                 DestroySafely(entry.MarkerObject);
             }
         }
@@ -383,38 +379,22 @@ namespace BossLiveMapMod
             if (!_mapActive || health == null)
                 return;
 
-            try
-            {
-                var character = health.TryGetCharacter();
-                DestroyMarker(character);
-            }
-            catch { }
+            var character = health.TryGetCharacter();
+            DestroyMarker(character);
         }
 
         private static string GetCharacterName(CharacterMainControl character)
         {
-            try
-            {
-                var name = character?.characterPreset?.DisplayName;
-                // var name = character?.characterPreset?.nameKey;
-                return string.IsNullOrEmpty(name) ? "*" : name;
-            }
-            catch { return "*"; }
+            var name = character?.characterPreset?.DisplayName;
+            // var name = character?.characterPreset?.nameKey;
+            return string.IsNullOrEmpty(name) ? "*" : name;
         }
 
         public static Color AdjustNonBossColor(Color baseColor) =>
             Color.Lerp(baseColor, Color.white, 0.35f);
 
-        private bool ShouldTrack(CharacterType type, CharacterMainControl character)
-        {
-            if (type != CharacterType.Mobs)
-                return true;
-
-            if (!ShowNearbyEnemies)
-                return false;
-
-            return character != null && character.gameObject.activeInHierarchy;
-        }
+        private static bool ShouldTrack(CharacterType type, CharacterMainControl character) =>
+            type != CharacterType.Mobs || (ShowNearbyEnemies && character != null && character.gameObject.activeInHierarchy);
 
         private bool StepScanTimer()
         {
@@ -424,18 +404,6 @@ namespace BossLiveMapMod
 
             _scanCooldown = ScanIntervalSeconds;
             return true;
-        }
-
-        private void TryScanCharacters()
-        {
-            try
-            {
-                ScanCharacters();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"BossLiveMapMod scan failed: {ex}");
-            }
         }
 
         private static void DestroySafely(GameObject go)
