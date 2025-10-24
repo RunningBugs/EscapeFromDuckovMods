@@ -276,7 +276,7 @@ def main():
     for it in items:
         icon_guid = it.get("iconGUID", "")
         icon_path = guid_map.get(icon_guid, "")
-        it["iconPath"] = icon_path.replace('.asset', '.png')
+        it["iconPath"] = icon_path.replace('Sprite', 'Texture2D').replace('.asset', '.png')
 
     # Map tag GUIDs to Tag_<Name> keys and localized names
     for it in items:
