@@ -272,7 +272,7 @@ def main():
         it["descEN"] = loc.get("en", {}).get(desc_key, "")
         it["descZH"] = loc.get("zh", {}).get(desc_key, "")
 
-    # Map tag GUIDs to Icon asset paths
+    # Map icon GUIDs to icon texture paths
     for it in items:
         icon_guid = it.get("iconGUID", "")
         icon_path = guid_map.get(icon_guid, "")
