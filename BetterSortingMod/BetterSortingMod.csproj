@@ -20,6 +20,9 @@
     <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(DuckovManagedDir)/SodaLocalization.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(DuckovManagedDir)/Unity*.dll">
       <Private>false</Private>
     </Reference>

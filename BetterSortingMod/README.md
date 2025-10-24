@@ -16,6 +16,27 @@ Adds advanced inventory sorting controls to Duckov. Requires running Krafs.Publi
    ```
 4. Copy `BetterSortingMod/bin/Release/BetterSortingMod.dll` (and optional PDB) to the game's `Mods` folder. A copy also lands in `BetterSortingMod/ReleaseExample/BetterSortingMod/`.
 
+### Localization Overrides
+
+- Place translations in `Lang.ini` (same folder as `info.ini`). Each section represents a label key, for example:
+
+  ```ini
+  [default_sort]
+  ChineseSimplified=默认整理
+  English=Default Sort
+  Russian=Сортировка
+  ```
+
+- Key names currently used:
+  - `default_sort`
+  - `weight_desc`, `weight_asc`
+  - `value_desc`, `value_asc`
+  - `value_per_weight_desc`, `value_per_weight_asc`
+  - `max_stack_value_desc`, `max_stack_value_asc`
+
+- Language tokens must match UnityEngine.SystemLanguage enum names, for example `English`, `ChineseSimplified`, `Russian`.
+- If a language entry is missing, the mod automatically falls back to the built-in English strings.
+
 ## Gameplay
 
 - The inventory "整理" button is split into a metric selector and an action button.
