@@ -336,6 +336,8 @@ public class InventorySortController : MonoBehaviour
             menuLayoutElement = _menuRect.gameObject.AddComponent<LayoutElement>();
         }
         menuLayoutElement.minWidth = Mathf.Max(menuLayoutElement.minWidth, 220f);
+        // Ensure overlay starts hidden
+        _overlayRect.gameObject.SetActive(false);
         menuLayoutElement.flexibleWidth = 0f;
     }
 
@@ -508,6 +510,11 @@ public class InventorySortController : MonoBehaviour
 
         var template = GetOrCreateOptionTemplate(_actionButton);
         _menuButtons.AddRange(MenuBuilder.BuildOptions(_menuRect, template, options));
+        // Ensure menu buttons are hidden until menu is explicitly shown
+        foreach (var button in _menuButtons)
+        {
+            if (button != null) button.gameObject.SetActive(false);
+        }
     }
 
 

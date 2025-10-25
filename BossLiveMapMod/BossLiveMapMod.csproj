@@ -14,6 +14,9 @@
     <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(DuckovManagedDir)/SodaLocalization.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(DuckovManagedDir)/Eflatun.SceneReference.dll">
       <Private>false</Private>
     </Reference>
@@ -39,5 +42,6 @@
     <MakeDir Directories="$(ReleaseExampleDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).dll" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/Lang.ini" DestinationFiles="$(ReleaseExampleDir)/Lang.ini" Condition="Exists('$(MSBuildProjectDirectory)/Lang.ini')" SkipUnchangedFiles="true" />
   </Target>
 </Project>

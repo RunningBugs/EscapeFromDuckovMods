@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Duckov.MiniMaps;
 using Duckov.MiniMaps.UI;
 using Duckov.Scenes;
@@ -86,6 +87,7 @@ namespace BossLiveMapMod
             public SimplePointOfInterest Poi;
             public CharacterType Type;
             public string DisplayName;
+            public bool IsActive; // Whether character is active (within 100 distance)
         }
 
         /// <summary>
@@ -104,9 +106,27 @@ namespace BossLiveMapMod
         private void Awake()
         {
             Debug.Log("BossLiveMapMod loaded: live character markers enabled");
+            InitializeLocalization();
             ModConfig.Load();
             ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
+            SceneLoader.onFinishedLoadingScene += OnSceneLoaded;
         }
+
+        private void InitializeLocalization()
+        {
+            try
+            {
+                var assemblyLocation = typeof(ModBehaviour).Assembly.Location;
+                var modFolder = Path.GetDirectoryName(assemblyLocation);
+                ModLocalization.Initialize(modFolder);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[BossLiveMapMod] Failed to initialize localization: {ex}");
+            }
+        }
+
+
 
         private void OnEnable()
         {
@@ -120,8 +140,22 @@ namespace BossLiveMapMod
         private void OnDisable()
         {
             View.OnActiveViewChanged -= OnActiveViewChanged;
+            SceneLoader.onFinishedLoadingScene -= OnSceneLoaded;
             EndTracking();
         }
+
+        private void OnSceneLoaded(SceneLoadingContext context)
+        {
+            if (_mapActive)
+            {
+                Debug.Log($"[BossLiveMapMod] Scene loaded: {context.sceneName}, triggering scan");
+                ResetMarkers();
+                ScanCharacters();
+                _scanCooldown = ScanIntervalSeconds;
+            }
+        }
+
+
 
         private static bool IsMapOpen()
         {
@@ -141,6 +175,8 @@ namespace BossLiveMapMod
         {
             ResetMarkers();
             _mapActive = true;
+            // Ensure our runtime UI is present when the map opens
+            MapViewUI.Ensure();
             Health.OnDead += OnAnyHealthDead;
             _cachedSpawnerRoots = null;
             ScanCharacters();
@@ -227,18 +263,19 @@ namespace BossLiveMapMod
 
         private void AddOrUpdateMarker(CharacterMainControl character)
         {
-            if (character == null)
+            if (!IsCharacterValid(character))
                 return;
 
             var characterType = GetCharacterType(character);
             if (!ShouldTrack(characterType, character))
                 return;
 
-            var displayName = GetCharacterName(character);
-
+            var displayName = GetDisplayName(character);
+            bool isActive = IsCharacterActive(character);
+            // If marker already exists, update it.
             if (_markers.TryGetValue(character, out var marker))
             {
-                UpdateMarker(marker, characterType, displayName);
+                UpdateMarker(marker, characterType, displayName, isActive);
                 return;
             }
 
@@ -262,27 +299,42 @@ namespace BossLiveMapMod
 
             _markers[character] = marker;
 
-            UpdateMarker(marker, characterType, displayName, forceVisualUpdate: true);
+            UpdateMarker(marker, characterType, displayName, isActive, forceVisualUpdate: true);
         }
 
-        private void UpdateMarker(CharacterMarker marker, CharacterType characterType, string displayName, bool forceVisualUpdate = false)
+        private void UpdateMarker(CharacterMarker marker, CharacterType characterType, string displayName, bool isActive, bool forceVisualUpdate = false)
         {
             if (marker?.MarkerObject == null || marker.Poi == null || marker.Character == null)
                 return;
 
+            // Keep GameObject name updated (displayName may be empty depending on config)
             marker.MarkerObject.name = $"CharacterMarker:{displayName}";
-            marker.MarkerObject.transform.position = marker.Character.transform.position;
-            if (!forceVisualUpdate && marker.Type == characterType && marker.DisplayName == displayName)
+            // Always update position when called (whether from scan or per-frame update)
+            if (marker.Character != null && marker.Character.transform != null)
+                marker.MarkerObject.transform.position = marker.Character.transform.position;
+            if (!forceVisualUpdate && marker.Type == characterType && marker.DisplayName == displayName && marker.IsActive == isActive)
                 return;
 
             marker.Type = characterType;
             marker.DisplayName = displayName;
+            marker.IsActive = isActive;
+
+            // Marker color respects global transparency setting (mod config)
             var color = characterType.GetMarkerColor();
-            color.a = 0.66f;
+            const float baseAlpha = 1f;
+            color.a = baseAlpha * ModConfig.Transparency;
             marker.Poi.Color = color;
             marker.Poi.ShadowColor = Color.clear;
             marker.Poi.ShadowDistance = 0f;
-            marker.Poi.Setup(characterType.GetMarkerIcon(), displayName, followActiveScene: true);
+
+            // Respect config: show names or hide them
+            var nameToUse = ModConfig.ShowNames ? displayName : string.Empty;
+            // Use followActiveScene: true so POI system tracks the game object
+            // The Live toggle controls per-frame updates in LateUpdate()
+            marker.Poi.Setup(characterType.GetMarkerIcon(), nameToUse, followActiveScene: true);
+
+            // Always show markers (they show last known position when Live is off)
+            marker.Poi.HideIcon = false;
         }
 
         /// <summary>
@@ -329,7 +381,13 @@ namespace BossLiveMapMod
                     continue;
                 }
 
-                UpdateMarker(entry, entry.Type, entry.DisplayName);
+                // Only update position for active characters when Live is on
+                // Inactive mobs don't need real-time tracking
+                bool isActive = IsCharacterActive(character);
+                if (entry.Type == CharacterType.Mobs && !isActive)
+                    continue; // Skip per-frame updates for inactive mobs
+
+                UpdateMarker(entry, entry.Type, entry.DisplayName, isActive);
             }
 
             if (stale != null)
@@ -383,7 +441,7 @@ namespace BossLiveMapMod
             DestroyMarker(character);
         }
 
-        private static string GetCharacterName(CharacterMainControl character)
+        private static string GetDisplayName(CharacterMainControl character)
         {
             var name = character?.characterPreset?.DisplayName;
             // var name = character?.characterPreset?.nameKey;
@@ -393,8 +451,33 @@ namespace BossLiveMapMod
         public static Color AdjustNonBossColor(Color baseColor) =>
             Color.Lerp(baseColor, Color.white, 0.35f);
 
-        private static bool ShouldTrack(CharacterType type, CharacterMainControl character) =>
-            type != CharacterType.Mobs || (ShowNearbyEnemies && character != null && character.gameObject.activeInHierarchy);
+        private static bool ShouldTrack(CharacterType type, CharacterMainControl character)
+        {
+            // Always show: Boss, Neutral, Friend
+            if (type == CharacterType.Boss || type == CharacterType.Neutral || type == CharacterType.Friend)
+                return true;
+
+            // Mobs: only show when "Mobs" toggle is enabled
+            if (type == CharacterType.Mobs)
+            {
+                if (!ModConfig.ShowAllEnemies)
+                    return false; // Mobs toggle is OFF
+
+                // Mobs toggle is ON - check Nearby filter
+                if (ModConfig.ShowNearbyOnly)
+                    return IsCharacterActive(character); // Only show active mobs
+
+                return true; // Show all mobs
+            }
+
+            return false;
+        }
+
+        private static bool IsCharacterActive(CharacterMainControl character)
+        {
+            // Characters are marked inactive by the game when > 100 distance from player
+            return character != null && character.gameObject.activeInHierarchy;
+        }
 
         private bool StepScanTimer()
         {
