@@ -26,6 +26,8 @@ namespace BossLiveMapMod
         private Slider _alphaSlider;
         private TextMeshProUGUI _alphaPct;
         private float _scale = 1f;
+        // Guard so we don't rebuild UI multiple times and can detect reused instances
+        private bool _initialized = false;
 
         /// <summary>
         /// Ensure that a MapViewUI exists on the current MiniMapView instance.
@@ -35,9 +37,37 @@ namespace BossLiveMapMod
             var view = MiniMapView.Instance;
             if (view == null)
                 return null;
+
+            // If the view already has our component, use it
             var existing = view.GetComponent<MapViewUI>();
             if (existing != null)
                 return existing;
+
+            // Check for any existing MapViewUI in the scene to avoid creating duplicates
+            var all = FindObjectsOfType<MapViewUI>();
+            if (all != null && all.Length > 0)
+            {
+                // Prefer one already associated with this view
+                foreach (var m in all)
+                {
+                    if (m == null) continue;
+                    if (m._view == view)
+                    {
+                        // Ensure it's parented to the current view transform
+                        m.transform.SetParent(view.transform, false);
+                        return m;
+                    }
+                }
+
+                // Reuse the first found instance: reparent and initialize for this view
+                var pick = all[0];
+                pick.transform.SetParent(view.transform, false);
+                // Initialize will be a no-op if already initialized for the same view,
+                // or will attach the UI to the new view when needed
+                pick.Initialize(view);
+                return pick;
+            }
+
             return Create(view);
         }
 
@@ -54,11 +84,36 @@ namespace BossLiveMapMod
 
         private void Initialize(MiniMapView view)
         {
+            // If already initialized for this view, nothing to do
+            if (_initialized && _view == view)
+                return;
+
             _view = view;
             InitializeLocalization();
-            Build();
+
+            if (!_initialized)
+            {
+                // First-time build
+                Build();
+                _initialized = true;
+            }
+            else
+            {
+                // Already had UI built previously; ensure the panel is parented correctly
+                try
+                {
+                    var mapCanvas = _view.GetComponentInChildren<Canvas>();
+                    var parentTransform = (mapCanvas != null) ? mapCanvas.transform : _view.transform;
+                    if (_panel != null)
+                        _panel.transform.SetParent(parentTransform, false);
+                }
+                catch
+                {
+                    // swallow failures to avoid breaking initialization
+                }
+            }
+
             var viewActive = (_view != null && _view.gameObject.activeInHierarchy);
-            Debug.Log("[BossLiveMapMod] MapViewUI initialized. ViewActive=" + viewActive);
             // Keep this component active; toggle only the panel visibility
             if (_panel != null) _panel.gameObject.SetActive(viewActive);
         }
@@ -71,9 +126,8 @@ namespace BossLiveMapMod
                 var modFolder = Path.GetDirectoryName(assemblyLocation);
                 ModLocalization.Initialize(modFolder);
             }
-            catch (Exception ex)
+            catch
             {
-                Debug.LogError($"[BossLiveMapMod] Failed to initialize localization: {ex}");
             }
         }
 
@@ -86,7 +140,6 @@ namespace BossLiveMapMod
                 if (_panel.gameObject.activeSelf != shouldBeActive)
                 {
                     _panel.gameObject.SetActive(shouldBeActive);
-                    Debug.Log("[BossLiveMapMod] Panel visibility -> " + shouldBeActive);
                 }
             }
         }
@@ -99,11 +152,33 @@ namespace BossLiveMapMod
             if (_toggleNearby != null) _toggleNearby.onValueChanged.RemoveAllListeners();
             if (_alphaSlider != null) _alphaSlider.onValueChanged.RemoveAllListeners();
 
+            // Destroy the generated panel so re-opening the map doesn't leave orphaned UI
+            if (_panel != null && _panel.gameObject != null)
+            {
+                try { Destroy(_panel.gameObject); } catch { }
+                _panel = null;
+            }
+
+            _initialized = false;
         }
 
         private void Build()
         {
             // Root panel setup
+            // Determine parent early so we can look for an existing panel under it and remove it to avoid duplicates
+            Transform parentTransform = _view.transform;
+            Canvas mapCanvas = _view.GetComponentInChildren<Canvas>();
+            if (mapCanvas != null)
+            {
+                parentTransform = mapCanvas.transform;
+            }
+            // Check for an existing panel under the intended parent and remove it to avoid duplicates
+            var existingPanel = FindChildByName(parentTransform, "BLM_ControlsPanel");
+            if (existingPanel != null)
+            {
+                try { Destroy(existingPanel.gameObject); } catch { }
+            }
+
             var panelGO = new GameObject("BLM_ControlsPanel", typeof(RectTransform));
 
             // Find the map title for reference (optional - helps with positioning)
@@ -146,19 +221,7 @@ namespace BossLiveMapMod
             }
 
             // Parent directly to the map view to keep controls attached to it
-            // Find the Canvas child of the map view (if exists) for proper UI layering
-            Transform parentTransform = _view.transform;
-            Canvas mapCanvas = _view.GetComponentInChildren<Canvas>();
-            if (mapCanvas != null)
-            {
-                parentTransform = mapCanvas.transform;
-                Debug.Log("[BossLiveMapMod] Found Canvas child '" + mapCanvas.name + "' in map view, using as parent");
-            }
-            else
-            {
-                Debug.Log("[BossLiveMapMod] No Canvas found in map view, parenting directly to MiniMapView");
-            }
-
+            // (parentTransform already determined above)
             panelGO.transform.SetParent(parentTransform, false);
             _scale = Mathf.Clamp(ModConfig.UiScale, 0.5f, 2f);
             _panel = panelGO.GetComponent<RectTransform>();
@@ -180,8 +243,6 @@ namespace BossLiveMapMod
             cg.interactable = true;
             cg.blocksRaycasts = true;
             cg.alpha = 1f;
-
-            Debug.Log("[BossLiveMapMod] Created panel '" + panelGO.name + "' parent='" + (parentTransform != null ? parentTransform.name : "null") + "' anchored=" + _panel.anchoredPosition);
 
             // No background - transparent
 
