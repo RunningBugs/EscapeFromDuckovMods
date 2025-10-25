@@ -105,11 +105,10 @@ namespace BossLiveMapMod
 
         private void Awake()
         {
-            Debug.Log("BossLiveMapMod loaded: live character markers enabled");
             InitializeLocalization();
             ModConfig.Load();
             ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
-            SceneLoader.onFinishedLoadingScene += OnSceneLoaded;
+
         }
 
         private void InitializeLocalization()
@@ -120,9 +119,9 @@ namespace BossLiveMapMod
                 var modFolder = Path.GetDirectoryName(assemblyLocation);
                 ModLocalization.Initialize(modFolder);
             }
-            catch (Exception ex)
+            catch
             {
-                Debug.LogError($"[BossLiveMapMod] Failed to initialize localization: {ex}");
+                // Localization initialization failed
             }
         }
 
@@ -131,6 +130,8 @@ namespace BossLiveMapMod
         private void OnEnable()
         {
             View.OnActiveViewChanged += OnActiveViewChanged;
+            SceneLoader.onStartedLoadingScene += OnSceneStartedLoading;
+            SceneLoader.onFinishedLoadingScene += OnSceneFinishedLoading;
             if (IsMapOpen())
             {
                 BeginTracking();
@@ -140,19 +141,22 @@ namespace BossLiveMapMod
         private void OnDisable()
         {
             View.OnActiveViewChanged -= OnActiveViewChanged;
-            SceneLoader.onFinishedLoadingScene -= OnSceneLoaded;
+            SceneLoader.onStartedLoadingScene -= OnSceneStartedLoading;
+            SceneLoader.onFinishedLoadingScene -= OnSceneFinishedLoading;
             EndTracking();
         }
 
-        private void OnSceneLoaded(SceneLoadingContext context)
+        private void OnSceneStartedLoading(SceneLoadingContext context)
         {
-            if (_mapActive)
-            {
-                Debug.Log($"[BossLiveMapMod] Scene loaded: {context.sceneName}, triggering scan");
-                ResetMarkers();
-                ScanCharacters();
-                _scanCooldown = ScanIntervalSeconds;
-            }
+            // Clear markers when leaving the current scene
+            ResetMarkers();
+        }
+
+        private void OnSceneFinishedLoading(SceneLoadingContext context)
+        {
+            // Scan once when entering scene to pre-populate markers
+            ScanCharacters();
+            _scanCooldown = ScanIntervalSeconds;
         }
 
 
@@ -173,7 +177,8 @@ namespace BossLiveMapMod
 
         private void BeginTracking()
         {
-            ResetMarkers();
+            // Don't reset markers on map open - preserve last known positions when Live is OFF
+            // ResetMarkers();
             _mapActive = true;
             // Ensure our runtime UI is present when the map opens
             MapViewUI.Ensure();
@@ -191,7 +196,8 @@ namespace BossLiveMapMod
             _mapActive = false;
             Health.OnDead -= OnAnyHealthDead;
             _cachedSpawnerRoots = null;
-            ResetMarkers();
+            // Don't reset markers on map close - preserve last known positions when Live is OFF
+            // ResetMarkers();
         }
 
 
@@ -272,9 +278,13 @@ namespace BossLiveMapMod
 
             var displayName = GetDisplayName(character);
             bool isActive = IsCharacterActive(character);
-            // If marker already exists, update it.
+            // If marker already exists, update it only if Live is ON
             if (_markers.TryGetValue(character, out var marker))
             {
+                // When Live is OFF, skip position updates for existing markers
+                if (!ModConfig.ShowLivePositions)
+                    return;
+
                 UpdateMarker(marker, characterType, displayName, isActive);
                 return;
             }
@@ -380,6 +390,10 @@ namespace BossLiveMapMod
                     stale.Add(kv.Key);
                     continue;
                 }
+
+                // Skip per-frame position updates when Live is OFF
+                if (!ModConfig.ShowLivePositions)
+                    continue;
 
                 // Only update position for active characters when Live is on
                 // Inactive mobs don't need real-time tracking
