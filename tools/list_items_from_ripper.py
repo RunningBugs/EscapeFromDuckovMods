@@ -261,6 +261,7 @@ def main():
 
     items = list_items(args.export_root)
     loc = parse_localization(args.export_root)
+    guid_map = build_guid_to_asset_path(args.export_root)
 
     # Enrich with localized names/descriptions where possible
     for it in items:
@@ -271,8 +272,13 @@ def main():
         it["descEN"] = loc.get("en", {}).get(desc_key, "")
         it["descZH"] = loc.get("zh", {}).get(desc_key, "")
 
+    # Map icon GUIDs to icon texture paths
+    for it in items:
+        icon_guid = it.get("iconGUID", "")
+        icon_path = guid_map.get(icon_guid, "")
+        it["iconPath"] = icon_path.replace('Sprite', 'Texture2D').replace('.asset', '.png')
+
     # Map tag GUIDs to Tag_<Name> keys and localized names
-    guid_map = build_guid_to_asset_path(args.export_root)
     for it in items:
         tag_guids = it.get("tags", []) or []
         tag_keys = []
