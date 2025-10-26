@@ -14,6 +14,8 @@ namespace EasierMovementMod
 
         void Awake()
         {
+            // Subscribe to level initialization event to reapply mods after scene changes
+            LevelManager.OnAfterLevelInitialized += OnLevelInitialized;
         }
 
         void Update()
@@ -22,6 +24,12 @@ namespace EasierMovementMod
             {
                 TryModifyMovement();
             }
+        }
+
+        private void OnLevelInitialized()
+        {
+            // Reset flag so movement modifications are reapplied for the new character instance
+            movementModified = false;
         }
 
         private void TryModifyMovement()
@@ -68,6 +76,9 @@ namespace EasierMovementMod
 
         void OnDestroy()
         {
+            // Unsubscribe from events
+            LevelManager.OnAfterLevelInitialized -= OnLevelInitialized;
+
             // Restore original values if possible
             if (movementModified && LevelManager.Instance != null)
             {

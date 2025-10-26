@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+    <DuckovManagedDir>../dlls</DuckovManagedDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <ReleaseExampleDir>$(MSBuildProjectDirectory)/ReleaseExample/CarrySlotShortcutMod</ReleaseExampleDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(DuckovManagedDir)/TeamSoda.*">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/SodaLocalization.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/Eflatun.SceneReference.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/ItemStatsSystem.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/Unity*.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(DuckovManagedDir)/FMODUnity.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" />
+    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.UI.ItemShortcutEditorEntry.index" />
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.UI.ItemShortcutEditorEntry.Refresh" />
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.ItemShortcut.items" />
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.ItemShortcut.itemTypes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(NuGetPackageRoot)lib.harmony/2.2.2/lib/net472/0Harmony.dll">
+      <Link>0Harmony.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CopyToReleaseExample" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(ReleaseExampleDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).dll" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pdb" DestinationFiles="$(ReleaseExampleDir)/$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)0Harmony.dll" DestinationFiles="$(ReleaseExampleDir)/0Harmony.dll" Condition="Exists('$(TargetDir)0Harmony.dll')" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

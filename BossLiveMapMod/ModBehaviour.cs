@@ -88,6 +88,7 @@ namespace BossLiveMapMod
             public CharacterType Type;
             public string DisplayName;
             public bool IsActive; // Whether character is active (within 100 distance)
+            public bool HasPreexistingPoi; // Cached flag to avoid GetComponent calls
         }
 
         /// <summary>
@@ -132,6 +133,7 @@ namespace BossLiveMapMod
             View.OnActiveViewChanged += OnActiveViewChanged;
             SceneLoader.onStartedLoadingScene += OnSceneStartedLoading;
             SceneLoader.onFinishedLoadingScene += OnSceneFinishedLoading;
+            Health.OnDead += OnAnyHealthDead;
             if (IsMapOpen())
             {
                 BeginTracking();
@@ -143,6 +145,7 @@ namespace BossLiveMapMod
             View.OnActiveViewChanged -= OnActiveViewChanged;
             SceneLoader.onStartedLoadingScene -= OnSceneStartedLoading;
             SceneLoader.onFinishedLoadingScene -= OnSceneFinishedLoading;
+            Health.OnDead -= OnAnyHealthDead;
             EndTracking();
         }
 
@@ -182,8 +185,11 @@ namespace BossLiveMapMod
             _mapActive = true;
             // Ensure our runtime UI is present when the map opens
             MapViewUI.Ensure();
-            Health.OnDead += OnAnyHealthDead;
             _cachedSpawnerRoots = null;
+
+            // Clean up any stale markers for dead characters before scanning
+            RemoveStaleMarkers();
+
             ScanCharacters();
             _scanCooldown = ScanIntervalSeconds;
         }
@@ -194,7 +200,6 @@ namespace BossLiveMapMod
                 return;
 
             _mapActive = false;
-            Health.OnDead -= OnAnyHealthDead;
             _cachedSpawnerRoots = null;
             // Don't reset markers on map close - preserve last known positions when Live is OFF
             // ResetMarkers();
@@ -233,7 +238,7 @@ namespace BossLiveMapMod
 
                 foreach (var character in list)
                 {
-                    if (IsCharacterValid(character))
+                    if (IsCharacterValid(character, out _))
                     {
                         yield return character;
                     }
@@ -269,7 +274,11 @@ namespace BossLiveMapMod
 
         private void AddOrUpdateMarker(CharacterMainControl character)
         {
-            if (!IsCharacterValid(character))
+            if (!IsCharacterValid(character, out bool hasPreexistingPoi))
+                return;
+
+            // Don't create markers for characters that already have a POI component
+            if (hasPreexistingPoi)
                 return;
 
             var characterType = GetCharacterType(character);
@@ -305,6 +314,7 @@ namespace BossLiveMapMod
                 Poi = poi,
                 Type = characterType,
                 DisplayName = displayName,
+                HasPreexistingPoi = hasPreexistingPoi,
             };
 
             _markers[character] = marker;
@@ -384,7 +394,9 @@ namespace BossLiveMapMod
             {
                 var entry = kv.Value;
                 var character = entry?.Character;
-                if (!IsCharacterValid(character) || !ShouldTrack(entry.Type, character))
+
+                // Use lightweight validation without GetComponent check
+                if (!IsCharacterValidLightweight(character, entry) || !ShouldTrack(entry.Type, character))
                 {
                     stale ??= new List<CharacterMainControl>();
                     stale.Add(kv.Key);
@@ -413,7 +425,31 @@ namespace BossLiveMapMod
             }
         }
 
-        private static bool IsCharacterValid(CharacterMainControl character)
+        private static bool IsCharacterValid(CharacterMainControl character, out bool hasPreexistingPoi)
+        {
+            hasPreexistingPoi = false;
+
+            if (character == null)
+                return false;
+
+            var go = character.gameObject;
+            if (!go.scene.IsValid() || !go.scene.isLoaded)
+                return false;
+
+            // Only check GetComponent during initial scan, cache the result
+            hasPreexistingPoi = character.GetComponent<SimplePointOfInterest>() != null;
+
+            if (character.Health == null || character.Health.IsDead)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Lightweight validation for per-frame checks that avoids expensive GetComponent calls.
+        /// Uses cached POI flag from the marker itself.
+        /// </summary>
+        private static bool IsCharacterValidLightweight(CharacterMainControl character, CharacterMarker marker)
         {
             if (character == null)
                 return false;
@@ -422,7 +458,8 @@ namespace BossLiveMapMod
             if (!go.scene.IsValid() || !go.scene.isLoaded)
                 return false;
 
-            if (character.GetComponent<SimplePointOfInterest>() != null)
+            // Skip GetComponent check - use cached flag
+            if (marker.HasPreexistingPoi)
                 return false;
 
             if (character.Health == null || character.Health.IsDead)
@@ -448,11 +485,36 @@ namespace BossLiveMapMod
 
         private void OnAnyHealthDead(Health health, DamageInfo info)
         {
-            if (!_mapActive || health == null)
+            if (health == null)
                 return;
 
             var character = health.TryGetCharacter();
             DestroyMarker(character);
+        }
+
+        private void RemoveStaleMarkers()
+        {
+            List<CharacterMainControl> stale = null;
+
+            foreach (var kv in _markers)
+            {
+                var character = kv.Key;
+                var marker = kv.Value;
+                // Use lightweight validation for existing markers
+                if (!IsCharacterValidLightweight(character, marker))
+                {
+                    stale ??= new List<CharacterMainControl>();
+                    stale.Add(character);
+                }
+            }
+
+            if (stale != null)
+            {
+                foreach (var character in stale)
+                {
+                    DestroyMarker(character);
+                }
+            }
         }
 
         private static string GetDisplayName(CharacterMainControl character)
