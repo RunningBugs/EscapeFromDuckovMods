@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Duckov.Scenes;
 
 namespace IncreasedInteractionVisibility
 {
@@ -27,6 +28,9 @@ namespace IncreasedInteractionVisibility
             // Hook into scene loading events (static event)
             SceneLoader.onAfterSceneInitialize += OnSceneInitialized;
 
+            // Hook into subscene loading for multi-scene levels (static event)
+            MultiSceneCore.OnSubSceneLoaded += OnSubSceneLoaded;
+
             // Process any existing markers in current scene
             ProcessAllExistingMarkers();
 
@@ -44,6 +48,7 @@ namespace IncreasedInteractionVisibility
             // Unsubscribe from events
             LevelManager.OnAfterLevelInitialized -= OnLevelInitialized;
             SceneLoader.onAfterSceneInitialize -= OnSceneInitialized;
+            MultiSceneCore.OnSubSceneLoaded -= OnSubSceneLoaded;
 
             // Stop coroutine
             if (checkCoroutine != null)
@@ -64,6 +69,12 @@ namespace IncreasedInteractionVisibility
 
         private void OnSceneInitialized(SceneLoadingContext context)
         {
+            ProcessAllExistingMarkers();
+        }
+
+        private void OnSubSceneLoaded(MultiSceneCore core, UnityEngine.SceneManagement.Scene scene)
+        {
+            // Process markers when entering sub-maps/subscenes
             ProcessAllExistingMarkers();
         }
 
