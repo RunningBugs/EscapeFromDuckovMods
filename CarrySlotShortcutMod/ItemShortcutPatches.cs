@@ -10,6 +10,7 @@ namespace CarrySlotShortcutMod
     [HarmonyPatch]
     internal static class ItemShortcutPatches
     {
+        // NOTE: Use-item handling (clone/refund logic) is implemented in UseItemPatches.cs.
         [HarmonyPatch(typeof(ItemShortcut), nameof(ItemShortcut.IsItemValid))]
         [HarmonyPostfix]
         private static void AllowExtendedInventories(Item item, ref bool __result)
@@ -70,6 +71,7 @@ namespace CarrySlotShortcutMod
 
             shortcutItems[index] = candidate;
             __result = candidate;
+            ShortcutPersistence.Remember(index, candidate);
         }
 
         [HarmonyPatch(typeof(ItemShortcutEditorEntry), nameof(ItemShortcutEditorEntry.OnDrop))]
@@ -104,8 +106,13 @@ namespace CarrySlotShortcutMod
 
             if (ItemShortcut.Set(__instance.index, item))
             {
+                ShortcutPersistence.Remember(__instance.index, item);
                 __instance.Refresh();
                 AudioManager.Post("UI/click");
+            }
+            else
+            {
+                ShortcutPersistence.Forget(__instance.index);
             }
 
             return false;
