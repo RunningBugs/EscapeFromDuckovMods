@@ -27,6 +27,8 @@ namespace ReloadingFromPetBackpackMod
 
         private void OnDisable()
         {
+            PetAmmoBridge.ClearAll();
+
             if (harmonyInstance == null)
             {
                 return;

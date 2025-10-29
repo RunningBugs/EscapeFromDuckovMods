@@ -47,34 +47,99 @@ namespace ReloadingFromPetBackpackMod
                 return false;
             }
 
-            Item preferred = gunSetting.PreferdBulletsToLoad;
-            if (preferred != null && preferred.InInventory != petInventory)
+            int currentTargetId = gunSetting.TargetBulletID;
+            if (currentTargetId >= 0 && CountItemsOfType(playerInventory, currentTargetId) > 0)
             {
-                preferred = null;
+                Clear(gunSetting);
+                return false;
             }
 
-            Item chosenBullet = preferred ?? FindFirstCompatibleBullet(gunSetting, petInventory);
-            if (chosenBullet == null)
+            Clear(gunSetting);
+
+            int targetTypeId = currentTargetId;
+            Item currentLoaded = gunSetting.GetCurrentLoadedBullet();
+            if (currentLoaded != null)
+            {
+                if (targetTypeId < 0 || currentLoaded.TypeID != targetTypeId)
+                {
+                    targetTypeId = currentLoaded.TypeID;
+                }
+            }
+
+            if (gunSetting.IsFull() && currentLoaded != null && currentLoaded.TypeID == targetTypeId)
             {
                 return false;
             }
 
-            int bulletTypeId = chosenBullet.TypeID;
-            int availableCount = CountItemsOfType(petInventory, bulletTypeId);
+            if (targetTypeId < 0 && gunSetting.PreferdBulletsToLoad != null)
+            {
+                targetTypeId = gunSetting.PreferdBulletsToLoad.TypeID;
+            }
+
+            Item chosenBullet = null;
+            Inventory sourceInventory = null;
+
+            if (targetTypeId >= 0)
+            {
+                chosenBullet = FindFirstCompatibleBullet(gunSetting, playerInventory, targetTypeId, true);
+                if (chosenBullet != null)
+                {
+                    sourceInventory = playerInventory;
+                }
+            }
+
+            if (chosenBullet == null && targetTypeId >= 0)
+            {
+                chosenBullet = FindFirstCompatibleBullet(gunSetting, petInventory, targetTypeId, true);
+                if (chosenBullet != null)
+                {
+                    sourceInventory = petInventory;
+                }
+            }
+
+            if (chosenBullet == null)
+            {
+                chosenBullet = FindFirstCompatibleBullet(gunSetting, playerInventory, targetTypeId, false);
+                if (chosenBullet != null)
+                {
+                    sourceInventory = playerInventory;
+                    targetTypeId = chosenBullet.TypeID;
+                }
+            }
+
+            if (chosenBullet == null)
+            {
+                chosenBullet = FindFirstCompatibleBullet(gunSetting, petInventory, targetTypeId, false);
+                if (chosenBullet != null)
+                {
+                    sourceInventory = petInventory;
+                    targetTypeId = chosenBullet.TypeID;
+                }
+            }
+
+            if (chosenBullet == null || sourceInventory == null)
+            {
+                return false;
+            }
+
+            int availableCount = CountItemsOfType(sourceInventory, chosenBullet.TypeID);
             if (availableCount <= 0)
             {
                 return false;
             }
 
-            gunSetting.SetTargetBulletType(bulletTypeId);
+            gunSetting.SetTargetBulletType(chosenBullet.TypeID);
             gunSetting.PreferdBulletsToLoad = chosenBullet;
 
-            Contexts[gunSetting] = new FallbackContext
+            if (sourceInventory == petInventory)
             {
-                PlayerInventory = playerInventory,
-                PetInventory = petInventory,
-                BulletTypeId = bulletTypeId
-            };
+                Contexts[gunSetting] = new FallbackContext
+                {
+                    PlayerInventory = playerInventory,
+                    PetInventory = petInventory,
+                    BulletTypeId = chosenBullet.TypeID
+                };
+            }
 
             return true;
         }
@@ -89,8 +154,18 @@ namespace ReloadingFromPetBackpackMod
             Contexts.Remove(setting);
         }
 
-        private static Item FindFirstCompatibleBullet(ItemSetting_Gun gunSetting, Inventory source)
+        public static void ClearAll()
         {
+            Contexts.Clear();
+        }
+
+        private static Item FindFirstCompatibleBullet(ItemSetting_Gun gunSetting, Inventory source, int targetTypeId, bool requireSameType)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
             foreach (Item item in source)
             {
                 if (item == null)
@@ -98,10 +173,27 @@ namespace ReloadingFromPetBackpackMod
                     continue;
                 }
 
-                if (gunSetting.IsValidBullet(item))
+                if (!gunSetting.IsValidBullet(item))
                 {
-                    return item;
+                    continue;
                 }
+
+                if (requireSameType)
+                {
+                    if (targetTypeId >= 0 && item.TypeID == targetTypeId)
+                    {
+                        return item;
+                    }
+
+                    continue;
+                }
+
+                if (targetTypeId >= 0 && item.TypeID == targetTypeId)
+                {
+                    continue;
+                }
+
+                return item;
             }
 
             return null;
