@@ -1,329 +1,556 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using Duckov;
+using Duckov.Utilities;
 using HarmonyLib;
 using ItemStatsSystem;
+using UnityEngine;
 
 namespace ReloadingFromPetBackpackMod
 {
-    internal static class PetAmmoBridge
+    internal static class InventoryBulletUtility
     {
-        internal sealed class FallbackContext
+        internal static Inventory MainInventory => LevelManager.Instance?.MainCharacter?.CharacterItem?.Inventory;
+        internal static Inventory PetInventory => PetProxy.PetInventory;
+
+        internal static bool ShouldAugment(Inventory inventory, int itemTypeId)
         {
-            public Inventory PlayerInventory;
-            public Inventory PetInventory;
-            public int BulletTypeId;
-            public bool Applied;
+            if (itemTypeId < 0 || inventory == null || MainInventory == null)
+            {
+                return false;
+            }
+
+            if (!ReferenceEquals(inventory, MainInventory))
+            {
+                return false;
+            }
+
+            return IsBullet(itemTypeId);
         }
 
-        private static readonly Dictionary<ItemSetting_Gun, FallbackContext> Contexts = new Dictionary<ItemSetting_Gun, FallbackContext>();
-
-        public static bool TryPrepare(ItemAgent_Gun gun)
+        internal static int CountNested(Inventory inventory, int itemTypeId)
         {
-            if (gun == null)
+            if (inventory == null)
             {
-                return false;
+                return 0;
             }
 
-            CharacterMainControl holder = gun.Holder;
-            if (holder == null)
+            int total = 0;
+            int foundItems = 0;
+            foreach (Item item in EnumerateNested(inventory))
             {
-                return false;
+                if (item != null && item.TypeID == itemTypeId)
+                {
+                    int stack = SafeStack(item);
+                    foundItems++;
+                    total += stack;
+                }
             }
 
-            Inventory playerInventory = holder.CharacterItem != null ? holder.CharacterItem.Inventory : null;
-            if (playerInventory == null)
+            return total;
+        }
+
+        internal static int CountAll(Inventory inventory, int itemTypeId)
+        {
+            if (inventory == null)
             {
-                return false;
+                return 0;
             }
 
-            Inventory petInventory = PetProxy.PetInventory;
-            if (petInventory == null || petInventory == playerInventory)
+            int total = 0;
+            int directCount = 0;
+            int nestedCount = 0;
+
+            foreach (Item item in EnumerateDirect(inventory))
             {
-                return false;
+                if (item != null && item.TypeID == itemTypeId)
+                {
+                    int stack = SafeStack(item);
+                    directCount++;
+                    total += stack;
+                }
             }
 
-            ItemSetting_Gun gunSetting = gun.GunItemSetting;
+            foreach (Item item in EnumerateNested(inventory))
+            {
+                if (item != null && item.TypeID == itemTypeId)
+                {
+                    int stack = SafeStack(item);
+                    nestedCount++;
+                    total += stack;
+                }
+            }
+
+            return total;
+        }
+
+        internal static bool TryFindBullet(ItemSetting_Gun gunSetting, out Item bullet)
+        {
+            bullet = null;
             if (gunSetting == null)
             {
                 return false;
             }
 
-            int currentTargetId = gunSetting.TargetBulletID;
-            if (currentTargetId >= 0 && CountItemsOfType(playerInventory, currentTargetId) > 0)
-            {
-                Clear(gunSetting);
-                return false;
-            }
-
-            Clear(gunSetting);
-
-            int targetTypeId = currentTargetId;
-            Item currentLoaded = gunSetting.GetCurrentLoadedBullet();
-            if (currentLoaded != null)
-            {
-                if (targetTypeId < 0 || currentLoaded.TypeID != targetTypeId)
-                {
-                    targetTypeId = currentLoaded.TypeID;
-                }
-            }
-
-            if (gunSetting.IsFull() && currentLoaded != null && currentLoaded.TypeID == targetTypeId)
+            // Match vanilla AutoSetTypeInInventory logic: check caliber only, not fullness
+            string gunCaliber = gunSetting.Item?.Constants?.GetString("Caliber".GetHashCode());
+            if (string.IsNullOrEmpty(gunCaliber))
             {
                 return false;
             }
 
-            if (targetTypeId < 0 && gunSetting.PreferdBulletsToLoad != null)
+            foreach (Item candidate in EnumerateBulletCandidates())
             {
-                targetTypeId = gunSetting.PreferdBulletsToLoad.TypeID;
-            }
+                if (candidate == null)
+                    continue;
 
-            Item chosenBullet = null;
-            Inventory sourceInventory = null;
+                // Check if it's a bullet
+                if (!IsBullet(candidate.TypeID))
+                    continue;
 
-            if (targetTypeId >= 0)
-            {
-                chosenBullet = FindFirstCompatibleBullet(gunSetting, playerInventory, targetTypeId, true);
-                if (chosenBullet != null)
+                // Check caliber match (same as vanilla)
+                string bulletCaliber = candidate.Constants?.GetString("Caliber".GetHashCode());
+                if (bulletCaliber == gunCaliber)
                 {
-                    sourceInventory = playerInventory;
+                    bullet = candidate;
+                    return true;
                 }
             }
 
-            if (chosenBullet == null && targetTypeId >= 0)
-            {
-                chosenBullet = FindFirstCompatibleBullet(gunSetting, petInventory, targetTypeId, true);
-                if (chosenBullet != null)
-                {
-                    sourceInventory = petInventory;
-                }
-            }
-
-            if (chosenBullet == null)
-            {
-                chosenBullet = FindFirstCompatibleBullet(gunSetting, playerInventory, targetTypeId, false);
-                if (chosenBullet != null)
-                {
-                    sourceInventory = playerInventory;
-                    targetTypeId = chosenBullet.TypeID;
-                }
-            }
-
-            if (chosenBullet == null)
-            {
-                chosenBullet = FindFirstCompatibleBullet(gunSetting, petInventory, targetTypeId, false);
-                if (chosenBullet != null)
-                {
-                    sourceInventory = petInventory;
-                    targetTypeId = chosenBullet.TypeID;
-                }
-            }
-
-            if (chosenBullet == null || sourceInventory == null)
-            {
-                return false;
-            }
-
-            int availableCount = CountItemsOfType(sourceInventory, chosenBullet.TypeID);
-            if (availableCount <= 0)
-            {
-                return false;
-            }
-
-            gunSetting.SetTargetBulletType(chosenBullet.TypeID);
-            gunSetting.PreferdBulletsToLoad = chosenBullet;
-
-            if (sourceInventory == petInventory)
-            {
-                Contexts[gunSetting] = new FallbackContext
-                {
-                    PlayerInventory = playerInventory,
-                    PetInventory = petInventory,
-                    BulletTypeId = chosenBullet.TypeID
-                };
-            }
-
-            return true;
+            return false;
         }
 
-        public static bool TryGet(ItemSetting_Gun setting, out FallbackContext context)
+        internal static UniTask<List<Item>> CollectAugmentedAsync(Inventory inventory, int itemTypeId, int amount)
         {
-            return Contexts.TryGetValue(setting, out context);
+            return CollectAsync(inventory, itemTypeId, amount);
         }
 
-        public static void Clear(ItemSetting_Gun setting)
+        private static async UniTask<List<Item>> CollectAsync(Inventory inventory, int itemTypeId, int amount)
         {
-            Contexts.Remove(setting);
+            List<Item> result = new List<Item>();
+            if (amount <= 0)
+            {
+                return result;
+            }
+
+            int collected = 0;
+
+            collected = await ConsumeAsync(EnumerateDirect(inventory), itemTypeId, amount, collected, result, "PlayerDirect");
+
+            if (collected < amount)
+            {
+                collected = await ConsumeAsync(EnumerateNested(inventory), itemTypeId, amount, collected, result, "PlayerNested");
+            }
+            if (collected < amount)
+            {
+                collected = await ConsumeAsync(EnumerateDirect(PetInventory), itemTypeId, amount, collected, result, "PetDirect");
+            }
+            if (collected < amount)
+            {
+                collected = await ConsumeAsync(EnumerateNested(PetInventory), itemTypeId, amount, collected, result, "PetNested");
+            }
+
+            return result;
         }
 
-        public static void ClearAll()
-        {
-            Contexts.Clear();
-        }
-
-        private static Item FindFirstCompatibleBullet(ItemSetting_Gun gunSetting, Inventory source, int targetTypeId, bool requireSameType)
+        private static async UniTask<int> ConsumeAsync(IEnumerable<Item> source, int itemTypeId, int targetAmount, int collected, List<Item> buffer, string sourceName = "Unknown")
         {
             if (source == null)
             {
-                return null;
+                return collected;
             }
 
-            foreach (Item item in source)
+            int foundCount = 0;
+
+            // Materialize the enumerable to avoid issues with items in slots being modified during iteration
+            List<Item> itemList = new List<Item>();
+            try
             {
+                foreach (Item item in source)
+                {
+                    if (item != null)
+                    {
+                        itemList.Add(item);
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                return collected;
+            }
+
+            foreach (Item item in itemList)
+            {
+                if (item == null || item.TypeID != itemTypeId)
+                {
+                    continue;
+                }
+
+                foundCount++;
+                int remaining = targetAmount - collected;
+                if (remaining <= 0)
+                {
+                    break;
+                }
+
+                int stack = SafeStack(item);
+                if (stack <= 0)
+                {
+                    continue;
+                }
+
+
+                try
+                {
+                    if (stack > remaining)
+                    {
+                        Item split = await item.Split(remaining);
+                        if (split != null)
+                        {
+                            buffer.Add(split);
+                            collected += remaining;
+                        }
+                        else
+                        {
+                            item.Detach();
+                            buffer.Add(item);
+                            collected += stack;
+                        }
+                    }
+                    else
+                    {
+                        item.Detach();
+                        buffer.Add(item);
+                        collected += stack;
+                    }
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+
+            return collected;
+        }
+
+        private static IEnumerable<Item> EnumerateBulletCandidates()
+        {
+
+            // FIXED: Include direct player inventory items first
+            int count = 0;
+            foreach (Item item in EnumerateDirect(MainInventory))
+            {
+                count++;
+                yield return item;
+            }
+
+            count = 0;
+            foreach (Item item in EnumerateNested(MainInventory))
+            {
+                count++;
+                yield return item;
+            }
+
+            count = 0;
+            foreach (Item item in EnumerateDirect(PetInventory))
+            {
+                count++;
+                yield return item;
+            }
+
+            count = 0;
+            foreach (Item item in EnumerateNested(PetInventory))
+            {
+                count++;
+                yield return item;
+            }
+        }
+
+        internal static int SafeStack(Item item)
+        {
+            return item?.StackCount > 0 ? item.StackCount : 0;
+        }
+
+        internal static bool IsBullet(int itemTypeId)
+        {
+            try
+            {
+                ItemMetaData meta = ItemAssetsCollection.GetMetaData(itemTypeId);
+                if (meta.tags == null)
+                {
+                    return false;
+                }
+
+                foreach (Tag tag in meta.tags)
+                {
+                    if (tag == GameplayDataSettings.Tags.Bullet)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        internal static IEnumerable<Item> EnumerateDirect(Inventory inventory)
+        {
+            if (inventory == null)
+            {
+                yield break;
+            }
+
+            foreach (Item item in inventory)
+            {
+                if (item != null)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        internal static IEnumerable<Item> EnumerateNested(Inventory inventory)
+        {
+            if (inventory == null)
+            {
+                yield break;
+            }
+
+
+            HashSet<Item> visitedItems = new HashSet<Item>();
+            Queue<Item> queue = new Queue<Item>();
+
+            // Find all items with slots (containers like backpacks/bags)
+            int containerCount = 0;
+            int itemCount = 0;
+            foreach (Item item in inventory)
+            {
+                itemCount++;
                 if (item == null)
                 {
                     continue;
                 }
 
-                if (!gunSetting.IsValidBullet(item))
+                // Check if item has Slots (this is how containers store items!)
+                bool hasSlots = item.Slots != null && item.Slots.Count > 0;
+
+
+                if (hasSlots && visitedItems.Add(item))
                 {
-                    continue;
+                    containerCount++;
+                    queue.Enqueue(item);
                 }
-
-                if (requireSameType)
-                {
-                    if (targetTypeId >= 0 && item.TypeID == targetTypeId)
-                    {
-                        return item;
-                    }
-
-                    continue;
-                }
-
-                if (targetTypeId >= 0 && item.TypeID == targetTypeId)
-                {
-                    continue;
-                }
-
-                return item;
             }
 
-            return null;
-        }
-
-        private static int CountItemsOfType(Inventory inventory, int bulletTypeId)
-        {
-            int total = 0;
-            foreach (Item item in inventory)
+            // BFS traversal of items in slots
+            int totalItems = 0;
+            while (queue.Count > 0)
             {
-                if (item != null && item.TypeID == bulletTypeId)
+                Item containerItem = queue.Dequeue();
+
+                if (containerItem.Slots == null)
+                    continue;
+
+                foreach (var slot in containerItem.Slots)
                 {
-                    total += item.StackCount;
+                    Item slotContent = slot.Content;
+                    if (slotContent != null)
+                    {
+                        totalItems++;
+                        yield return slotContent;
+
+                        // Check if this item also has slots (nested containers)
+                        if (slotContent.Slots != null && slotContent.Slots.Count > 0 && visitedItems.Add(slotContent))
+                        {
+                            queue.Enqueue(slotContent);
+                        }
+                    }
                 }
             }
-
-            return total;
         }
     }
 
-    [HarmonyPatch(typeof(ItemAgent_Gun), nameof(ItemAgent_Gun.BeginReload))]
-    internal static class ItemAgentGunBeginReloadPatch
+
+    [HarmonyPatch(typeof(ItemSetting_Gun), nameof(ItemSetting_Gun.GetBulletTypesInInventory))]
+    internal static class ItemSettingGunGetBulletTypesPatch
     {
-        private static bool reentryGuard;
-
-        [HarmonyPostfix]
-        private static void Postfix(ItemAgent_Gun __instance, ref bool __result)
+        private static void Postfix(ItemSetting_Gun __instance, Inventory inventory, ref Dictionary<int, BulletTypeInfo> __result)
         {
-            if (__result || reentryGuard)
+            if (__instance == null || inventory == null || __result == null)
             {
                 return;
             }
 
-            if (!PetAmmoBridge.TryPrepare(__instance))
+            if (!ReferenceEquals(inventory, InventoryBulletUtility.MainInventory))
             {
                 return;
             }
 
-            reentryGuard = true;
-            try
+
+            string gunCaliber = __instance.Item?.Constants?.GetString("Caliber".GetHashCode());
+            if (string.IsNullOrEmpty(gunCaliber))
             {
-                __result = __instance.BeginReload();
-                if (!__result && __instance != null && __instance.GunItemSetting != null)
+                return;
+            }
+
+            // Add bullets from nested containers
+            foreach (Item item in InventoryBulletUtility.EnumerateNested(inventory))
+            {
+                if (item == null || !InventoryBulletUtility.IsBullet(item.TypeID))
+                    continue;
+
+                string bulletCaliber = item.Constants?.GetString("Caliber".GetHashCode());
+                if (bulletCaliber != gunCaliber)
+                    continue;
+
+                if (!__result.ContainsKey(item.TypeID))
                 {
-                    PetAmmoBridge.Clear(__instance.GunItemSetting);
+                    BulletTypeInfo info = new BulletTypeInfo();
+                    info.bulletTypeID = item.TypeID;
+                    info.count = InventoryBulletUtility.SafeStack(item);
+                    __result.Add(item.TypeID, info);
+                }
+                else
+                {
+                    __result[item.TypeID].count += InventoryBulletUtility.SafeStack(item);
                 }
             }
-            finally
+
+            // Add bullets from pet inventory
+            if (InventoryBulletUtility.PetInventory != null)
             {
-                reentryGuard = false;
+                foreach (Item item in InventoryBulletUtility.EnumerateDirect(InventoryBulletUtility.PetInventory))
+                {
+                    if (item == null || !InventoryBulletUtility.IsBullet(item.TypeID))
+                        continue;
+
+                    string bulletCaliber = item.Constants?.GetString("Caliber".GetHashCode());
+                    if (bulletCaliber != gunCaliber)
+                        continue;
+
+                    if (!__result.ContainsKey(item.TypeID))
+                    {
+                        BulletTypeInfo info = new BulletTypeInfo();
+                        info.bulletTypeID = item.TypeID;
+                        info.count = InventoryBulletUtility.SafeStack(item);
+                        __result.Add(item.TypeID, info);
+                    }
+                    else
+                    {
+                        __result[item.TypeID].count += InventoryBulletUtility.SafeStack(item);
+                    }
+                }
+
+                foreach (Item item in InventoryBulletUtility.EnumerateNested(InventoryBulletUtility.PetInventory))
+                {
+                    if (item == null || !InventoryBulletUtility.IsBullet(item.TypeID))
+                        continue;
+
+                    string bulletCaliber = item.Constants?.GetString("Caliber".GetHashCode());
+                    if (bulletCaliber != gunCaliber)
+                        continue;
+
+                    if (!__result.ContainsKey(item.TypeID))
+                    {
+                        BulletTypeInfo info = new BulletTypeInfo();
+                        info.bulletTypeID = item.TypeID;
+                        info.count = InventoryBulletUtility.SafeStack(item);
+                        __result.Add(item.TypeID, info);
+                    }
+                    else
+                    {
+                        __result[item.TypeID].count += InventoryBulletUtility.SafeStack(item);
+                    }
+                }
             }
+
         }
     }
 
     [HarmonyPatch(typeof(ItemSetting_Gun), nameof(ItemSetting_Gun.GetBulletCountofTypeInInventory))]
-    internal static class ItemSettingGunGetCountPatch
+    internal static class ItemSettingGunGetBulletCountPatch
     {
-        private static void Postfix(ItemSetting_Gun __instance, Inventory inventory, int bulletItemTypeID, ref int __result)
+        private static void Postfix(ItemSetting_Gun __instance, int bulletItemTypeID, Inventory inventory, ref int __result)
         {
-            if (!PetAmmoBridge.TryGet(__instance, out PetAmmoBridge.FallbackContext context))
+
+            if (!InventoryBulletUtility.ShouldAugment(inventory, bulletItemTypeID))
             {
                 return;
             }
 
-            if (context.PlayerInventory != inventory)
-            {
-                return;
-            }
+            int originalCount = __result;
+            int nestedCount = InventoryBulletUtility.CountNested(inventory, bulletItemTypeID);
+            int petCount = InventoryBulletUtility.CountAll(InventoryBulletUtility.PetInventory, bulletItemTypeID);
 
-            if (bulletItemTypeID != context.BulletTypeId)
-            {
-                return;
-            }
+            __result += nestedCount + petCount;
 
-            Inventory petInventory = context.PetInventory;
-            if (petInventory == null)
-            {
-                return;
-            }
-
-            __result += CountItems(petInventory, bulletItemTypeID);
-        }
-
-        private static int CountItems(Inventory inventory, int bulletTypeId)
-        {
-            int total = 0;
-            foreach (Item item in inventory)
-            {
-                if (item != null && item.TypeID == bulletTypeId)
-                {
-                    total += item.StackCount;
-                }
-            }
-
-            return total;
         }
     }
 
-    [HarmonyPatch(typeof(ItemSetting_Gun), nameof(ItemSetting_Gun.LoadBulletsFromInventory))]
-    internal static class ItemSettingGunLoadPatch
+    [HarmonyPatch(typeof(ItemSetting_Gun), nameof(ItemSetting_Gun.AutoSetTypeInInventory))]
+    internal static class ItemSettingGunAutoSetTypePatch
     {
-        private static void Prefix(ItemSetting_Gun __instance, ref Inventory inventory)
+        private static void Postfix(ItemSetting_Gun __instance, Inventory inventory, ref bool __result)
         {
-            if (!PetAmmoBridge.TryGet(__instance, out PetAmmoBridge.FallbackContext context))
+
+            if (__result || __instance == null || inventory == null)
             {
                 return;
             }
 
-            if (inventory != context.PlayerInventory)
+            if (!ReferenceEquals(inventory, InventoryBulletUtility.MainInventory))
             {
                 return;
             }
 
-            if (context.PetInventory != null)
+            if (InventoryBulletUtility.TryFindBullet(__instance, out Item bullet))
             {
-                context.Applied = true;
-                inventory = context.PetInventory;
+                __instance.SetTargetBulletType(bullet);
+                __result = true;
+            }
+            else
+            {
             }
         }
+    }
 
-        private static void Postfix(ItemSetting_Gun __instance)
+    [HarmonyPatch(typeof(ItemExtensions), nameof(ItemExtensions.GetItemsOfAmount))]
+    internal static class ItemExtensionsGetItemsOfAmountPatch
+    {
+        private static bool Prefix(Inventory inventory, int itemTypeID, int amount, ref UniTask<List<Item>> __result)
         {
-            if (!PetAmmoBridge.TryGet(__instance, out PetAmmoBridge.FallbackContext context))
+            if (!InventoryBulletUtility.ShouldAugment(inventory, itemTypeID))
             {
-                return;
+                return true;
             }
 
-            if (context.Applied)
+            __result = InventoryBulletUtility.CollectAugmentedAsync(inventory, itemTypeID, amount);
+            return false;
+        }
+    }
+
+    // Patch TransToReady to refresh HUD after reload completes
+    [HarmonyPatch(typeof(ItemAgent_Gun), "TransToReady")]
+    internal static class ItemAgentGunTransToReadyPatch
+    {
+        private static void Postfix(ItemAgent_Gun __instance)
+        {
+
+            // Find the BulletCountHUD and force refresh
+            var hud = UnityEngine.Object.FindObjectOfType<BulletCountHUD>();
+            if (hud != null)
             {
-                PetAmmoBridge.Clear(__instance);
+                try
+                {
+                    var traverse = Traverse.Create(hud);
+                    traverse.Method("ChangeTotalCount").GetValue();
+                }
+                catch (System.Exception)
+                {
+                }
             }
         }
     }

@@ -18,6 +18,9 @@
     <Reference Include="$(DuckovManagedDir)/ItemStatsSystem.dll">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(DuckovManagedDir)/UniTask*.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(DuckovManagedDir)/Unity*.dll">
       <Private>false</Private>
     </Reference>
@@ -25,6 +28,11 @@
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Publicize Include="ItemStatsSystem:ItemStatsSystem.Item.InitiateNotifyItemTreeChanged" />
   </ItemGroup>
 
   <Target Name="CopyToReleaseExample" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
