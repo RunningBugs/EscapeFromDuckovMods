@@ -4,6 +4,7 @@ using Duckov;
 using HarmonyLib;
 using ItemStatsSystem;
 using ItemStatsSystem.Items;
+using UnityEngine;
 
 namespace CarrySlotShortcutMod
 {
@@ -19,6 +20,35 @@ namespace CarrySlotShortcutMod
             internal int OriginIndex;
             internal Slot OriginSlot;
             internal WeakReference<CharacterMainControl> Controller;
+            internal UsageSnapshot Snapshot;
+        }
+
+        private readonly struct UsageSnapshot
+        {
+            internal bool HasItem { get; }
+            internal bool Stackable { get; }
+            internal int StackCount { get; }
+            internal bool UseDurability { get; }
+            internal float Durability { get; }
+
+            internal UsageSnapshot(Item item)
+            {
+                if (item == null)
+                {
+                    HasItem = false;
+                    Stackable = false;
+                    StackCount = 0;
+                    UseDurability = false;
+                    Durability = 0f;
+                    return;
+                }
+
+                HasItem = true;
+                Stackable = item.Stackable;
+                StackCount = item.StackCount;
+                UseDurability = item.UseDurability;
+                Durability = item.Durability;
+            }
         }
 
         private static readonly Dictionary<Item, UseContext> Contexts = new Dictionary<Item, UseContext>();
@@ -49,6 +79,7 @@ namespace CarrySlotShortcutMod
                 return;
             }
 
+            UsageSnapshot snapshot = new UsageSnapshot(item);
             Inventory originInventory = item.InInventory;
             int originIndex = originInventory != null ? originInventory.GetIndex(item) : -1;
             Slot originSlot = item.PluggedIntoSlot;
@@ -70,7 +101,8 @@ namespace CarrySlotShortcutMod
                         OriginInventory = originInventory,
                         OriginIndex = originIndex,
                         OriginSlot = originSlot,
-                        Controller = new WeakReference<CharacterMainControl>(main)
+                        Controller = new WeakReference<CharacterMainControl>(main),
+                        Snapshot = snapshot
                     };
 
                     item = clone;
@@ -86,7 +118,8 @@ namespace CarrySlotShortcutMod
                 OriginInventory = originInventory,
                 OriginIndex = originIndex,
                 OriginSlot = originSlot,
-                Controller = new WeakReference<CharacterMainControl>(main)
+                Controller = new WeakReference<CharacterMainControl>(main),
+                Snapshot = snapshot
             };
         }
 
@@ -140,12 +173,19 @@ namespace CarrySlotShortcutMod
                 return;
             }
 
-            context.Consumed = true;
-
             if (context.IsTransient)
             {
-                TryConsumeSourceStack(context);
+                bool decremented = TryConsumeSourceStack(context);
+                bool consumed = ShouldMarkConsumedAfterTransientUse(context, decremented);
+                context.Consumed = consumed;
+                Debug.Log($"[CarrySlotShortcutMod][UseItem] OnUseFinish transient consumed={consumed} sourceItem={context.SourceItem?.name ?? "null"} stackable={context.SourceItem?.Stackable} stack={context.SourceItem?.StackCount} durability={context.SourceItem?.Durability}");
                 DestroyItemTree(currentItem);
+            }
+            else
+            {
+                bool consumed = ShouldMarkConsumedAfterDirectUse(context, currentItem);
+                context.Consumed = consumed;
+                Debug.Log($"[CarrySlotShortcutMod][UseItem] OnUseFinish direct consumed={consumed} item={currentItem?.name ?? "null"} stackable={currentItem?.Stackable} stack={currentItem?.StackCount} durability={currentItem?.Durability}");
             }
         }
 
@@ -186,10 +226,13 @@ namespace CarrySlotShortcutMod
 
         private static void HandleReturn(Item item, UseContext context, CharacterMainControl controller)
         {
+            Debug.Log($"[CarrySlotShortcutMod][UseItem] HandleReturn item={item?.name ?? "null"} consumed={context?.Consumed} transient={context?.IsTransient} stackable={item?.Stackable} stack={item?.StackCount} durability={item?.Durability} useDurability={item?.UseDurability}");
+
             if (context.IsTransient)
             {
                 if (!context.Consumed)
                 {
+                    Debug.Log("[CarrySlotShortcutMod][UseItem] Destroying transient clone due to non-consumed stop.");
                     DestroyItemTree(item);
                 }
 
@@ -198,42 +241,52 @@ namespace CarrySlotShortcutMod
 
             if (context.Consumed)
             {
+                Debug.Log("[CarrySlotShortcutMod][UseItem] Context marked consumed; attempting orphan destroy path.");
                 DestroyItemTreeIfOrphan(item);
                 return;
             }
 
             if (TryRestoreSlot(item, context.OriginSlot))
             {
+                Debug.Log("[CarrySlotShortcutMod][UseItem] Restored item back into original slot.");
                 return;
             }
 
             if (TryPlaceIntoInventory(item, context.OriginInventory, context.OriginIndex))
             {
+                Debug.Log("[CarrySlotShortcutMod][UseItem] Returned item to origin inventory.");
                 return;
             }
 
             if (TryPickup(controller, item))
             {
+                Debug.Log("[CarrySlotShortcutMod][UseItem] Character pickup succeeded.");
                 return;
             }
 
+            Debug.Log("[CarrySlotShortcutMod][UseItem] Fallback send to player storage.");
             ItemUtilities.SendToPlayerStorage(item, directToBuffer: false);
         }
 
-        private static void TryConsumeSourceStack(UseContext context)
+        private static bool TryConsumeSourceStack(UseContext context)
         {
             Item source = context.SourceItem;
             if (source == null || source.IsBeingDestroyed)
             {
-                return;
+                Debug.Log("[CarrySlotShortcutMod][UseItem] Skip consuming source stack (null or being destroyed).");
+                return false;
             }
 
             if (!source.Stackable || source.StackCount <= 0)
             {
-                return;
+                Debug.Log($"[CarrySlotShortcutMod][UseItem] Skip consuming source stack stackable={source.Stackable} stack={source.StackCount}.");
+                return false;
             }
 
+            int before = source.StackCount;
             source.StackCount -= 1;
+            Debug.Log($"[CarrySlotShortcutMod][UseItem] Consumed source stack item={source.name} before={before} after={source.StackCount}.");
+            return before > 0 && source.StackCount < before;
         }
 
         private static bool TryRestoreSlot(Item item, Slot slot)
@@ -284,6 +337,71 @@ namespace CarrySlotShortcutMod
             }
 
             return controller.PickupItem(item);
+        }
+
+        private static bool ShouldMarkConsumedAfterDirectUse(UseContext context, Item currentItem)
+        {
+            UsageSnapshot snapshot = context.Snapshot;
+
+            if (currentItem == null)
+            {
+                return true;
+            }
+
+            if (currentItem.IsBeingDestroyed)
+            {
+                return true;
+            }
+
+            if (snapshot.Stackable)
+            {
+                return currentItem.StackCount <= 0;
+            }
+
+            if (snapshot.UseDurability)
+            {
+                return currentItem.Durability <= 0f;
+            }
+
+            return false;
+        }
+
+        private static bool ShouldMarkConsumedAfterTransientUse(UseContext context, bool decrementedSource)
+        {
+            UsageSnapshot snapshot = context.Snapshot;
+            Item source = context.SourceItem;
+
+            if (!snapshot.HasItem)
+            {
+                return true;
+            }
+
+            if (source == null)
+            {
+                return true;
+            }
+
+            if (source.IsBeingDestroyed)
+            {
+                return true;
+            }
+
+            if (snapshot.Stackable)
+            {
+                if (!decrementedSource)
+                {
+                    return false;
+                }
+
+                return source.StackCount <= 0;
+            }
+
+            if (snapshot.UseDurability)
+            {
+                return source.Durability <= 0f;
+            }
+
+            return false;
         }
 
         private static void DestroyItemTree(Item item)
