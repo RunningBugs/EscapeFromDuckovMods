@@ -1,218 +1,169 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using Duckov.Scenes;
+using HarmonyLib;
 
 namespace IncreasedInteractionVisibility
 {
     /// <summary>
     /// Increases the visibility distance of interaction markers/dots in the world.
     /// Makes it easier to see interactable objects from further away.
-    /// Optimized version using event-based detection with periodic checks for dynamic spawns.
+    /// Uses Harmony to patch InteractableBase.ActiveMarker() to modify markers as they spawn.
     /// </summary>
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
-        private const float MARKER_VISIBILITY_DISTANCE = 1000f;
-        private const float NEW_MARKER_CHECK_INTERVAL = 0.5f; // Check for new markers every 0.5 seconds
+        private const float MARKER_VISIBILITY_FAR = 1000f;  // Distance where marker starts to appear
+        private const float MARKER_VISIBILITY_NEAR = 900f;  // Distance where marker is fully visible
+        private const string HARMONY_ID = "com.duckov.increasedinteractionvisibility";
 
-        private Dictionary<InteractMarker, Material[]> processedMarkers = new Dictionary<InteractMarker, Material[]>();
-        private Coroutine checkCoroutine;
+        private Harmony harmony;
 
-        protected override void OnAfterSetup()
+        private void OnEnable()
         {
-            base.OnAfterSetup();
-
-            // Hook into level initialization events (static event)
-            LevelManager.OnAfterLevelInitialized += OnLevelInitialized;
-
-            // Hook into scene loading events (static event)
-            SceneLoader.onAfterSceneInitialize += OnSceneInitialized;
-
-            // Hook into subscene loading for multi-scene levels (static event)
-            MultiSceneCore.OnSubSceneLoaded += OnSubSceneLoaded;
-
-            // Process any existing markers in current scene
-            ProcessAllExistingMarkers();
-
-            // Start coroutine to check for newly spawned markers
-            if (checkCoroutine == null)
+            if (harmony != null)
             {
-                checkCoroutine = StartCoroutine(CheckForNewMarkersCoroutine());
-            }
-        }
-
-        protected override void OnBeforeDeactivate()
-        {
-            base.OnBeforeDeactivate();
-
-            // Unsubscribe from events
-            LevelManager.OnAfterLevelInitialized -= OnLevelInitialized;
-            SceneLoader.onAfterSceneInitialize -= OnSceneInitialized;
-            MultiSceneCore.OnSubSceneLoaded -= OnSubSceneLoaded;
-
-            // Stop coroutine
-            if (checkCoroutine != null)
-            {
-                StopCoroutine(checkCoroutine);
-                checkCoroutine = null;
+                return;
             }
 
-            // Restore original materials if needed
-            RestoreAllMarkers();
-            processedMarkers.Clear();
-        }
+            // Create and apply Harmony patches
+            harmony = new Harmony(HARMONY_ID);
+            harmony.PatchAll(typeof(ModBehaviour).Assembly);
 
-        private void OnLevelInitialized()
-        {
+            // Process any existing markers in the scene
             ProcessAllExistingMarkers();
         }
 
-        private void OnSceneInitialized(SceneLoadingContext context)
+        private void OnDisable()
         {
-            ProcessAllExistingMarkers();
-        }
-
-        private void OnSubSceneLoaded(MultiSceneCore core, UnityEngine.SceneManagement.Scene scene)
-        {
-            // Process markers when entering sub-maps/subscenes
-            ProcessAllExistingMarkers();
-        }
-
-        private IEnumerator CheckForNewMarkersCoroutine()
-        {
-            while (true)
+            // Unpatch when mod is deactivated
+            if (harmony == null)
             {
-                yield return new WaitForSeconds(NEW_MARKER_CHECK_INTERVAL);
-
-                // Clean up destroyed markers
-                CleanupDestroyedMarkers();
-
-                // Check for new markers only
-                CheckForNewMarkers();
+                return;
             }
-        }
 
-        private void CheckForNewMarkers()
-        {
-            // Find all markers in scene
-            InteractMarker[] markers = FindObjectsOfType<InteractMarker>();
-
-            // Process only markers we haven't seen before
-            foreach (InteractMarker marker in markers)
-            {
-                if (marker != null && !processedMarkers.ContainsKey(marker))
-                {
-                    ProcessMarker(marker);
-                }
-            }
+            harmony.UnpatchAll(harmony.Id);
+            harmony = null;
         }
 
         private void ProcessAllExistingMarkers()
         {
-            // Clean up destroyed markers first
-            CleanupDestroyedMarkers();
-
-            // Find all markers in scene (only done once per scene load)
-            InteractMarker[] markers = FindObjectsOfType<InteractMarker>();
+            // Find all existing markers in the scene and process them
+            InteractMarker[] markers = UnityEngine.Object.FindObjectsOfType<InteractMarker>();
 
             foreach (InteractMarker marker in markers)
             {
-                if (marker != null && !processedMarkers.ContainsKey(marker))
+                if (marker != null && marker.gameObject != null)
                 {
+                    InteractableBase_ActiveMarker_Patch.ProcessMarker(marker);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Harmony Postfix patch for InteractablePickup.OnInit()
+        /// This ensures pickups have an interaction marker, creating one if missing.
+        /// </summary>
+        [HarmonyPatch(typeof(InteractablePickup), "OnInit")]
+        public static class InteractablePickup_OnInit_Patch
+        {
+            [HarmonyPostfix]
+            public static void Postfix(InteractablePickup __instance)
+            {
+                try
+                {
+                    if (__instance == null)
+                    {
+                        return;
+                    }
+
+                    // Check if marker already exists (using publicized field)
+                    if (__instance.markerObject != null && __instance.markerObject.gameObject != null)
+                    {
+                        return;
+                    }
+
+                    // No marker exists, force enable it
+                    __instance.MarkerActive = true;
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to ensure pickup marker: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Harmony Postfix patch for InteractableBase.ActiveMarker()
+        /// This is called right after a marker is instantiated, allowing us to modify it immediately.
+        /// </summary>
+        [HarmonyPatch(typeof(InteractableBase), "ActiveMarker")]
+        public static class InteractableBase_ActiveMarker_Patch
+        {
+            [HarmonyPostfix]
+            public static void Postfix(InteractableBase __instance)
+            {
+                try
+                {
+                    // Access the publicized markerObject field
+                    InteractMarker marker = __instance.markerObject;
+
+                    if (marker == null || marker.gameObject == null)
+                    {
+                        return;
+                    }
+
+                    // Modify the marker's materials
                     ProcessMarker(marker);
                 }
-            }
-        }
-
-        private void CleanupDestroyedMarkers()
-        {
-            // Remove destroyed markers from dictionary to prevent memory leak
-            List<InteractMarker> toRemove = new List<InteractMarker>();
-
-            foreach (var kvp in processedMarkers)
-            {
-                if (kvp.Key == null)
+                catch (System.Exception ex)
                 {
-                    toRemove.Add(kvp.Key);
+                    Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to process marker in postfix: {ex.Message}");
                 }
             }
 
-            foreach (var marker in toRemove)
+            public static void ProcessMarker(InteractMarker marker)
             {
-                processedMarkers.Remove(marker);
-            }
-        }
-
-        private void ProcessMarker(InteractMarker marker)
-        {
-            try
-            {
-                // Use includeInactive=false to reduce search scope
-                Renderer[] renderers = marker.GetComponentsInChildren<Renderer>(false);
-                List<Material> modifiedMaterials = new List<Material>();
-
-                foreach (Renderer renderer in renderers)
+                try
                 {
-                    if (renderer == null) continue;
+                    // Get all renderers in the marker hierarchy
+                    Renderer[] renderers = marker.GetComponentsInChildren<Renderer>(true);
 
-                    // Use sharedMaterials to avoid creating garbage (read-only access)
-                    // If we need to modify, we'll create instances only once
-                    Material[] sharedMats = renderer.sharedMaterials;
-
-                    for (int i = 0; i < sharedMats.Length; i++)
+                    foreach (Renderer renderer in renderers)
                     {
-                        Material mat = sharedMats[i];
-                        if (mat == null) continue;
+                        if (renderer == null) continue;
 
-                        // Check if material has the properties we want to modify
-                        if (mat.HasProperty("_Near") || mat.HasProperty("_Far"))
+                        // Get material instances (this creates instances if needed)
+                        Material[] materials = renderer.materials;
+                        bool modified = false;
+
+                        for (int i = 0; i < materials.Length; i++)
                         {
-                            // Create material instance only if needed (once per marker)
-                            if (!modifiedMaterials.Contains(mat))
+                            Material mat = materials[i];
+                            if (mat == null) continue;
+
+                            // Check if material has the distance fade properties
+                            if (mat.HasProperty("_Near"))
                             {
-                                // Create instance for this renderer
-                                Material[] materialInstances = renderer.materials;
-                                Material instanceMat = materialInstances[i];
-
-                                if (instanceMat.HasProperty("_Near"))
-                                {
-                                    instanceMat.SetFloat("_Near", 0.1f);
-                                }
-                                if (instanceMat.HasProperty("_Far"))
-                                {
-                                    instanceMat.SetFloat("_Far", MARKER_VISIBILITY_DISTANCE);
-                                }
-
-                                // Update renderer with modified materials
-                                renderer.materials = materialInstances;
-                                modifiedMaterials.Add(instanceMat);
+                                mat.SetFloat("_Near", MARKER_VISIBILITY_NEAR);
+                                modified = true;
                             }
+                            if (mat.HasProperty("_Far"))
+                            {
+                                mat.SetFloat("_Far", MARKER_VISIBILITY_FAR);
+                                modified = true;
+                            }
+                        }
+
+                        // Update renderer with modified materials if we changed anything
+                        if (modified)
+                        {
+                            renderer.materials = materials;
                         }
                     }
                 }
-
-                // Cache the modified materials for potential restoration
-                if (modifiedMaterials.Count > 0)
+                catch (System.Exception ex)
                 {
-                    processedMarkers[marker] = modifiedMaterials.ToArray();
+                    Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to process marker materials: {ex.Message}\n{ex.StackTrace}");
                 }
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to process marker: {ex.Message}");
-            }
-        }
-
-        private void RestoreAllMarkers()
-        {
-            // Optional: restore original visibility if needed
-            // Currently just clears references
-            processedMarkers.Clear();
-        }
-
-        void OnDestroy()
-        {
-            OnBeforeDeactivate();
         }
     }
 }
