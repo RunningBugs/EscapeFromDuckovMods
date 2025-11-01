@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Duckov Dynamic Map</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header class="app-header">
+            <h1>Duckov Dynamic Map</h1>
+            <p>
+                Static viewer generated from the game assets. Select a map to
+                explore points of interest.
+            </p>
+        </header>
+        <main class="app-main">
+            <aside class="sidebar">
+                <label for="map-select" class="sidebar-label">Map</label>
+                <select id="map-select"></select>
+                <div class="sidebar-meta" id="map-meta"></div>
+                <details class="sidebar-legend">
+                    <summary>Legend</summary>
+                    <p>
+                        Markers are placed using world coordinates projected
+                        onto the minimap texture. Hover to see details.
+                    </p>
+                </details>
+            </aside>
+            <section class="map-section">
+                <div class="map-container">
+                    <div class="map-rotator" id="map-rotator">
+                        <img id="map-image" alt="Selected map" />
+                        <div id="marker-layer"></div>
+                    </div>
+                </div>
+                <div class="marker-list">
+                    <h2>Markers</h2>
+                    <ul id="marker-list"></ul>
+                </div>
+            </section>
+        </main>
+        <footer class="app-footer">
+            <span id="generated-meta"></span>
+        </footer>
+        <script src="main.js"></script>
+    </body>
+</html>

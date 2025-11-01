@@ -1,0 +1,229 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    background: #0f1116;
+    color: #f5f5f7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header,
+.app-footer {
+    padding: 1rem 1.5rem;
+    background: #151922;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.app-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+}
+
+.app-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.app-main {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.sidebar {
+    width: 260px;
+    background: #151922;
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+#map-select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #0f1116;
+    color: inherit;
+}
+
+.sidebar-meta {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.4;
+}
+
+.sidebar-legend {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.map-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.map-container {
+    position: relative;
+    background: #10131a;
+    border-radius: 12px;
+    overflow: visible;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.map-rotator {
+    position: relative;
+    display: inline-block;
+    transform-origin: 50% 50%;
+}
+
+#map-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform-origin: 50% 50%;
+}
+
+#marker-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform-origin: 50% 50%;
+}
+
+.marker {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #0f1116;
+    transform: translate(-50%, -50%);
+    background: #ffb347;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    pointer-events: auto;
+}
+
+.marker[data-color] {
+    background: var(--marker-color);
+}
+
+.marker::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 17, 22, 0.9);
+    color: #f5f5f7;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+
+.marker:hover::after {
+    opacity: 1;
+}
+
+.marker-list {
+    background: #151922;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 1.25rem;
+    overflow: auto;
+    max-height: 25vh;
+}
+
+.marker-list h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+}
+
+#marker-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#marker-list li {
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.9rem;
+}
+
+#marker-list li span {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+}
+
+@media (max-width: 960px) {
+    .app-main {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .sidebar > * {
+        flex: 1;
+    }
+
+    .map-section {
+        min-height: 0;
+    }
+}
