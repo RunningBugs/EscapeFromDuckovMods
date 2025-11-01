@@ -3,6 +3,7 @@ using System.IO;
 using Cysharp.Threading.Tasks;
 using HarmonyLib;
 using Saves;
+using SodaCraft.Localizations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -203,7 +204,7 @@ namespace ManualSaveMod
 
             private static string GetLocalizedSaveText()
             {
-                return ModLocalization.GetText("save_game", Application.systemLanguage, "Save Game");
+                return ModLocalization.GetText("save_game", LocalizationManager.CurrentLanguage, "Save Game");
             }
 
             private static void OnSaveButtonClicked(TMPro.TextMeshProUGUI buttonText)
@@ -279,17 +280,17 @@ namespace ManualSaveMod
 
             private static string GetSavingText()
             {
-                return ModLocalization.GetText("saving", Application.systemLanguage, "Saving...");
+                return ModLocalization.GetText("saving", LocalizationManager.CurrentLanguage, "Saving...");
             }
 
             private static string GetSavedText()
             {
-                return ModLocalization.GetText("saved", Application.systemLanguage, "Saved!");
+                return ModLocalization.GetText("saved", LocalizationManager.CurrentLanguage, "Saved!");
             }
 
             private static string GetErrorText()
             {
-                return ModLocalization.GetText("error", Application.systemLanguage, "Error!");
+                return ModLocalization.GetText("error", LocalizationManager.CurrentLanguage, "Error!");
             }
         }
     }
