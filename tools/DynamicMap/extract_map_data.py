@@ -19,7 +19,7 @@ import shutil
 import struct
 import sys
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple, Set
 
 
 MINIMAP_SETTINGS_GUID = "d551df320acceeb317a9e97502ade12f"
@@ -127,6 +127,147 @@ def build_guid_map(export_root: str) -> Dict[str, str]:
             except Exception:
                 continue
     return mapping
+
+
+def build_item_lookup(export_root: str) -> Dict[int, Dict[str, str]]:
+    item_file = os.path.join(
+        export_root, "Assets", "Resources", "ItemAssetsCollection.asset"
+    )
+    lookup: Dict[int, Dict[str, str]] = {}
+    if not os.path.isfile(item_file):
+        return lookup
+    current: Optional[Dict[str, str]] = None
+    try:
+        with open(item_file, "r", encoding="utf-8", errors="ignore") as fh:
+            for raw_line in fh:
+                line = raw_line.lstrip()
+                if line.startswith("- typeID:"):
+                    if current:
+                        lookup[current["typeID"]] = current  # type: ignore[index]
+                    current = {"typeID": int(line.split(":", 1)[1])}
+                elif current is not None:
+                    if line.startswith("name:"):
+                        current["name"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("displayName:"):
+                        current["displayName"] = line.split(":", 1)[1].strip()
+                    elif line.startswith("description:"):
+                        current["description"] = line.split(":", 1)[1].strip()
+        if current:
+            lookup[current["typeID"]] = current  # type: ignore[index]
+    except Exception:
+        pass
+    return lookup
+
+
+def collect_blueprint_spawn_entries(
+    export_root: str, item_lookup: Dict[int, Dict[str, str]]
+) -> List[Dict[str, object]]:
+    # Scan quest prefabs for SpawnItemForTask components and match against both Blueprints and Formulas/Recipes.
+    quest_dir = os.path.join(export_root, "Assets", "GameObject")
+
+    # Build a lookup of itemTypeID -> kind ("blueprint" | "formula")
+    id_to_kind: Dict[int, str] = {}
+    for type_id, meta in item_lookup.items():
+        name = (meta or {}).get("name", "") or ""
+        display = (meta or {}).get("displayName", "") or ""
+        combo = f"{name} {display}"
+        if ("Blueprint" in combo) or ("蓝图" in combo):
+            id_to_kind[type_id] = "blueprint"
+        elif ("Formula" in combo) or ("Recipe" in combo) or ("配方" in combo):
+            id_to_kind[type_id] = "formula"
+    if not id_to_kind:
+        return []
+
+    component_pattern = re.compile(r"componentID:\s*SpawnItemForTask")
+    scene_pattern = re.compile(r"\s*- sceneID:\s*(\S+)")
+    location_pattern = re.compile(r"\s*locationName:\s*(\S*)")
+    item_pattern = re.compile(r"\s*item(?:TypeID|ID):\s*(\d+)")
+    spawn_entries: List[Dict[str, object]] = []
+
+    for dirpath, _, filenames in os.walk(quest_dir):
+        for fname in filenames:
+            if not fname.endswith(".prefab"):
+                continue
+            path = os.path.join(dirpath, fname)
+            try:
+                text = open(path, "r", encoding="utf-8", errors="ignore").read()
+            except Exception:
+                continue
+            for match in component_pattern.finditer(text):
+                snippet = text[match.start() : match.start() + 1200]
+                scene_id: Optional[str] = None
+                location_name: Optional[str] = None
+                item_type_id: Optional[int] = None
+                for line in snippet.splitlines():
+                    scene_match = scene_pattern.match(line)
+                    if scene_match:
+                        scene_id = scene_match.group(1)
+                        continue
+                    loc_match = location_pattern.match(line)
+                    if loc_match:
+                        loc_val = loc_match.group(1)
+                        if loc_val:
+                            location_name = loc_val
+                        continue
+                    item_match = item_pattern.match(line)
+                    if item_match:
+                        item_type_id = int(item_match.group(1))
+                        break
+                if (
+                    item_type_id is not None
+                    and item_type_id in id_to_kind
+                    and location_name
+                    and scene_id
+                ):
+                    meta = item_lookup.get(item_type_id, {})
+                    spawn_entries.append(
+                        {
+                            "itemTypeID": item_type_id,
+                            "itemName": meta.get("name"),
+                            "displayName": meta.get("displayName"),
+                            "sceneID": scene_id,
+                            "locationName": location_name,
+                            "kind": id_to_kind.get(item_type_id),
+                            "sourcePrefab": os.path.relpath(path, export_root),
+                        }
+                    )
+    return spawn_entries
+
+
+def extract_quest_locations_from_lines(
+    lines: List[str], scene_rel_path: str
+) -> List[Dict[str, object]]:
+    results: List[Dict[str, object]] = []
+    current_scene_id: Optional[str] = None
+    scene_pattern = re.compile(r"sceneID:\s*(\S+)")
+    path_pattern = re.compile(r"path:\s*(QuestLocations/[^\s]+)")
+    pos_pattern = re.compile(
+        r"position:\s*\{x:\s*([-0-9.]+),\s*y:\s*([-0-9.]+),\s*z:\s*([-0-9.]+)\}"
+    )
+    for idx, line in enumerate(lines):
+        scene_match = scene_pattern.search(line)
+        if scene_match:
+            current_scene_id = scene_match.group(1)
+        path_match = path_pattern.search(line)
+        if path_match:
+            location_name = path_match.group(1)
+            world_position: Optional[Tuple[float, float, float]] = None
+            for j in range(idx + 1, min(idx + 6, len(lines))):
+                pos_match = pos_pattern.search(lines[j])
+                if pos_match:
+                    world_position = tuple(
+                        float(pos_match.group(k)) for k in range(1, 4)
+                    )
+                    break
+            results.append(
+                {
+                    "location": location_name,
+                    "sceneID": current_scene_id,
+                    "worldPosition": world_position,
+                    "sourceScene": scene_rel_path,
+                }
+            )
+    return results
 
 
 def parse_reference(value: str) -> Dict[str, Optional[str]]:
@@ -556,7 +697,7 @@ def collect_scene_data(
     transforms: Dict[int, TransformData],
     go_to_transform: Dict[int, int],
     component_to_gameobject: Dict[int, int],
-) -> Tuple[List[Dict[str, object]], List[Dict[str, object]]]:
+) -> Tuple[List[Dict[str, object]], List[Dict[str, object]], List[Dict[str, object]]]:
     map_settings_blocks: List[Dict[str, object]] = []
     poi_entries: List[Dict[str, object]] = []
     transform_cache: Dict[
@@ -567,6 +708,7 @@ def collect_scene_data(
             Tuple[float, float, float],
         ],
     ] = {}
+    gameobject_info: Dict[int, Dict[str, object]] = {}
 
     idx = 0
     while idx < len(lines):
@@ -574,7 +716,29 @@ def collect_scene_data(
             idx += 1
             continue
         block, idx = get_block(lines, idx)
-        class_id, _ = parse_block_header(block[0])
+        class_id, file_id = parse_block_header(block[0])
+        if class_id == 1:
+            go_name = ""
+            components: List[int] = []
+            is_active = True
+            for line in block:
+                stripped = line.strip()
+                if stripped.startswith("m_Name:"):
+                    go_name = stripped.split(":", 1)[1].strip()
+                elif stripped.startswith("m_Component:"):
+                    continue
+                elif stripped.startswith("- component:"):
+                    comp_id = parse_file_id(stripped.split(":", 1)[1])
+                    if comp_id is not None:
+                        components.append(comp_id)
+                elif stripped.startswith("m_IsActive:"):
+                    is_active = stripped.endswith(("1", "true", "True"))
+            gameobject_info[file_id] = {
+                "name": go_name,
+                "components": components,
+                "active": is_active,
+            }
+            continue
         if class_id != 114:
             continue
 
@@ -651,7 +815,37 @@ def collect_scene_data(
                     transform_data.local_position[1],
                 )
 
-    return map_settings_blocks, poi_entries
+    blueprint_entries: List[Dict[str, object]] = []
+    for go_id, info in gameobject_info.items():
+        name = (info.get("name") or "").strip()
+        if not name:
+            continue
+        lname = name.lower()
+        is_blueprint = ("blueprint" in lname) or ("蓝图" in name)
+        is_formula = ("formula" in lname) or ("recipe" in lname) or ("配方" in name)
+        if not (is_blueprint or is_formula):
+            continue
+        kind = "blueprint" if is_blueprint else "formula"
+        components = info.get("components") or []
+        if not components:
+            continue
+        transform_id = components[0]
+        if transform_id not in transforms:
+            continue
+        world = compute_world_position(transform_id, transforms, transform_cache)
+        if world is None:
+            continue
+        blueprint_entries.append(
+            {
+                "name": name,
+                "kind": kind,
+                "gameObjectId": go_id,
+                "transformId": transform_id,
+                "worldPosition": world,
+            }
+        )
+
+    return map_settings_blocks, poi_entries, blueprint_entries
 
 
 def localize_text(
@@ -707,10 +901,14 @@ def main() -> None:
 
     localization = parse_localization(export_root, languages=[args.lang, "en"])
     guid_map = build_guid_map(export_root)
+    item_lookup = build_item_lookup(export_root)
+    blueprint_spawn_entries = collect_blueprint_spawn_entries(export_root, item_lookup)
 
     maps_output: List[Dict[str, object]] = []
     markers_output: List[Dict[str, object]] = []
     texture_destinations: Dict[str, str] = {}
+    blueprints_output: List[Dict[str, object]] = []
+    quest_locations_map: Dict[str, List[Dict[str, object]]] = {}
 
     scenes_root = os.path.join(export_root, "Assets", "Scenes")
     scene_file_paths: List[str] = []
@@ -726,11 +924,18 @@ def main() -> None:
         transforms, go_to_transform, component_to_go = (
             collect_transforms_and_components(lines)
         )
-        map_blocks, poi_entries = collect_scene_data(
+        map_blocks, poi_entries, blueprint_entries = collect_scene_data(
             scene_path, lines, transforms, go_to_transform, component_to_go
         )
 
         scene_rel_path = normalize_scene_path(export_root, scene_path)
+
+        location_entries = extract_quest_locations_from_lines(lines, scene_rel_path)
+        for entry in location_entries:
+            world_pos = entry.get("worldPosition")
+            if world_pos is None:
+                continue
+            quest_locations_map.setdefault(entry["location"], []).append(entry)
 
         for settings in map_blocks:
             for entry in settings.get("maps", []):
@@ -828,17 +1033,94 @@ def main() -> None:
                 }
             )
 
+        scene_dir = os.path.dirname(scene_rel_path)
+        for blueprint in blueprint_entries:
+            world = blueprint.get("worldPosition")
+            if not isinstance(world, tuple):
+                continue
+            blueprints_output.append(
+                {
+                    "name": blueprint.get("name"),
+                    "kind": blueprint.get("kind"),
+                    "scenePath": scene_rel_path,
+                    "sceneDir": scene_dir,
+                    "worldPosition": list(world),
+                }
+            )
+
+    for spawn in blueprint_spawn_entries:
+        location_name = spawn.get("locationName")
+        if not location_name:
+            continue
+        location_entries = quest_locations_map.get(location_name, [])
+        for entry in location_entries:
+            world_pos = entry.get("worldPosition")
+            source_scene = entry.get("sourceScene")
+            if not isinstance(world_pos, tuple) or not isinstance(source_scene, str):
+                continue
+            blueprints_output.append(
+                {
+                    "name": spawn.get("displayName") or spawn.get("itemName"),
+                    "itemTypeID": spawn.get("itemTypeID"),
+                    "kind": spawn.get("kind"),
+                    "scenePath": source_scene,
+                    "sceneDir": os.path.dirname(source_scene),
+                    "worldPosition": list(world_pos),
+                    "questLocation": location_name,
+                }
+            )
+
+    unique_blueprints: List[Dict[str, object]] = []
+    seen_keys: Set[Tuple[Optional[str], Optional[str], Tuple[float, ...]]] = set()
+    for entry in blueprints_output:
+        world = entry.get("worldPosition")
+        if isinstance(world, list):
+            world_key = tuple(float(v) for v in world)
+        elif isinstance(world, tuple):
+            world_key = tuple(float(v) for v in world)
+            entry["worldPosition"] = list(world)
+        else:
+            continue
+        key = (entry.get("name"), entry.get("scenePath"), world_key)
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        unique_blueprints.append(entry)
+    blueprints_output = unique_blueprints
+
     # Copy required textures.
     for src_path, dest_rel in texture_destinations.items():
         dest_path = os.path.join(out_root, dest_rel)
         ensure_directory(os.path.dirname(dest_path))
         shutil.copy2(src_path, dest_path)
 
+    dir_to_maps: Dict[str, List[str]] = {}
+    path_to_maps: Dict[str, List[str]] = {}
+    for map_entry in maps_output:
+        scene_id = map_entry.get("sceneId")
+        scene_dir = map_entry.get("sourceSceneDir")
+        source_scene = map_entry.get("sourceScene")
+        if scene_dir:
+            dir_to_maps.setdefault(scene_dir, []).append(scene_id)
+        if source_scene:
+            path_to_maps.setdefault(source_scene, []).append(scene_id)
+
+    for entry in blueprints_output:
+        scene_ids = []
+        scene_path = entry.get("scenePath")
+        scene_dir = entry.get("sceneDir")
+        if scene_path:
+            scene_ids.extend(path_to_maps.get(scene_path, []))
+        if scene_dir:
+            scene_ids.extend(dir_to_maps.get(scene_dir, []))
+        entry["sceneIds"] = sorted({sid for sid in scene_ids if isinstance(sid, str)})
+
     payload = {
         "generatedAt": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         "exportRoot": export_root,
         "maps": maps_output,
         "markers": markers_output,
+        "blueprints": blueprints_output,
     }
     json_path = os.path.join(data_dir, "maps.json")
     with open(json_path, "w", encoding="utf-8") as fh:

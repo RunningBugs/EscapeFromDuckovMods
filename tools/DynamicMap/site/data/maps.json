@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-11-01T06:12:28Z",
+  "generatedAt": "2025-11-01T17:17:34Z",
   "exportRoot": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/ExportedProject",
   "maps": [
     {
@@ -534,6 +534,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Base_SceneV2"
       ],
@@ -571,6 +573,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Base_SceneV2"
       ],
@@ -608,6 +612,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -645,6 +651,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -682,6 +690,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -719,6 +729,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -756,6 +768,8 @@
     {
       "name": "Location_GroundZero_Wood",
       "nameLocalized": "Forest Path",
+      "nameLocalizedEN": "Forest Path",
+      "nameLocalizedZH": "\u6811\u6797\u5c0f\u8def",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -793,6 +807,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -830,6 +846,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -867,6 +885,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -904,6 +924,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -941,6 +963,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -978,6 +1002,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1015,6 +1041,8 @@
     {
       "name": "Location_GroundZero_CapNorthWest",
       "nameLocalized": "Northwest Camp",
+      "nameLocalizedEN": "Northwest Camp",
+      "nameLocalizedZH": "\u897f\u5317\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1052,6 +1080,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1089,6 +1119,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1126,6 +1158,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1163,6 +1197,8 @@
     {
       "name": "Location_GroundZero_Wood",
       "nameLocalized": "Forest Path",
+      "nameLocalizedEN": "Forest Path",
+      "nameLocalizedZH": "\u6811\u6797\u5c0f\u8def",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1200,6 +1236,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1237,6 +1275,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1274,6 +1314,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1311,6 +1353,8 @@
     {
       "name": "Location_GroundZero_CapNorthWest",
       "nameLocalized": "Northwest Camp",
+      "nameLocalizedEN": "Northwest Camp",
+      "nameLocalizedZH": "\u897f\u5317\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1348,6 +1392,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1385,6 +1431,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1422,6 +1470,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1459,6 +1509,8 @@
     {
       "name": "Location_GroundZero_MudHome",
       "nameLocalized": "Home\\ of\\ the\\ Fitness\\ Fanatic",
+      "nameLocalizedEN": "Home\\ of\\ the\\ Fitness\\ Fanatic",
+      "nameLocalizedZH": "\u5065\u8eab\u72c2\u4eba\u7684\u5bb6",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1496,6 +1548,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1533,6 +1587,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1570,6 +1626,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1607,6 +1665,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1644,6 +1704,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1681,6 +1743,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1718,6 +1782,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1755,6 +1821,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1792,6 +1860,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -1829,6 +1899,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1866,6 +1938,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1903,6 +1977,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1940,6 +2016,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -1977,6 +2055,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2014,6 +2094,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2051,6 +2133,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2088,6 +2172,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2125,6 +2211,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2162,6 +2250,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2199,6 +2289,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2236,6 +2328,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2273,6 +2367,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2310,6 +2406,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2347,6 +2445,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2384,6 +2484,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2421,6 +2523,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2458,6 +2562,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2495,6 +2601,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2532,6 +2640,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2569,6 +2679,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2606,6 +2718,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Guide_1"
       ],
@@ -2643,6 +2757,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Guide_1"
       ],
@@ -2680,6 +2796,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2717,6 +2835,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2754,6 +2874,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2791,6 +2913,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2828,6 +2952,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2865,6 +2991,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2902,6 +3030,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -2939,6 +3069,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -2976,6 +3108,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -3013,6 +3147,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3050,6 +3186,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -3087,6 +3225,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -3124,6 +3264,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -3161,6 +3303,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Guide_2"
       ],
@@ -3198,6 +3342,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Guide_2"
       ],
@@ -3235,6 +3381,8 @@
     {
       "name": "Location_HiddenWarehouse_Logging",
       "nameLocalized": "Lumber Mill",
+      "nameLocalizedEN": "Lumber Mill",
+      "nameLocalizedZH": "\u4f10\u6728\u573a",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3272,6 +3420,8 @@
     {
       "name": "Location_HiddenWarehouse_GasStation",
       "nameLocalized": "Gas Station",
+      "nameLocalizedEN": "Gas Station",
+      "nameLocalizedZH": "\u52a0\u6cb9\u7ad9",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3309,6 +3459,8 @@
     {
       "name": "Location_HiddenWarehouse_Center",
       "nameLocalized": "Farmhouse",
+      "nameLocalizedEN": "Farmhouse",
+      "nameLocalizedZH": "\u519c\u820d",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3346,6 +3498,8 @@
     {
       "name": "Location_HiddenWarehouse_Warehouse",
       "nameLocalized": "Western Factory",
+      "nameLocalizedEN": "Western Factory",
+      "nameLocalizedZH": "\u897f\u5382\u533a",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3383,6 +3537,8 @@
     {
       "name": "Location_HiddenWarehouse_Valley",
       "nameLocalized": "Ravine",
+      "nameLocalizedEN": "Ravine",
+      "nameLocalizedZH": "\u6c9f\u58d1",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3420,6 +3576,8 @@
     {
       "name": "Location_HiddenWarehouse_RoadEntry",
       "nameLocalized": "East Road Camp",
+      "nameLocalizedEN": "East Road Camp",
+      "nameLocalizedZH": "\u4e1c\u8def\u53e3\u8425\u5730",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3457,6 +3615,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3494,6 +3654,8 @@
     {
       "name": "Location_HiddenWarehouse_RoadEntry",
       "nameLocalized": "East Road Camp",
+      "nameLocalizedEN": "East Road Camp",
+      "nameLocalizedZH": "\u4e1c\u8def\u53e3\u8425\u5730",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3531,6 +3693,8 @@
     {
       "name": "Location_HiddenWarehouse_Valley",
       "nameLocalized": "Ravine",
+      "nameLocalizedEN": "Ravine",
+      "nameLocalizedZH": "\u6c9f\u58d1",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3568,6 +3732,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3605,6 +3771,8 @@
     {
       "name": "Location_HiddenWarehouse_Center",
       "nameLocalized": "Farmhouse",
+      "nameLocalizedEN": "Farmhouse",
+      "nameLocalizedZH": "\u519c\u820d",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3642,6 +3810,8 @@
     {
       "name": "Location_HiddenWarehouse_Warehouse",
       "nameLocalized": "Western Factory",
+      "nameLocalizedEN": "Western Factory",
+      "nameLocalizedZH": "\u897f\u5382\u533a",
       "sceneIds": [
         "Level_HiddenWarehouse"
       ],
@@ -3679,6 +3849,8 @@
     {
       "name": "Location_JLab_ExpZone",
       "nameLocalized": "Lab\\ Area",
+      "nameLocalizedEN": "Lab\\ Area",
+      "nameLocalizedZH": "\u5b9e\u9a8c\u533a",
       "sceneIds": [
         "Level_JLab_Main"
       ],
@@ -3716,6 +3888,8 @@
     {
       "name": "Location_JLab_Stairs",
       "nameLocalized": "Stairwell",
+      "nameLocalizedEN": "Stairwell",
+      "nameLocalizedZH": "\u697c\u68af\u95f4",
       "sceneIds": [
         "Level_JLab_Main"
       ],
@@ -3753,6 +3927,8 @@
     {
       "name": "Location_JLab_Elec",
       "nameLocalized": "Power\\ Control\\ Area",
+      "nameLocalizedEN": "Power\\ Control\\ Area",
+      "nameLocalizedZH": "\u7535\u529b\u63a7\u5236\u533a",
       "sceneIds": [
         "Level_JLab_Main"
       ],
@@ -3790,6 +3966,8 @@
     {
       "name": "Location_JLab_Zone9Office",
       "nameLocalized": "Zone\\ 9\\ Office",
+      "nameLocalizedEN": "Zone\\ 9\\ Office",
+      "nameLocalizedZH": "\u533a\u57df9\u529e\u516c\u5ba4",
       "sceneIds": [
         "Level_JLab_Main"
       ],
@@ -3827,6 +4005,8 @@
     {
       "name": "Location_JLab_Stairs",
       "nameLocalized": "Stairwell",
+      "nameLocalizedEN": "Stairwell",
+      "nameLocalizedZH": "\u697c\u68af\u95f4",
       "sceneIds": [
         "Level_JLab_Main"
       ],
@@ -3864,6 +4044,8 @@
     {
       "name": "Location_JLab_Stairs",
       "nameLocalized": "Stairwell",
+      "nameLocalizedEN": "Stairwell",
+      "nameLocalizedZH": "\u697c\u68af\u95f4",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3901,6 +4083,8 @@
     {
       "name": "Location_JLab_WierdRoom",
       "nameLocalized": "Strange\\ Lab\\ Area",
+      "nameLocalizedEN": "Strange\\ Lab\\ Area",
+      "nameLocalizedZH": "\u5947\u602a\u5b9e\u9a8c\u533a",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3938,6 +4122,8 @@
     {
       "name": "Location_JLab_Elec",
       "nameLocalized": "Power\\ Control\\ Area",
+      "nameLocalizedEN": "Power\\ Control\\ Area",
+      "nameLocalizedZH": "\u7535\u529b\u63a7\u5236\u533a",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -3975,6 +4161,8 @@
     {
       "name": "Location_JLab_Stairs",
       "nameLocalized": "Stairwell",
+      "nameLocalizedEN": "Stairwell",
+      "nameLocalizedZH": "\u697c\u68af\u95f4",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -4012,6 +4200,8 @@
     {
       "name": "MapLocation_Farm_Dormitory_Cons",
       "nameLocalized": "Construction\\ Site\\ Dormitory",
+      "nameLocalizedEN": "Construction\\ Site\\ Dormitory",
+      "nameLocalizedZH": "\u5de5\u5730\u5bbf\u820d",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4049,6 +4239,8 @@
     {
       "name": "MapLocation_Farm_MountainFarm",
       "nameLocalized": "Hillside Farmhouse",
+      "nameLocalizedEN": "Hillside Farmhouse",
+      "nameLocalizedZH": "\u5c71\u8fb9\u519c\u820d",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4086,6 +4278,8 @@
     {
       "name": "MapLocation_Farm_MercenaryCamp",
       "nameLocalized": "Mercenary Camp",
+      "nameLocalizedEN": "Mercenary Camp",
+      "nameLocalizedZH": "\u96c7\u4f63\u5175\u8425\u5730",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4123,6 +4317,8 @@
     {
       "name": "MapLocation_Farm_TemporaryConstruction",
       "nameLocalized": "Makeshift Construction Site",
+      "nameLocalizedEN": "Makeshift Construction Site",
+      "nameLocalizedZH": "\u4e34\u65f6\u5de5\u5730",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4160,6 +4356,8 @@
     {
       "name": "MapLocation_Farm_GasStation",
       "nameLocalized": "Gas Station",
+      "nameLocalizedEN": "Gas Station",
+      "nameLocalizedZH": "\u52a0\u6cb9\u7ad9",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4197,6 +4395,8 @@
     {
       "name": "MapLocation_Farm_ChemicalPlant",
       "nameLocalized": "Chemical Plant",
+      "nameLocalizedEN": "Chemical Plant",
+      "nameLocalizedZH": "\u5316\u5de5\u5382",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4234,6 +4434,8 @@
     {
       "name": "MapLocation_Farm_Lumberyard",
       "nameLocalized": "Sawmill",
+      "nameLocalizedEN": "Sawmill",
+      "nameLocalizedZH": "\u4f10\u6728\u5382",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4271,6 +4473,8 @@
     {
       "name": "MapLocation_Farm_Supermarket",
       "nameLocalized": "Supermarket",
+      "nameLocalizedEN": "Supermarket",
+      "nameLocalizedZH": "\u5927\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4308,6 +4512,8 @@
     {
       "name": "Teleporters_0",
       "nameLocalized": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-0",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4345,6 +4551,8 @@
     {
       "name": "MapLocation_Farm_School",
       "nameLocalized": "School",
+      "nameLocalizedEN": "School",
+      "nameLocalizedZH": "\u5b66\u6821",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4382,6 +4590,8 @@
     {
       "name": "MapLocation_Farm_Clinic",
       "nameLocalized": "Clinic",
+      "nameLocalizedEN": "Clinic",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4419,6 +4629,8 @@
     {
       "name": "MapLocation_Farm_SupercomputingCenter",
       "nameLocalized": "Hidden Mine",
+      "nameLocalizedEN": "Hidden Mine",
+      "nameLocalizedZH": "\u9690\u853d\u77ff\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4456,6 +4668,8 @@
     {
       "name": "MapLocation_Farm_JLab",
       "nameLocalized": "Office Building",
+      "nameLocalizedEN": "Office Building",
+      "nameLocalizedZH": "\u529e\u516c\u697c",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4493,6 +4707,8 @@
     {
       "name": "MapLocation_Farm_SouthernWarehouse",
       "nameLocalized": "Southern\\ Warehouse",
+      "nameLocalizedEN": "Southern\\ Warehouse",
+      "nameLocalizedZH": "\u5357\u90e8\u4ed3\u5e93",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4530,6 +4746,8 @@
     {
       "name": "MapLocation_Farm_Sanatorium",
       "nameLocalized": "Sanatorium",
+      "nameLocalizedEN": "Sanatorium",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4567,6 +4785,8 @@
     {
       "name": "MapLocation_Farm_Radar",
       "nameLocalized": "Radar Station",
+      "nameLocalizedEN": "Radar Station",
+      "nameLocalizedZH": "\u96f7\u8fbe\u7ad9",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4604,6 +4824,8 @@
     {
       "name": "MapLocation_Farm_NorthernFactory",
       "nameLocalized": "Northern Factory",
+      "nameLocalizedEN": "Northern Factory",
+      "nameLocalizedZH": "\u5317\u90e8\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4641,6 +4863,8 @@
     {
       "name": "MapLocation_Farm_SouthVillage",
       "nameLocalized": "South Village",
+      "nameLocalizedEN": "South Village",
+      "nameLocalizedZH": "\u5357\u90e8\u6751\u5e84",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4678,6 +4902,8 @@
     {
       "name": "MapLocation_Farm_GasStation",
       "nameLocalized": "Gas Station",
+      "nameLocalizedEN": "Gas Station",
+      "nameLocalizedZH": "\u52a0\u6cb9\u7ad9",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4715,6 +4941,8 @@
     {
       "name": "MapLocation_Farm_Restaurant",
       "nameLocalized": "Restaurant",
+      "nameLocalizedEN": "Restaurant",
+      "nameLocalizedZH": "\u9910\u5385",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4752,6 +4980,8 @@
     {
       "name": "MapLocation_Farm_Fishing",
       "nameLocalized": "Fishing Dock",
+      "nameLocalizedEN": "Fishing Dock",
+      "nameLocalizedZH": "\u6355\u9c7c\u7801\u5934",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4789,6 +5019,8 @@
     {
       "name": "MapLocation_Farm_Pharmacy",
       "nameLocalized": "Pharmacy",
+      "nameLocalizedEN": "Pharmacy",
+      "nameLocalizedZH": "\u836f\u5e97",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4826,6 +5058,8 @@
     {
       "name": "MapLocation_Farm_CityHall",
       "nameLocalized": "City Hall",
+      "nameLocalizedEN": "City Hall",
+      "nameLocalizedZH": "\u5e02\u653f\u5385",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4863,6 +5097,8 @@
     {
       "name": "Teleporters_3",
       "nameLocalized": "Teleport\\ Bubble\\ 3",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 3",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-3",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4900,6 +5136,8 @@
     {
       "name": "Teleporters_1",
       "nameLocalized": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-1",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4937,6 +5175,8 @@
     {
       "name": "Teleporters_1",
       "nameLocalized": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-1",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -4974,6 +5214,8 @@
     {
       "name": "Teleporters_2",
       "nameLocalized": "Teleport\\ Bubble\\ 2",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 2",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-2",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5011,6 +5253,8 @@
     {
       "name": "Teleporters_2",
       "nameLocalized": "Teleport\\ Bubble\\ 2",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 2",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-2",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5048,6 +5292,8 @@
     {
       "name": "Teleporters_3",
       "nameLocalized": "Teleport\\ Bubble\\ 3",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 3",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-3",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5085,6 +5331,8 @@
     {
       "name": "MapLocation_Farm_Construction",
       "nameLocalized": "Abandoned Construction Site",
+      "nameLocalizedEN": "Abandoned Construction Site",
+      "nameLocalizedZH": "\u70c2\u5c3e\u5de5\u5730",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5122,6 +5370,8 @@
     {
       "name": "MapLocation_Farm_Dormitory",
       "nameLocalized": "Office Building Apartment",
+      "nameLocalizedEN": "Office Building Apartment",
+      "nameLocalizedZH": "\u529e\u516c\u697c\u516c\u5bd3",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5159,6 +5409,8 @@
     {
       "name": "Teleporters_0",
       "nameLocalized": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-0",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5196,6 +5448,8 @@
     {
       "name": "MapLocation_Farm_CBD",
       "nameLocalized": "Commercial District",
+      "nameLocalizedEN": "Commercial District",
+      "nameLocalizedZH": "\u5546\u4e1a\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5233,6 +5487,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5270,6 +5526,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5307,6 +5565,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5344,6 +5604,8 @@
     {
       "name": "\u4e2d\u5fc3\u533a",
       "nameLocalized": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedEN": "\u4e2d\u5fc3\u533a",
+      "nameLocalizedZH": "\u4e2d\u5fc3\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5381,6 +5643,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5418,6 +5682,8 @@
     {
       "name": "\u5357\u5382\u533a",
       "nameLocalized": "\u5357\u5382\u533a",
+      "nameLocalizedEN": "\u5357\u5382\u533a",
+      "nameLocalizedZH": "\u5357\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5455,6 +5721,8 @@
     {
       "name": "\u5c45\u4f4f\u533a",
       "nameLocalized": "\u5c45\u4f4f\u533a",
+      "nameLocalizedEN": "\u5c45\u4f4f\u533a",
+      "nameLocalizedZH": "\u5c45\u4f4f\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5492,6 +5760,8 @@
     {
       "name": "Location_GroundZero_RoadCap",
       "nameLocalized": "Road Camp",
+      "nameLocalizedEN": "Road Camp",
+      "nameLocalizedZH": "\u516c\u8def\u8425\u5730",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5529,6 +5799,8 @@
     {
       "name": "Location_GroundZero_MiddleMountain",
       "nameLocalized": "Small\\ Hill",
+      "nameLocalizedEN": "Small\\ Hill",
+      "nameLocalizedZH": "\u77ee\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5566,6 +5838,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5603,6 +5877,8 @@
     {
       "name": "Location_GroundZero_CaveEntry",
       "nameLocalized": "Cave Entrance",
+      "nameLocalizedEN": "Cave Entrance",
+      "nameLocalizedZH": "\u5c71\u6d1e\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5640,6 +5916,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5677,6 +5955,8 @@
     {
       "name": "\u8bca\u6240",
       "nameLocalized": "\u8bca\u6240",
+      "nameLocalizedEN": "\u8bca\u6240",
+      "nameLocalizedZH": "\u8bca\u6240",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5714,6 +5994,8 @@
     {
       "name": "\u519c\u573a",
       "nameLocalized": "\u519c\u573a",
+      "nameLocalizedEN": "\u519c\u573a",
+      "nameLocalizedZH": "\u519c\u573a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5751,6 +6033,8 @@
     {
       "name": "\u7597\u517b\u9662",
       "nameLocalized": "\u7597\u517b\u9662",
+      "nameLocalizedEN": "\u7597\u517b\u9662",
+      "nameLocalizedZH": "\u7597\u517b\u9662",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5788,6 +6072,8 @@
     {
       "name": "\u8d85\u5e02",
       "nameLocalized": "\u8d85\u5e02",
+      "nameLocalizedEN": "\u8d85\u5e02",
+      "nameLocalizedZH": "\u8d85\u5e02",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5825,6 +6111,8 @@
     {
       "name": "Location_NorthMountain",
       "nameLocalized": "North Mountain",
+      "nameLocalizedEN": "North Mountain",
+      "nameLocalizedZH": "\u5317\u5c71",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -5862,6 +6150,8 @@
     {
       "name": "\u5317\u5382\u533a",
       "nameLocalized": "\u5317\u5382\u533a",
+      "nameLocalizedEN": "\u5317\u5382\u533a",
+      "nameLocalizedZH": "\u5317\u5382\u533a",
       "sceneIds": [
         "Level_Farm_01"
       ],
@@ -5899,6 +6189,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Farm_JLab_Facility"
       ],
@@ -5936,6 +6228,8 @@
     {
       "name": "",
       "nameLocalized": "",
+      "nameLocalizedEN": "",
+      "nameLocalizedZH": "",
       "sceneIds": [
         "Level_Farm_JLab_Facility"
       ],
@@ -5973,6 +6267,8 @@
     {
       "name": "Location_BunkerEntry",
       "nameLocalized": "Bunker Entrance",
+      "nameLocalizedEN": "Bunker Entrance",
+      "nameLocalizedZH": "\u5730\u5821\u5165\u53e3",
       "sceneIds": [
         "Level_GroundZero_1"
       ],
@@ -6010,6 +6306,8 @@
     {
       "name": "Teleporters_1",
       "nameLocalized": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-1",
       "sceneIds": [
         "Level_StormZone_1"
       ],
@@ -6047,6 +6345,8 @@
     {
       "name": "Teleporters_0",
       "nameLocalized": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-0",
       "sceneIds": [
         "Level_StormZone_1"
       ],
@@ -6084,6 +6384,8 @@
     {
       "name": "Teleporters_0",
       "nameLocalized": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 0",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-0",
       "sceneIds": [
         "Level_StormZone_1"
       ],
@@ -6121,6 +6423,8 @@
     {
       "name": "Teleporters_1",
       "nameLocalized": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedEN": "Teleport\\ Bubble\\ 1",
+      "nameLocalizedZH": "\u4f20\u9001\u6c14\u6ce1-1",
       "sceneIds": [
         "Level_StormZone_1"
       ],
@@ -6154,6 +6458,2050 @@
         "guid": "b155a9cee72e10c40a1b7a18a64ceae3",
         "type": 2
       }
+    }
+  ],
+  "blueprints": [
+    {
+      "name": "Item_Formula_FirstAidKit_M",
+      "itemTypeID": 738,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        451.39,
+        0.0,
+        285.09
+      ],
+      "nameLocalized": "Recipe: First Aid Kit",
+      "nameLocalizedEN": "Recipe: First Aid Kit",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6025\u6551\u7bb1",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        351.99,
+        -0.0054807663,
+        122.41
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        504.17,
+        -0.044,
+        164.27
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        210.41,
+        24.79,
+        288.94
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_WD40",
+      "itemTypeID": 378,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        203.51,
+        -0.039,
+        150.92
+      ],
+      "nameLocalized": "Recipe: MD40",
+      "nameLocalizedEN": "Recipe: MD40",
+      "nameLocalizedZH": "\u914d\u65b9\uff1aMD40",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Cable",
+      "itemTypeID": 383,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        475.307,
+        0.003,
+        244.639
+      ],
+      "nameLocalized": "Recipe: Power Cord",
+      "nameLocalizedEN": "Recipe: Power Cord",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u6e90\u7ebf",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        281.72,
+        -0.015,
+        254.35
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        437.283,
+        3.884,
+        201.184
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Wrench03",
+      "itemTypeID": 382,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        332.67,
+        14.98,
+        227.65
+      ],
+      "nameLocalized": "Recipe: Crowbar",
+      "nameLocalizedEN": "Recipe: Crowbar",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u64ac\u68cd",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        300.03,
+        -7.999,
+        159.7
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Trap",
+      "itemTypeID": 377,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        505.615,
+        -0.018,
+        224.909
+      ],
+      "nameLocalized": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedEN": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6355\u517d\u5939",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_CircuitBoard",
+      "itemTypeID": 387,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity",
+      "sceneDir": "Assets/Scenes/Level_DemoChallenge",
+      "worldPosition": [
+        334.619,
+        0.36,
+        280.056
+      ],
+      "nameLocalized": "Recipe: Circuit Board",
+      "nameLocalizedEN": "Recipe: Circuit Board",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u8def\u677f",
+      "sceneIds": [
+        "Level_DemoChallenge_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        210.41,
+        24.79,
+        288.94
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Cable",
+      "itemTypeID": 383,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        475.307,
+        0.003,
+        244.639
+      ],
+      "nameLocalized": "Recipe: Power Cord",
+      "nameLocalizedEN": "Recipe: Power Cord",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u6e90\u7ebf",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        437.283,
+        3.884,
+        201.184
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        281.72,
+        -0.015,
+        254.35
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_WD40",
+      "itemTypeID": 378,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        203.51,
+        -0.039,
+        150.92
+      ],
+      "nameLocalized": "Recipe: MD40",
+      "nameLocalizedEN": "Recipe: MD40",
+      "nameLocalizedZH": "\u914d\u65b9\uff1aMD40",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Wrench03",
+      "itemTypeID": 382,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        332.67,
+        14.98,
+        227.65
+      ],
+      "nameLocalized": "Recipe: Crowbar",
+      "nameLocalizedEN": "Recipe: Crowbar",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u64ac\u68cd",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Jinitaimei",
+      "itemTypeID": 396,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        476.6065372482314,
+        -0.010046129999990328,
+        197.93463288412713
+      ],
+      "nameLocalized": "Recipe: Black Potion",
+      "nameLocalizedEN": "Recipe: Black Potion",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u9ed1\u8272\u836f\u5242",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        504.17,
+        -0.044,
+        164.27
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_FirstAidKit_M",
+      "itemTypeID": 738,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        451.39,
+        0.0,
+        285.09
+      ],
+      "nameLocalized": "Recipe: First Aid Kit",
+      "nameLocalizedEN": "Recipe: First Aid Kit",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6025\u6551\u7bb1",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        300.03,
+        -7.999,
+        159.7
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        328.59,
+        -0.0054807663,
+        78.07
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Trap",
+      "itemTypeID": 377,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        505.615,
+        -0.018,
+        224.909
+      ],
+      "nameLocalized": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedEN": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6355\u517d\u5939",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_CircuitBoard",
+      "itemTypeID": 387,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        334.619,
+        0.36,
+        280.056
+      ],
+      "nameLocalized": "Recipe: Circuit Board",
+      "nameLocalizedEN": "Recipe: Circuit Board",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u8def\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_Cave.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        582.83,
+        -0.0018312931,
+        561.6972
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_Cave.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        581.43,
+        -0.0018312931,
+        561.6972
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_GroundZero/Level_GroundZero_Cave.unity",
+      "sceneDir": "Assets/Scenes/Level_GroundZero",
+      "worldPosition": [
+        582.139995,
+        -0.00183099999999925,
+        562.82002
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_GroundZero_1"
+      ]
+    },
+    {
+      "name": "Item_Formula_Trap",
+      "itemTypeID": 377,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        505.615,
+        -0.018,
+        224.909
+      ],
+      "nameLocalized": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedEN": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6355\u517d\u5939",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_WD40",
+      "itemTypeID": 378,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        203.51,
+        -0.039,
+        150.92
+      ],
+      "nameLocalized": "Recipe: MD40",
+      "nameLocalizedEN": "Recipe: MD40",
+      "nameLocalizedZH": "\u914d\u65b9\uff1aMD40",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Wrench03",
+      "itemTypeID": 382,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        332.67,
+        14.98,
+        227.65
+      ],
+      "nameLocalized": "Recipe: Crowbar",
+      "nameLocalizedEN": "Recipe: Crowbar",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u64ac\u68cd",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        300.03,
+        -7.999,
+        159.7
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        281.72,
+        -0.015,
+        254.35
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Cable",
+      "itemTypeID": 383,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        475.307,
+        0.003,
+        244.639
+      ],
+      "nameLocalized": "Recipe: Power Cord",
+      "nameLocalizedEN": "Recipe: Power Cord",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u6e90\u7ebf",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        219.62,
+        24.79,
+        291.58
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        437.283,
+        3.884,
+        201.184
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_CircuitBoard",
+      "itemTypeID": 387,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        334.619,
+        0.36,
+        280.056
+      ],
+      "nameLocalized": "Recipe: Circuit Board",
+      "nameLocalizedEN": "Recipe: Circuit Board",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u8def\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        504.17,
+        -0.044,
+        164.27
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_1.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        352.51,
+        -0.015,
+        122.33
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Trap",
+      "itemTypeID": 377,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        745.0417600000001,
+        -0.018,
+        211.339496
+      ],
+      "nameLocalized": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedEN": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6355\u517d\u5939",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_WD40",
+      "itemTypeID": 378,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        442.93676,
+        -0.039,
+        137.350496
+      ],
+      "nameLocalized": "Recipe: MD40",
+      "nameLocalizedEN": "Recipe: MD40",
+      "nameLocalizedZH": "\u914d\u65b9\uff1aMD40",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Wrench03",
+      "itemTypeID": 382,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        572.09676,
+        14.98,
+        214.080496
+      ],
+      "nameLocalized": "Recipe: Crowbar",
+      "nameLocalizedEN": "Recipe: Crowbar",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u64ac\u68cd",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        539.45676,
+        -7.999,
+        146.130496
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        521.1467600000001,
+        -0.015,
+        240.780496
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Cable",
+      "itemTypeID": 383,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        714.7337600000001,
+        0.003,
+        231.06949600000002
+      ],
+      "nameLocalized": "Recipe: Power Cord",
+      "nameLocalizedEN": "Recipe: Power Cord",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u6e90\u7ebf",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        459.04676,
+        24.79,
+        278.010496
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        676.70976,
+        3.884,
+        187.614496
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_CircuitBoard",
+      "itemTypeID": 387,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        574.04576,
+        0.36,
+        266.486496
+      ],
+      "nameLocalized": "Recipe: Circuit Board",
+      "nameLocalizedEN": "Recipe: Circuit Board",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u8def\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        743.59676,
+        -0.044,
+        150.70049600000002
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_Guide/Level_Guide_2.unity",
+      "sceneDir": "Assets/Scenes/Level_Guide",
+      "worldPosition": [
+        591.93676,
+        -0.015,
+        108.760496
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Guide_1",
+        "Level_Guide_2"
+      ]
+    },
+    {
+      "name": "Item_Formula_Injection_ElecResist",
+      "itemTypeID": 410,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        294.438,
+        0.909,
+        206.382
+      ],
+      "nameLocalized": "Recipe: Electric RES Injector",
+      "nameLocalizedEN": "Recipe: Electric RES Injector",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6297\u7535\u6027\u9488",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        58.375,
+        0.643,
+        225.297
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        324.467,
+        1.188,
+        240.894
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        369.477,
+        0.003,
+        308.961
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_Formula_Injection_PainResist",
+      "itemTypeID": 411,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        403.699,
+        0.917,
+        175.058
+      ],
+      "nameLocalized": "Recipe: Painkiller",
+      "nameLocalizedEN": "Recipe: Painkiller",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u9547\u75db\u5242",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        294.39,
+        0.294,
+        213.53
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_Formula_UVBulb2",
+      "itemTypeID": 842,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        140.61,
+        -0.026,
+        318.67
+      ],
+      "nameLocalized": "Recipe: UV Light",
+      "nameLocalizedEN": "Recipe: UV Light",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7d2b\u5916\u706f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_Formula_Drum4",
+      "itemTypeID": 846,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        57.076,
+        -0.06,
+        71.561
+      ],
+      "nameLocalized": "Recipe: Metal Fuel Drum",
+      "nameLocalizedEN": "Recipe: Metal Fuel Drum",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u91d1\u5c5e\u6cb9\u6876",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_Formula_Injection_HotBlood",
+      "itemTypeID": 439,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse_CellarUnderGround.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        636.08708,
+        0.0,
+        92.658705
+      ],
+      "nameLocalized": "Recipe: Hot-Blood Injector",
+      "nameLocalizedEN": "Recipe: Hot-Blood Injector",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u70ed\u8840\u9488\u5242",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse_CellarUnderGround.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        740.38508,
+        0.0,
+        66.43170500000001
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse_CellarUnderGround.unity",
+      "sceneDir": "Assets/Scenes/Level_HiddenWarehouse",
+      "worldPosition": [
+        654.54505,
+        0.0,
+        105.65170499999999
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_HiddenWarehouse"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        24.154,
+        0.0,
+        33.471
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        -78.099976,
+        0.0,
+        -91.70001
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        -97.11,
+        0.0,
+        10.21
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        -11.930969,
+        0.0,
+        -106.21002
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        130.1,
+        0.0,
+        -119.48
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_1.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        144.452,
+        0.0,
+        -67.977
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_2.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        396.123194,
+        0.0,
+        -73.21
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_2.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        332.57320000000004,
+        0.0,
+        5.31
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_2.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        483.613215,
+        0.0,
+        -25.61
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_JLab/Level_JLab_2.unity",
+      "sceneDir": "Assets/Scenes/Level_JLab",
+      "worldPosition": [
+        467.9732,
+        -3.99,
+        -86.29
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_JLab_1",
+        "Level_JLab_2"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        188.96,
+        0.999,
+        353.33
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        670.58,
+        0.0,
+        96.65
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        794.53,
+        1.557,
+        560.1
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        558.49,
+        -8.016,
+        707.9
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        306.57,
+        0.308,
+        771.74
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        543.36,
+        0.029,
+        223.32
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        623.006,
+        0.855,
+        584.322
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        410.69,
+        0.026,
+        563.21
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        420.724,
+        0.026,
+        729.203
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        767.32,
+        0.601,
+        181.281
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        400.086,
+        0.04,
+        285.117
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        627.678,
+        0.0,
+        523.93
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        538.24,
+        -0.00182724,
+        314.10999999999996
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        390.067,
+        -0.00182724,
+        670.2610000000001
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        172.608,
+        2.87,
+        462.616
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        670.58,
+        0.0,
+        96.65
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_Formula_Cable",
+      "itemTypeID": 383,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        816.91247,
+        0.003,
+        443.09554
+      ],
+      "nameLocalized": "Recipe: Power Cord",
+      "nameLocalizedEN": "Recipe: Power Cord",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u6e90\u7ebf",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        623.3254400000001,
+        -0.015,
+        452.80654
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        641.6355000000001,
+        -7.999,
+        358.15655
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        845.7755099999999,
+        -0.044,
+        362.72655999999995
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_Formula_WD40",
+      "itemTypeID": 378,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        545.11548,
+        -0.039,
+        349.37652
+      ],
+      "nameLocalized": "Recipe: MD40",
+      "nameLocalizedEN": "Recipe: MD40",
+      "nameLocalizedZH": "\u914d\u65b9\uff1aMD40",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        561.2254700000001,
+        24.79,
+        490.03653999999995
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        778.88843,
+        3.884,
+        399.64056
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_Formula_Wrench03",
+      "itemTypeID": 382,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        674.2755099999999,
+        14.98,
+        426.10654
+      ],
+      "nameLocalized": "Recipe: Crowbar",
+      "nameLocalizedEN": "Recipe: Crowbar",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u64ac\u68cd",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_Formula_CircuitBoard",
+      "itemTypeID": 387,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        676.2244900000001,
+        0.36,
+        478.51253999999994
+      ],
+      "nameLocalized": "Recipe: Circuit Board",
+      "nameLocalizedEN": "Recipe: Circuit Board",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u7535\u8def\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_Formula_Trap",
+      "itemTypeID": 377,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        847.22047,
+        -0.018,
+        423.36554
+      ],
+      "nameLocalized": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedEN": "Recipe:\\ Animal\\ Trap",
+      "nameLocalizedZH": "\u914d\u65b9\uff1a\u6355\u517d\u5939",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        694.11547,
+        -0.015,
+        320.78656
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        558.23,
+        -8.016,
+        705.8
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        794.53,
+        1.557,
+        560.1
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        410.69,
+        0.026,
+        563.21
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        172.58,
+        2.7856545,
+        462.52002
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        400.086,
+        0.04,
+        285.117
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity",
+      "sceneDir": "Assets/Scenes/Level_OpenWorldTest",
+      "worldPosition": [
+        631.446,
+        0.0,
+        583.675
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_Farm_01"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_1.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        757.313,
+        0.005,
+        502.119
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_1.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        388.27,
+        0.023159027,
+        580.36
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_1.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        409.083,
+        0.005,
+        411.403
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_1.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        586.41,
+        0.253,
+        351.5
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_B2.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        774.4187999999999,
+        0.0,
+        270.42960000000005
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
+    },
+    {
+      "name": "Item_1_Blueprint",
+      "itemTypeID": 284,
+      "kind": "formula",
+      "scenePath": "Assets/Scenes/Level_StormZone/Level_StormZone_B3.unity",
+      "sceneDir": "Assets/Scenes/Level_StormZone",
+      "worldPosition": [
+        314.14,
+        0.0,
+        150.20999999999998
+      ],
+      "nameLocalized": "Blueprint Template",
+      "nameLocalizedEN": "Blueprint Template",
+      "nameLocalizedZH": "\u84dd\u56fe\u6a21\u677f",
+      "sceneIds": [
+        "Level_stormZone_1",
+        "Level_stormZone_B0",
+        "Level_stormZone_B1",
+        "Level_stormZone_B2",
+        "Level_stormZone_B3",
+        "Level_stormZone_B4"
+      ]
     }
   ]
 }

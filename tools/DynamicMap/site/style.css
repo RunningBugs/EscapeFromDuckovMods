@@ -148,6 +148,32 @@ body {
     background: var(--marker-color);
 }
 
+.marker.blueprint-marker {
+    width: 18px;
+    height: 18px;
+    background: #4cc3ff;
+    border-color: #0a2f3d;
+    box-shadow: 0 0 10px rgba(76, 195, 255, 0.45);
+}
+
+.marker.blueprint-marker::after {
+    background: rgba(10, 37, 48, 0.9);
+    color: #d9f6ff;
+}
+
+.marker.formula-marker {
+    width: 18px;
+    height: 18px;
+    background: #ffb347;
+    border-color: #0f1116;
+    box-shadow: 0 0 10px rgba(255, 179, 71, 0.35);
+}
+
+.marker.formula-marker::after {
+    background: rgba(40, 28, 12, 0.9);
+    color: #fff4e1;
+}
+
 .marker::after {
     content: attr(data-label);
     position: absolute;
@@ -205,6 +231,28 @@ body {
 #marker-list li span {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.8rem;
+}
+
+#marker-list li.section-header {
+    display: block;
+    padding: 0.35rem 0.5rem;
+    background: transparent;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#marker-list li.blueprint-entry {
+    border: 1px solid rgba(76, 195, 255, 0.35);
+    background: rgba(76, 195, 255, 0.08);
+}
+
+#marker-list li.empty-entry {
+    display: block;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    justify-content: flex-start;
 }
 
 @media (max-width: 960px) {

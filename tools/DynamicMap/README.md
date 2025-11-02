@@ -4,7 +4,7 @@ Static site generator for Duckov raid maps with points of interest extracted str
 
 ## Overview
 - `extract_map_data.py` scans a Duckov AssetRipper export for minimap sprites (`MiniMapSettings`) and static `SimplePointOfInterest` markers, converts them to JSON, and copies the required textures.
-- `site/` contains a no-build HTML/CSS/JS viewer that loads the generated JSON at runtime. The output is GitHub Pages–friendly; just push `site/` to a `gh-pages` branch (or serve from `main` via the `docs/` convention).
+- `site/` contains a no-build HTML/CSS/JS viewer that loads the generated JSON at runtime. The output is GitHub Pages–friendly; just push `site/` to a `gh-pages` branch (or serve from `main` via the `docs/` convention). Blueprint pick-ups (when present in the dump) are highlighted with dedicated markers.
 
 ## Prerequisites
 - Python 3.8+ (standard library only).
