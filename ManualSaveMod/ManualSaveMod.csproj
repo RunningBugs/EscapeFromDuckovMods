@@ -16,6 +16,9 @@
     <Reference Include="$(DuckovManagedDir)/SodaLocalization.dll">
       <Private>false</Private>
     </Reference>
+    <Reference Include="$(DuckovManagedDir)/Eflatun.SceneReference.dll">
+      <Private>false</Private>
+    </Reference>
     <Reference Include="$(DuckovManagedDir)/Unity*.dll">
       <Private>false</Private>
     </Reference>
@@ -33,6 +36,8 @@
     <Publicize Include="TeamSoda.Duckov.Core:UIPanel.Open" />
     <Publicize Include="TeamSoda.Duckov.Core:LevelManager.SaveMainCharacter" />
     <Publicize Include="TeamSoda.Duckov.Core:Saves.SavesSystem.CreateIndexedBackup" />
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.UI.MainMenu.ContinueButton" />
+    <Publicize Include="TeamSoda.Duckov.Core:Duckov.UI.MainMenu.ContinueButton.text_Continue" />
   </ItemGroup>
 
   <ItemGroup>
