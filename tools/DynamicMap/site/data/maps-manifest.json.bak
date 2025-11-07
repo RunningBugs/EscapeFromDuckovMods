@@ -1,0 +1,160 @@
+{
+  "generatedAt": "2025-11-05T22:00:55Z",
+  "exportRoot": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject",
+  "siteMapsDir": "assets/maps",
+  "sceneMapCandidates": {
+    "Assets/Scenes/Base_SceneV2.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/LevelCutScene/Cutscene_Ending.unity": [
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_GroundZero/Level_GroundZero_1.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_Guide/Level_Guide_1.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_Guide/Level_Guide_2.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse.unity": [
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_HiddenWarehouse/Level_HiddenWarehouse_CellarUnderGround.unity": [
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_JLab/Level_JLab_1.unity": [
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_JLab/Level_JLab_2.unity": [
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_OpenWorldTest/Level_Farm_01.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_OpenWorldTest/Level_Farm_JLab_Facility.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_StormZone/Level_StormZone_1.unity": [
+      {
+        "basename": "icon_white_language.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/icon_white_language.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "pictoicon_exit.png",
+        "source": "/home/lisanhu/mine/workspace/duckov/game-source/tools/DynamicMap/site/assets/maps/pictoicon_exit.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Base_Scene.unity": [
+      {
+        "basename": "MiniMap_Base_SceneV2.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Base_SceneV2.png",
+        "existsInSite": true
+      },
+      {
+        "basename": "MiniMap_Base_SceneV2_Sub_01.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Base_SceneV2_Sub_01.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Base_SceneV2_Sub_01.unity": [
+      {
+        "basename": "MiniMap_Base_SceneV2_Sub_01.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Base_SceneV2_Sub_01.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_DemoChallenge/Level_DemoChallenge_1.unity": [
+      {
+        "basename": "MiniMap_Level_DemoChallenge_1.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Level_DemoChallenge_1.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_GroundZero/Level_GroundZero_Cave.unity": [],
+    "Assets/Scenes/Level_StormZone/Level_StormZone_B2.unity": [
+      {
+        "basename": "MiniMap_Level_StormZone_B2.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Level_StormZone_B2.png",
+        "existsInSite": true
+      }
+    ],
+    "Assets/Scenes/Level_StormZone/Level_StormZone_B3.unity": [
+      {
+        "basename": "MiniMap_Level_StormZone_B3.png",
+        "source": "/home/lisanhu/Downloads/AssetRipper_linux_x64/Duckov/new/AssetRipper_export_20251102_113832/ExportedProject/Assets/Texture2D/MiniMap_Level_StormZone_B3.png",
+        "existsInSite": true
+      }
+    ],
+    "Level_Farm_01": [],
+    "Level_HiddenWarehouse": []
+  },
+  "copied": []
+}

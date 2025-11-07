@@ -1,48 +1,1213 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="utf-8" />
-        <title>Duckov Dynamic Map</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="style.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Duckov — DynamicMap Viewer</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+                    sans-serif;
+                background: linear-gradient(135deg, #0a1628 0%, #1a2f4a 100%);
+                color: #e0e6ed;
+                min-height: 100vh;
+            }
+            .container {
+                display: flex;
+                height: 100vh;
+            }
+            .sidebar {
+                width: 320px;
+                background: rgba(15, 25, 40, 0.9);
+                padding: 20px;
+                overflow-y: auto;
+                border-right: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .sidebar h1 {
+                font-size: 20px;
+                margin-bottom: 8px;
+                color: #4fc3f7;
+            }
+            .sidebar .subtitle {
+                font-size: 12px;
+                color: #90a4ae;
+                margin-bottom: 20px;
+            }
+            .control-group {
+                margin-bottom: 16px;
+            }
+            .control-group label {
+                display: block;
+                font-size: 13px;
+                margin-bottom: 6px;
+                color: #b0bec5;
+            }
+            .control-group select,
+            .control-group input,
+            .control-group button {
+                width: 100%;
+                padding: 8px 12px;
+                background: rgba(20, 30, 50, 0.9);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                color: #e0e6ed;
+                font-size: 14px;
+            }
+            .control-group select option {
+                background: #1a2332;
+                color: #e0e6ed;
+            }
+            .control-group select:focus,
+            .control-group input:focus {
+                outline: none;
+                border-color: #4fc3f7;
+            }
+            .control-group button {
+                background: #1976d2;
+                border-color: #1976d2;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background 0.2s;
+            }
+            .control-group button:hover {
+                background: #1565c0;
+            }
+            .stats {
+                display: flex;
+                gap: 12px;
+                font-size: 12px;
+                color: #78909c;
+                margin-bottom: 16px;
+            }
+            .stats span {
+                flex: 1;
+            }
+            .diagnostics {
+                background: rgba(0, 0, 0, 0.3);
+                padding: 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                color: #90a4ae;
+                max-height: 120px;
+                overflow-y: auto;
+                margin-top: 16px;
+            }
+            .diagnostics .label {
+                font-weight: 600;
+                color: #b0bec5;
+                margin-bottom: 6px;
+            }
+            .main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+            }
+            .toolbar {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                margin-bottom: 16px;
+                padding: 12px;
+                background: rgba(15, 25, 40, 0.8);
+                border-radius: 6px;
+            }
+            .toolbar label {
+                font-size: 13px;
+                color: #b0bec5;
+            }
+            .toolbar input[type="range"] {
+                flex: 1;
+            }
+            .toolbar button {
+                padding: 6px 14px;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 4px;
+                color: #e0e6ed;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .toolbar button:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+            .toolbar .scene-info {
+                margin-left: auto;
+                font-size: 12px;
+                color: #78909c;
+            }
+            .map-container {
+                flex: 1;
+                background: rgba(10, 20, 35, 0.8);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .map-display {
+                position: relative;
+                display: inline-block;
+                transform-origin: center;
+                transition: transform 0.15s ease-out;
+            }
+            .image-layer {
+                position: relative;
+                display: inline-block;
+            }
+            .map-container img {
+                max-width: 100%;
+                max-height: 100%;
+                display: block;
+            }
+            .poi-overlay {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .poi {
+                position: absolute;
+                pointer-events: auto;
+                cursor: pointer;
+                width: 0;
+                height: 0;
+            }
+            .poi-dot {
+                position: absolute;
+                left: -7px;
+                top: -7px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #4fc3f7;
+                border: 2px solid rgba(255, 255, 255, 0.9);
+                box-shadow: 0 2px 8px rgba(79, 195, 247, 0.6);
+            }
+            .poi.blueprint .poi-dot {
+                background: #f44336;
+                box-shadow: 0 2px 8px rgba(244, 67, 54, 0.6);
+            }
+            .poi-label {
+                position: absolute;
+                left: 12px;
+                top: 0;
+                transform: translateY(-50%);
+                transform-origin: left center;
+                background: rgba(0, 0, 0, 0.85);
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                white-space: nowrap;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                user-select: none;
+            }
+            .attempts {
+                margin-top: 12px;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 4px;
+                font-size: 11px;
+                color: #78909c;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .attempts .success {
+                color: #4caf50;
+            }
+            .attempts .fail {
+                color: #f44336;
+            }
+        </style>
     </head>
     <body>
-        <header class="app-header">
-            <h1>Duckov Dynamic Map</h1>
-            <p>
-                Static viewer generated from the game assets. Select a map to
-                explore points of interest.
-            </p>
-        </header>
-        <main class="app-main">
+        <div class="container">
             <aside class="sidebar">
-                <label for="map-select" class="sidebar-label">Map</label>
-                <select id="map-select"></select>
-                <div class="sidebar-meta" id="map-meta"></div>
-                <details class="sidebar-legend">
-                    <summary>Legend</summary>
-                    <p>
-                        Markers are placed using world coordinates projected
-                        onto the minimap texture. Hover to see details.
-                    </p>
-                </details>
-            </aside>
-            <section class="map-section">
-                <div class="map-container">
-                    <div class="map-rotator" id="map-rotator">
-                        <img id="map-image" alt="Selected map" />
-                        <div id="marker-layer"></div>
+                <h1>Duckov Map Viewer</h1>
+                <p class="subtitle">Dynamic map with POIs — local viewer</p>
+
+                <div class="control-group">
+                    <label for="langSelect">Language:</label>
+                    <select id="langSelect">
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Map Center (World Position):</label>
+                    <div
+                        style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr;
+                            gap: 4px;
+                            font-size: 12px;
+                        "
+                    >
+                        <div>
+                            <label style="font-size: 11px">X:</label>
+                            <input
+                                type="number"
+                                id="centerX"
+                                style="width: 100%; padding: 4px"
+                                value="0"
+                                step="10"
+                            />
+                        </div>
+                        <div>
+                            <label style="font-size: 11px">Y:</label>
+                            <input
+                                type="number"
+                                id="centerY"
+                                style="width: 100%; padding: 4px"
+                                value="0"
+                                step="10"
+                            />
+                        </div>
+                        <div>
+                            <label style="font-size: 11px">Z:</label>
+                            <input
+                                type="number"
+                                id="centerZ"
+                                style="width: 100%; padding: 4px"
+                                value="0"
+                                step="10"
+                            />
+                        </div>
                     </div>
                 </div>
-                <div class="marker-list">
-                    <h2>Markers</h2>
-                    <ul id="marker-list"></ul>
+
+                <div class="control-group">
+                    <label for="worldSize">Image World Size:</label>
+                    <input
+                        type="number"
+                        id="worldSize"
+                        value="1000"
+                        step="10"
+                    />
+                    <div
+                        style="font-size: 11px; color: #90a4ae; margin-top: 2px"
+                    >
+                        World units covered by the map texture
+                    </div>
                 </div>
-            </section>
-        </main>
-        <footer class="app-footer">
-            <span id="generated-meta"></span>
-        </footer>
-        <script src="main.js"></script>
+
+                <div class="control-group">
+                    <button id="applyMapParams" style="width: 100%">
+                        Apply Parameters
+                    </button>
+                    <button
+                        id="autoCalcParams"
+                        style="width: 100%; margin-top: 4px"
+                    >
+                        Auto Calculate
+                    </button>
+                </div>
+
+                <div class="control-group">
+                    <label for="sceneSelect">Select Scene</label>
+                    <select id="sceneSelect">
+                        <option value="">-- Loading scenes --</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <button id="loadBtn">Load Map</button>
+                </div>
+
+                <div class="control-group">
+                    <label for="rotationAngle">Rotation Angle</label>
+                    <select id="rotationAngle">
+                        <option value="0">0° (No rotation)</option>
+                        <option value="45" selected>45° Clockwise</option>
+                        <option value="90">90° Clockwise</option>
+                        <option value="-45">45° Counter-clockwise</option>
+                    </select>
+                </div>
+
+                <div class="stats">
+                    <span>Scenes: <strong id="sceneCount">0</strong></span>
+                    <span>POIs: <strong id="poiCount">0</strong></span>
+                </div>
+
+                <div class="diagnostics">
+                    <div class="label">Status</div>
+                    <div id="status">Initializing...</div>
+                </div>
+
+                <div class="diagnostics" style="margin-top: 12px">
+                    <div class="label">Image Load Attempts</div>
+                    <div id="attempts">—</div>
+                </div>
+            </aside>
+
+            <main class="main">
+                <div class="toolbar">
+                    <label for="zoomRange">Zoom</label>
+                    <input
+                        type="range"
+                        id="zoomRange"
+                        min="50"
+                        max="200"
+                        value="100"
+                    />
+                    <button id="resetBtn">Reset View</button>
+                    <button id="toggleLabelsBtn">Toggle Labels</button>
+                    <span class="scene-info" id="sceneInfo"
+                        >No scene loaded</span
+                    >
+                </div>
+
+                <div class="map-container" id="mapContainer">
+                    <div class="map-display" id="mapDisplay">
+                        <div class="image-layer" id="imageLayer">
+                            <img
+                                id="mapImage"
+                                src=""
+                                alt="Map"
+                                style="display: none"
+                            />
+                            <div class="poi-overlay" id="poiOverlay"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attempts" id="attemptsDetail"></div>
+            </main>
+        </div>
+
+        <script>
+            (function () {
+                const state = {
+                    manifest: null,
+                    scenes: new Map(), // maps by Unity scene file
+                    mapScenes: new Map(), // maps by map filename
+                    allPOIs: [],
+                    currentScene: null,
+                    currentSceneData: null,
+                    currentPOIs: [],
+                    lang: "en",
+                    labelsVisible: true,
+                    rotationAngle: 45,
+                    mapParams: {
+                        centerX: 0,
+                        centerY: 0,
+                        centerZ: 0,
+                        worldSize: 1000,
+                        useAuto: true,
+                    },
+                    // Known map parameters (from Unity MiniMapSettings)
+                    knownMapParams: {
+                        "MiniMap_Base_SceneV2.png": {
+                            centerX: 7.5,
+                            centerY: 0,
+                            centerZ: -72.5,
+                            worldSize: 100,
+                        },
+                        "MiniMap_Base_SceneV2_Sub_01.png": {
+                            centerX: 50,
+                            centerY: 0,
+                            centerZ: -60,
+                            worldSize: 100,
+                        },
+                        "MiniMap_Level_Farm_01.png": {
+                            centerX: 500,
+                            centerY: 0,
+                            centerZ: 500,
+                            worldSize: 1000,
+                        },
+                        "MiniMap_Level_GroundZero_1.png": {
+                            centerX: 600,
+                            centerY: 0,
+                            centerZ: 325,
+                            worldSize: 1200,
+                        },
+                        "MiniMap_Level_Guide_1.png": {
+                            centerX: 400,
+                            centerY: 0,
+                            centerZ: 400,
+                            worldSize: 1000,
+                        },
+                        "MiniMap_Level_Guide_2.png": {
+                            centerX: 400,
+                            centerY: 0,
+                            centerZ: 400,
+                            worldSize: 1000,
+                        },
+                        "MiniMap_Level_HiddenWarehouse.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_JLab_1.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_JLab_2.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_StormZone_1.png": {
+                            centerX: 400,
+                            centerY: 0,
+                            centerZ: 400,
+                            worldSize: 1000,
+                        },
+                        "MiniMap_Level_StormZone_B0.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_StormZone_B1.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_StormZone_B2.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_StormZone_B3.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_StormZone_B4.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Level_DemoChallenge_1.png": {
+                            centerX: 250,
+                            centerY: 0,
+                            centerZ: 250,
+                            worldSize: 600,
+                        },
+                        "MiniMap_Prologue_1.png": {
+                            centerX: 400,
+                            centerY: 0,
+                            centerZ: 400,
+                            worldSize: 1000,
+                        },
+                        "MiniMap_Prologue_Main_Combined.png": {
+                            centerX: 400,
+                            centerY: 0,
+                            centerZ: 400,
+                            worldSize: 1000,
+                        },
+                    },
+                };
+
+                const els = {
+                    sceneSelect: document.getElementById("sceneSelect"),
+                    loadBtn: document.getElementById("loadBtn"),
+                    langSelect: document.getElementById("langSelect"),
+                    mapImage: document.getElementById("mapImage"),
+                    mapDisplay: document.getElementById("mapDisplay"),
+                    imageLayer: document.getElementById("imageLayer"),
+                    poiOverlay: document.getElementById("poiOverlay"),
+                    zoomRange: document.getElementById("zoomRange"),
+                    resetBtn: document.getElementById("resetBtn"),
+                    toggleLabelsBtn: document.getElementById("toggleLabelsBtn"),
+                    sceneCount: document.getElementById("sceneCount"),
+                    poiCount: document.getElementById("poiCount"),
+                    status: document.getElementById("status"),
+                    attempts: document.getElementById("attempts"),
+                    attemptsDetail: document.getElementById("attemptsDetail"),
+                    sceneInfo: document.getElementById("sceneInfo"),
+                    centerX: document.getElementById("centerX"),
+                    centerY: document.getElementById("centerY"),
+                    centerZ: document.getElementById("centerZ"),
+                    worldSize: document.getElementById("worldSize"),
+                    applyMapParams: document.getElementById("applyMapParams"),
+                    autoCalcParams: document.getElementById("autoCalcParams"),
+                };
+
+                function setStatus(msg, type = "info") {
+                    els.status.textContent = msg;
+                    els.status.style.color =
+                        type === "error"
+                            ? "#f44336"
+                            : type === "success"
+                              ? "#4caf50"
+                              : "#90a4ae";
+                }
+
+                function parseCSV(text) {
+                    const rows = [];
+                    let row = [],
+                        cell = "",
+                        inQuotes = false;
+                    for (let i = 0; i < text.length; i++) {
+                        const c = text[i],
+                            next = text[i + 1];
+                        if (inQuotes) {
+                            if (c === '"' && next === '"') {
+                                cell += '"';
+                                i++;
+                            } else if (c === '"') {
+                                inQuotes = false;
+                            } else {
+                                cell += c;
+                            }
+                        } else {
+                            if (c === '"') {
+                                inQuotes = true;
+                            } else if (c === ",") {
+                                row.push(cell);
+                                cell = "";
+                            } else if (c === "\r") {
+                                continue;
+                            } else if (c === "\n") {
+                                row.push(cell);
+                                rows.push(row);
+                                row = [];
+                                cell = "";
+                            } else {
+                                cell += c;
+                            }
+                        }
+                    }
+                    if (cell || row.length) {
+                        row.push(cell);
+                        rows.push(row);
+                    }
+                    return rows;
+                }
+
+                function csvToObjects(rows) {
+                    if (!rows || rows.length < 2) return [];
+                    const headers = rows[0];
+                    return rows.slice(1).map((row) => {
+                        const obj = {};
+                        headers.forEach((h, i) => (obj[h] = row[i] || ""));
+                        return obj;
+                    });
+                }
+
+                async function tryImageCandidates(urls) {
+                    els.attemptsDetail.innerHTML = "";
+                    for (let i = 0; i < urls.length; i++) {
+                        const url = urls[i];
+                        const span = document.createElement("span");
+                        span.textContent =
+                            url.split("/").pop() +
+                            (i < urls.length - 1 ? " · " : "");
+                        els.attemptsDetail.appendChild(span);
+
+                        const result = await new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => resolve(url);
+                            img.onerror = () => resolve(null);
+                            img.src = url;
+                        });
+
+                        if (result) {
+                            span.className = "success";
+                            return result;
+                        } else {
+                            span.className = "fail";
+                        }
+                    }
+                    return null;
+                }
+
+                function buildCandidates(sceneKey) {
+                    const candidates = [];
+
+                    // Get scene_id from current scene data if available
+                    const sceneId = state.currentSceneData?.scene_id;
+
+                    // Try scene_id first (most reliable)
+                    if (sceneId && sceneId.trim()) {
+                        candidates.push(
+                            "assets/maps/MiniMap_" + sceneId + ".png",
+                        );
+                        candidates.push("assets/maps/Map_" + sceneId + ".png");
+                        candidates.push("assets/maps/" + sceneId + ".png");
+                    }
+
+                    // Extract scene name from the scene file path
+                    const sceneName = sceneKey
+                        .replace(/^Assets\/Scenes\//i, "")
+                        .replace(/\.unity$/i, "")
+                        .split("/")
+                        .pop();
+
+                    if (sceneName) {
+                        candidates.push(
+                            "assets/maps/MiniMap_" + sceneName + ".png",
+                        );
+                        candidates.push(
+                            "assets/maps/Map_" + sceneName + ".png",
+                        );
+                        candidates.push("assets/maps/" + sceneName + ".png");
+
+                        // Try variations for specific scenes
+                        if (sceneName.includes("Farm")) {
+                            candidates.push("assets/maps/Map_Farm.png");
+                            candidates.push("assets/maps/Map_Farm_2.png");
+                        }
+                        if (sceneName.includes("GroundZero")) {
+                            candidates.push("assets/maps/Map_GroundZero.png");
+                        }
+                        if (sceneName.includes("HiddenWarehouse")) {
+                            candidates.push(
+                                "assets/maps/Map_Hiddenwarehouse.png",
+                            );
+                        }
+                        if (sceneName.includes("StormZone")) {
+                            candidates.push("assets/maps/Map_StormZone.png");
+                        }
+                        if (sceneName.includes("JLab")) {
+                            candidates.push("assets/maps/Map_JLab_2.png");
+                        }
+                        if (sceneName.includes("Prologue")) {
+                            candidates.push(
+                                "assets/maps/MiniMap_Prologue_Main_Combined.png",
+                            );
+                        }
+                    }
+
+                    // Check manifest entries last (often has wrong icons)
+                    const manifestEntry =
+                        state.manifest?.sceneMapCandidates?.[sceneKey];
+                    if (manifestEntry && Array.isArray(manifestEntry)) {
+                        manifestEntry.forEach((e) => {
+                            if (
+                                e.basename &&
+                                !e.basename.includes("icon_") &&
+                                !e.basename.includes("pictoicon_")
+                            ) {
+                                candidates.push("assets/maps/" + e.basename);
+                            }
+                        });
+                    }
+
+                    return [...new Set(candidates)];
+                }
+
+                function renderPOIs(pois) {
+                    els.poiOverlay.innerHTML = "";
+                    if (!els.mapImage.naturalWidth || !pois.length) {
+                        console.log("renderPOIs early return:", {
+                            imageWidth: els.mapImage.naturalWidth,
+                            poisCount: pois.length,
+                        });
+                        return;
+                    }
+                    console.log("renderPOIs called with", pois.length, "POIs");
+
+                    let centerX, centerY, centerZ, worldSize;
+
+                    if (state.mapParams.useAuto) {
+                        // Check if we have known params for this map
+                        const knownParams =
+                            state.knownMapParams[state.currentScene];
+
+                        if (knownParams) {
+                            // Use pre-configured parameters
+                            centerX = knownParams.centerX;
+                            centerY = knownParams.centerY;
+                            centerZ = knownParams.centerZ;
+                            worldSize = knownParams.worldSize;
+                        } else {
+                            // Auto mode: calculate from POIs
+                            const xs = [],
+                                zs = [];
+                            pois.forEach((p) => {
+                                const x = parseFloat(p.world_pos_x || 0);
+                                const z = parseFloat(p.world_pos_z || 0);
+                                if (!isNaN(x) && !isNaN(z)) {
+                                    xs.push(x);
+                                    zs.push(z);
+                                }
+                            });
+
+                            if (!xs.length) return;
+
+                            const minX = Math.min(...xs);
+                            const maxX = Math.max(...xs);
+                            const minZ = Math.min(...zs);
+                            const maxZ = Math.max(...zs);
+
+                            centerX = (minX + maxX) / 2;
+                            centerZ = (minZ + maxZ) / 2;
+                            centerY = 0;
+
+                            const rangeX = maxX - minX;
+                            const rangeZ = maxZ - minZ;
+                            worldSize = Math.max(rangeX, rangeZ) * 1.2; // 20% padding
+                        }
+
+                        // Update UI
+                        els.centerX.value = Math.round(centerX);
+                        els.centerY.value = Math.round(centerY);
+                        els.centerZ.value = Math.round(centerZ);
+                        els.worldSize.value = Math.round(worldSize);
+                    } else {
+                        // Manual mode
+                        centerX = state.mapParams.centerX;
+                        centerY = state.mapParams.centerY;
+                        centerZ = state.mapParams.centerZ;
+                        worldSize = state.mapParams.worldSize;
+                    }
+
+                    // Use the displayed image size to compute overlay size and pixel mapping,
+                    // so POIs align even when the image is scaled to fit the container.
+                    const w =
+                        els.mapImage.clientWidth || els.mapImage.naturalWidth;
+                    const h =
+                        els.mapImage.clientHeight || els.mapImage.naturalHeight;
+
+                    // Pixel size in displayed pixels (world units per displayed pixel)
+                    let spriteWidth = null;
+                    // Prefer sprite texture width from CSV (map_pixel_size) if available
+                    for (const p of pois) {
+                        const mps = parseFloat(p.map_pixel_size || 0);
+                        if (!isNaN(mps) && mps > 0) {
+                            spriteWidth = mps;
+                            break;
+                        }
+                    }
+                    if (!spriteWidth) {
+                        // Fallback to the natural image width
+                        spriteWidth = els.mapImage.naturalWidth || w;
+                    }
+                    // World units per texel (Unity: imageWorldSize / sprite.texture.width)
+                    const texelPixelSize = worldSize / spriteWidth;
+                    // Displayed pixels per texel (scale from sprite pixels to on-screen pixels)
+                    const displayScale = w / spriteWidth;
+
+                    // Set POI overlay size to match the displayed image
+                    els.poiOverlay.style.width = w + "px";
+                    els.poiOverlay.style.height = h + "px";
+
+                    console.log("Map params:", {
+                        centerX,
+                        centerY,
+                        centerZ,
+                        worldSize,
+                        imageSize: [w, h],
+                        spriteWidth,
+                        texelPixelSize,
+                        displayScale,
+                        rotationAngle: state.rotationAngle,
+                    });
+
+                    // Apply rotation to the entire display (like Unity does)
+                    const currentScale = els.zoomRange.value / 100;
+                    els.mapDisplay.style.transform = `rotate(${state.rotationAngle}deg) scale(${currentScale})`;
+
+                    // For POI coordinates, we don't apply rotation since the display is rotated
+                    let renderedCount = 0;
+
+                    pois.forEach((p) => {
+                        const worldX = parseFloat(p.world_pos_x || 0);
+                        const worldZ = parseFloat(p.world_pos_z || 0);
+
+                        // Unity minimap coordinate transform
+                        // 1. Get offset from center
+                        const offsetX = worldX - centerX;
+                        const offsetZ = worldZ - centerZ;
+
+                        // 2. Convert to pixel coordinates
+                        // Unity uses (X, Z) for 2D top-down, with center at texture center
+                        // No rotation here - rotation is applied to the entire display
+                        const u =
+                            w / 2 + (offsetX / texelPixelSize) * displayScale;
+                        const v =
+                            h / 2 - (offsetZ / texelPixelSize) * displayScale; // Flip Z axis
+
+                        // Debug first few POIs
+                        if (renderedCount < 3) {
+                            console.log(`POI ${renderedCount}:`, {
+                                worldPos: [worldX, worldZ],
+                                offset: [offsetX, offsetZ],
+                                pixel: [u, v],
+                                name: p.display_name_en,
+                            });
+                        }
+                        renderedCount++;
+
+                        const poi = document.createElement("div");
+                        poi.className =
+                            "poi" +
+                            (p.blueprint_flag === "True" ? " blueprint" : "");
+                        poi.style.left = u + "px";
+                        poi.style.top = v + "px";
+
+                        const dot = document.createElement("div");
+                        dot.className = "poi-dot";
+
+                        const label = document.createElement("div");
+                        label.className = "poi-label";
+                        const name =
+                            state.lang === "zh"
+                                ? p.display_name_zh || p.display_name_en
+                                : p.display_name_en || p.display_name_zh;
+                        label.textContent = name || p.display_name_key || "POI";
+                        label.style.display = state.labelsVisible
+                            ? "block"
+                            : "none";
+                        label.style.transformOrigin = "left center";
+                        label.style.transform = `translateY(-50%) rotate(${-state.rotationAngle}deg)`;
+
+                        poi.appendChild(dot);
+                        poi.appendChild(label);
+                        poi.title = `${label.textContent}\n(${worldX.toFixed(1)}, ${worldZ.toFixed(1)})`;
+
+                        els.poiOverlay.appendChild(poi);
+                    });
+
+                    console.log(`Rendered ${renderedCount} POIs`);
+
+                    // Center test marker removed
+                }
+
+                async function loadScene(sceneKey) {
+                    if (!sceneKey || !state.scenes.has(sceneKey)) {
+                        setStatus("Invalid scene", "error");
+                        return;
+                    }
+
+                    state.currentScene = sceneKey;
+                    state.currentPOIs = state.scenes.get(sceneKey);
+
+                    // Store first POI for scene_id lookup
+                    state.currentSceneData = state.currentPOIs[0] || {};
+
+                    setStatus("Loading map for " + sceneKey + "...");
+                    els.sceneInfo.textContent =
+                        sceneKey + " — " + state.currentPOIs.length + " POIs";
+                    els.poiCount.textContent = state.currentPOIs.length;
+
+                    const candidates = buildCandidates(sceneKey);
+                    if (!candidates.length) {
+                        setStatus("No map candidates found", "error");
+                        return;
+                    }
+
+                    const url = await tryImageCandidates(candidates);
+                    if (!url) {
+                        setStatus(
+                            "No map image found (tried " +
+                                candidates.length +
+                                " candidates)",
+                            "error",
+                        );
+                        els.mapImage.style.display = "none";
+                        return;
+                    }
+
+                    els.mapImage.onload = () => {
+                        els.mapImage.style.display = "block";
+                        renderPOIs(state.currentPOIs);
+                        setStatus(
+                            "Map loaded successfully: " + url.split("/").pop(),
+                            "success",
+                        );
+                    };
+                    els.mapImage.src = url;
+                }
+
+                // Discover available map PNG files
+                async function discoverMaps() {
+                    const mapNames = [
+                        "MiniMap_Base_SceneV2.png",
+                        "MiniMap_Base_SceneV2_Sub_01.png",
+                        "MiniMap_Level_DemoChallenge_1.png",
+                        "MiniMap_Level_Farm_01.png",
+                        "MiniMap_Level_GroundZero_1.png",
+                        "MiniMap_Level_Guide_1.png",
+                        "MiniMap_Level_Guide_2.png",
+                        "MiniMap_Level_HiddenWarehouse.png",
+                        "MiniMap_Level_JLab_1.png",
+                        "MiniMap_Level_JLab_2.png",
+                        "MiniMap_Level_StormZone_1.png",
+                        "MiniMap_Level_StormZone_B0.png",
+                        "MiniMap_Level_StormZone_B1.png",
+                        "MiniMap_Level_StormZone_B2.png",
+                        "MiniMap_Level_StormZone_B3.png",
+                        "MiniMap_Level_StormZone_B4.png",
+                        "MiniMap_Prologue_1.png",
+                        "MiniMap_Prologue_Main_Combined.png",
+                    ];
+
+                    const available = [];
+                    for (const name of mapNames) {
+                        const path = "assets/maps/" + name;
+                        const exists = await new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => resolve(true);
+                            img.onerror = () => resolve(false);
+                            img.src = path;
+                        });
+                        if (exists) {
+                            available.push({ filename: name, path: path });
+                        }
+                    }
+                    return available;
+                }
+
+                // Match POIs to a map filename
+                function matchPOIsToMap(mapFilename) {
+                    const baseName = mapFilename
+                        .replace(/^(MiniMap_|Map_)/, "")
+                        .replace(/\.png$/, "");
+
+                    const matched = [];
+                    state.allPOIs.forEach((poi) => {
+                        const sceneFile = poi.scene_file || "";
+
+                        // Extract scene name from file path
+                        const extractedName = sceneFile
+                            .replace(/^Assets\/Scenes\//i, "")
+                            .replace(/\.unity$/i, "")
+                            .split("/")
+                            .pop();
+
+                        // Effective scene: prefer override_scene_id, then scene_id, then extracted scene file name.
+                        const overrideId = poi.override_scene_id || "";
+                        const sceneId = poi.scene_id || "";
+                        const effectiveScene =
+                            overrideId || sceneId || extractedName;
+
+                        if (effectiveScene !== baseName) return;
+
+                        // Filter out non-marker entries and hidden markers.
+                        if (String(poi.is_area) === "True") return;
+                        if (String(poi.hide_icon) === "True") return;
+
+                        matched.push(poi);
+                    });
+
+                    return matched;
+                }
+
+                // Load map by filename
+                async function loadMapByFilename(mapFilename) {
+                    const mapData = state.mapScenes.get(mapFilename);
+                    if (!mapData) {
+                        setStatus("Invalid map", "error");
+                        return;
+                    }
+
+                    state.currentScene = mapFilename;
+                    state.currentPOIs = mapData.pois;
+                    state.currentSceneData = mapData.pois[0] || {};
+
+                    setStatus("Loading map " + mapFilename + "...");
+                    els.sceneInfo.textContent =
+                        mapFilename + " — " + mapData.pois.length + " POIs";
+                    els.poiCount.textContent = mapData.pois.length;
+
+                    els.mapImage.onload = () => {
+                        els.mapImage.style.display = "block";
+                        els.poiOverlay.style.display = "block";
+
+                        // Size the image-layer to the displayed image box to keep overlay aligned
+                        const w =
+                            els.mapImage.clientWidth ||
+                            els.mapImage.naturalWidth;
+                        const h =
+                            els.mapImage.clientHeight ||
+                            els.mapImage.naturalHeight;
+                        els.imageLayer.style.width = w + "px";
+                        els.imageLayer.style.height = h + "px";
+
+                        renderPOIs(state.currentPOIs);
+                        updateLabelTransforms();
+                        setStatus(
+                            "Map loaded successfully: " + mapFilename,
+                            "success",
+                        );
+                    };
+                    els.mapImage.src = mapData.path;
+                }
+
+                async function init() {
+                    try {
+                        setStatus("Loading manifest...");
+                        const mRes = await fetch(
+                            "data/maps-manifest.json",
+                        ).catch(() => null);
+                        if (mRes && mRes.ok) {
+                            state.manifest = await mRes.json();
+                        }
+
+                        setStatus("Loading POI data...");
+                        const cRes = await fetch("pois.csv");
+                        if (!cRes.ok)
+                            throw new Error("Failed to load pois.csv");
+
+                        const csvText = await cRes.text();
+                        const rows = parseCSV(csvText);
+                        state.allPOIs = csvToObjects(rows);
+
+                        // Build scenes map (for compatibility)
+                        state.allPOIs.forEach((p) => {
+                            const scene = p.scene_file || "Unknown";
+                            if (!state.scenes.has(scene))
+                                state.scenes.set(scene, []);
+                            state.scenes.get(scene).push(p);
+                        });
+
+                        setStatus("Discovering available maps...");
+                        const availableMaps = await discoverMaps();
+
+                        // Build map-based scenes
+                        availableMaps.forEach((map) => {
+                            const pois = matchPOIsToMap(map.filename);
+                            state.mapScenes.set(map.filename, {
+                                filename: map.filename,
+                                path: map.path,
+                                pois: pois,
+                            });
+                        });
+
+                        // Populate dropdown with maps
+                        els.sceneSelect.innerHTML =
+                            '<option value="">-- Select a map --</option>';
+                        Array.from(state.mapScenes.keys())
+                            .sort()
+                            .forEach((mapKey) => {
+                                const mapData = state.mapScenes.get(mapKey);
+                                const opt = document.createElement("option");
+                                opt.value = mapKey;
+                                opt.textContent =
+                                    mapKey +
+                                    " (" +
+                                    mapData.pois.length +
+                                    " POIs)";
+                                els.sceneSelect.appendChild(opt);
+                            });
+
+                        els.sceneCount.textContent = state.mapScenes.size;
+                        setStatus(
+                            "Ready — " +
+                                state.mapScenes.size +
+                                " maps available",
+                            "success",
+                        );
+
+                        if (state.mapScenes.size > 0) {
+                            const first = Array.from(state.mapScenes.keys())[0];
+                            els.sceneSelect.value = first;
+                            loadMapByFilename(first);
+                        }
+                    } catch (err) {
+                        setStatus("Error: " + err.message, "error");
+                    }
+                }
+
+                els.loadBtn.addEventListener("click", () => {
+                    if (els.sceneSelect.value)
+                        loadMapByFilename(els.sceneSelect.value);
+                });
+
+                els.sceneSelect.addEventListener("change", () => {
+                    if (els.sceneSelect.value)
+                        loadMapByFilename(els.sceneSelect.value);
+                });
+
+                els.langSelect.addEventListener("change", () => {
+                    state.lang = els.langSelect.value;
+                    if (state.currentScene) renderPOIs(state.currentPOIs);
+                });
+
+                els.zoomRange.addEventListener("input", (e) => {
+                    const scale = e.target.value / 100;
+                    const rotation = state.rotationAngle;
+                    els.mapDisplay.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+                    updateLabelTransforms();
+                });
+
+                els.resetBtn.addEventListener("click", () => {
+                    els.zoomRange.value = 100;
+                    const rotation = state.rotationAngle;
+                    els.mapDisplay.style.transform = `rotate(${rotation}deg) scale(1)`;
+                    updateLabelTransforms();
+                });
+
+                els.toggleLabelsBtn.addEventListener("click", () => {
+                    state.labelsVisible = !state.labelsVisible;
+                    document.querySelectorAll(".poi-label").forEach((l) => {
+                        l.style.display = state.labelsVisible
+                            ? "block"
+                            : "none";
+                    });
+                });
+
+                els.applyMapParams.addEventListener("click", () => {
+                    state.mapParams.centerX =
+                        parseFloat(els.centerX.value) || 0;
+                    state.mapParams.centerY =
+                        parseFloat(els.centerY.value) || 0;
+                    state.mapParams.centerZ =
+                        parseFloat(els.centerZ.value) || 0;
+                    state.mapParams.worldSize =
+                        parseFloat(els.worldSize.value) || 1000;
+                    state.mapParams.useAuto = false;
+                    if (state.currentPOIs.length) {
+                        renderPOIs(state.currentPOIs);
+                        setStatus("Applied manual parameters", "success");
+                    }
+                });
+
+                els.autoCalcParams.addEventListener("click", () => {
+                    state.mapParams.useAuto = true;
+                    if (state.currentPOIs.length) {
+                        renderPOIs(state.currentPOIs);
+                        setStatus(
+                            "Using auto-calculated parameters",
+                            "success",
+                        );
+                    }
+                });
+
+                function updateLabelTransforms() {
+                    document.querySelectorAll(".poi-label").forEach((l) => {
+                        l.style.transformOrigin = "left center";
+                        l.style.transform = `translateY(-50%) rotate(${-state.rotationAngle}deg)`;
+                    });
+                }
+
+                // Lock rotation to 45° and hide the dropdown if present
+                state.rotationAngle = 45;
+                (function () {
+                    const rot = document.getElementById("rotationAngle");
+                    if (rot) {
+                        const grp = rot.closest(".control-group") || rot;
+                        grp.style.display = "none";
+                    }
+                    const scale = els.zoomRange.value / 100;
+                    els.mapDisplay.style.transform = `rotate(${state.rotationAngle}deg) scale(${scale})`;
+                    updateLabelTransforms();
+                })();
+
+                init();
+            })();
+        </script>
     </body>
 </html>
