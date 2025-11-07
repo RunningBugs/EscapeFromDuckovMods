@@ -172,7 +172,7 @@
             .poi-overlay {
                 position: absolute;
                 inset: 0;
-                pointer-events: none;
+                pointer-events: auto;
                 z-index: 1;
             }
             .poi {
@@ -181,6 +181,9 @@
                 cursor: pointer;
                 width: 0;
                 height: 0;
+                z-index: 1;
+                transform: scale(var(--poiScale, 1));
+                transform-origin: bottom center;
             }
             .poi-dot {
                 position: absolute;
@@ -199,17 +202,18 @@
             }
             .poi-label {
                 position: absolute;
-                left: 12px;
-                top: 0;
-                transform: translateY(-50%);
-                transform-origin: left center;
-                background: rgba(0, 0, 0, 0.85);
+                bottom: 14px;
+                left: 0;
+                transform: translateX(-50%);
+                transform-origin: bottom center;
+                background: rgba(0, 0, 0, 0.3);
                 padding: 4px 8px;
                 border-radius: 4px;
                 font-size: 12px;
                 white-space: nowrap;
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 user-select: none;
+                pointer-events: auto;
             }
             .attempts {
                 margin-top: 12px;
@@ -356,8 +360,8 @@
                     <input
                         type="range"
                         id="zoomRange"
-                        min="50"
-                        max="200"
+                        min="25"
+                        max="400"
                         value="100"
                     />
                     <button id="resetBtn">Reset View</button>
@@ -398,6 +402,9 @@
                     lang: "en",
                     labelsVisible: true,
                     rotationAngle: 45,
+                    scale: 1,
+                    panX: 0,
+                    panY: 0,
                     mapParams: {
                         centerX: 0,
                         centerY: 0,
@@ -426,10 +433,10 @@
                             worldSize: 1000,
                         },
                         "MiniMap_Level_GroundZero_1.png": {
-                            centerX: 600,
+                            centerX: 329,
                             centerY: 0,
-                            centerZ: 325,
-                            worldSize: 1200,
+                            centerZ: 241,
+                            worldSize: 560,
                         },
                         "MiniMap_Level_Guide_1.png": {
                             centerX: 400,
@@ -447,55 +454,55 @@
                             centerX: 250,
                             centerY: 0,
                             centerZ: 250,
-                            worldSize: 600,
+                            worldSize: 520,
                         },
                         "MiniMap_Level_JLab_1.png": {
-                            centerX: 250,
+                            centerX: -0.4,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: -48.2,
+                            worldSize: 500,
                         },
                         "MiniMap_Level_JLab_2.png": {
-                            centerX: 250,
+                            centerX: 425.5732,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: -48.2,
+                            worldSize: 500,
                         },
                         "MiniMap_Level_StormZone_1.png": {
-                            centerX: 400,
+                            centerX: 580,
                             centerY: 0,
-                            centerZ: 400,
-                            worldSize: 1000,
+                            centerZ: 355,
+                            worldSize: 640,
                         },
                         "MiniMap_Level_StormZone_B0.png": {
-                            centerX: 250,
+                            centerX: 170,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: 385,
+                            worldSize: 350,
                         },
                         "MiniMap_Level_StormZone_B1.png": {
-                            centerX: 250,
+                            centerX: 245,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: 560,
+                            worldSize: 250,
                         },
                         "MiniMap_Level_StormZone_B2.png": {
-                            centerX: 250,
+                            centerX: 820,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: 240,
+                            worldSize: 180,
                         },
                         "MiniMap_Level_StormZone_B3.png": {
-                            centerX: 250,
+                            centerX: 313.5,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: 112.5,
+                            worldSize: 190,
                         },
                         "MiniMap_Level_StormZone_B4.png": {
-                            centerX: 250,
+                            centerX: 883.5,
                             centerY: 0,
-                            centerZ: 250,
-                            worldSize: 600,
+                            centerZ: 563.5,
+                            worldSize: 200,
                         },
                         "MiniMap_Level_DemoChallenge_1.png": {
                             centerX: 250,
@@ -525,6 +532,7 @@
                     mapImage: document.getElementById("mapImage"),
                     mapDisplay: document.getElementById("mapDisplay"),
                     imageLayer: document.getElementById("imageLayer"),
+                    mapContainer: document.getElementById("mapContainer"),
                     poiOverlay: document.getElementById("poiOverlay"),
                     zoomRange: document.getElementById("zoomRange"),
                     resetBtn: document.getElementById("resetBtn"),
@@ -815,9 +823,9 @@
                         rotationAngle: state.rotationAngle,
                     });
 
-                    // Apply rotation to the entire display (like Unity does)
-                    const currentScale = els.zoomRange.value / 100;
-                    els.mapDisplay.style.transform = `rotate(${state.rotationAngle}deg) scale(${currentScale})`;
+                    // Apply rotation/scale via unified transform
+                    state.scale = parseFloat(els.zoomRange.value) / 100 || 1;
+                    updateTransform();
 
                     // For POI coordinates, we don't apply rotation since the display is rotated
                     let renderedCount = 0;
@@ -1137,17 +1145,19 @@
                 });
 
                 els.zoomRange.addEventListener("input", (e) => {
-                    const scale = e.target.value / 100;
-                    const rotation = state.rotationAngle;
-                    els.mapDisplay.style.transform = `rotate(${rotation}deg) scale(${scale})`;
-                    updateLabelTransforms();
+                    state.scale = Math.max(
+                        0.25,
+                        Math.min(4, (e.target.value || 100) / 100),
+                    );
+                    updateTransform();
                 });
 
                 els.resetBtn.addEventListener("click", () => {
                     els.zoomRange.value = 100;
-                    const rotation = state.rotationAngle;
-                    els.mapDisplay.style.transform = `rotate(${rotation}deg) scale(1)`;
-                    updateLabelTransforms();
+                    state.scale = 1;
+                    state.panX = 0;
+                    state.panY = 0;
+                    updateTransform();
                 });
 
                 els.toggleLabelsBtn.addEventListener("click", () => {
@@ -1188,11 +1198,107 @@
 
                 function updateLabelTransforms() {
                     document.querySelectorAll(".poi-label").forEach((l) => {
-                        l.style.transformOrigin = "left center";
-                        l.style.transform = `translateY(-50%) rotate(${-state.rotationAngle}deg)`;
+                        l.style.transformOrigin = "bottom center";
+                        l.style.transform = `translateX(-50%) rotate(${-state.rotationAngle}deg)`;
                     });
                 }
 
+                // Elevate hovered POI (dot or label) using overlay-level delegation
+                els.poiOverlay.addEventListener("mouseover", (e) => {
+                    const target = e.target;
+                    if (!target) return;
+                    const poi = target.closest(".poi");
+                    if (!poi || !els.poiOverlay.contains(poi)) return;
+
+                    // Raise this POI and its label above everything else
+                    poi.style.zIndex = "10000";
+                    const label = poi.querySelector(".poi-label");
+                    if (label) label.style.zIndex = "10001";
+
+                    // When the pointer leaves the POI (dot or label), restore stacking
+                    const onLeave = () => {
+                        poi.style.zIndex = "";
+                        if (label) label.style.zIndex = "";
+                        poi.removeEventListener("mouseleave", onLeave);
+                    };
+                    poi.addEventListener("mouseleave", onLeave);
+                });
+
+                // Unified transform applier: translate (pan), then rotate, then scale
+                function updateTransform() {
+                    els.mapDisplay.style.transform = `translate(${state.panX}px, ${state.panY}px) rotate(${state.rotationAngle}deg) scale(${state.scale})`;
+                    // Keep POI visuals the same size regardless of map scale
+                    const poiScale = 1 / (state.scale || 1);
+                    els.poiOverlay.style.setProperty(
+                        "--poiScale",
+                        poiScale.toString(),
+                    );
+                    updateLabelTransforms();
+                }
+                // Mouse-centered wheel zoom and drag-to-pan
+                (function attachInteractions() {
+                    // Wheel zoom centered at mouse
+                    const onWheel = (e) => {
+                        e.preventDefault();
+                        const rect = els.mapDisplay.getBoundingClientRect();
+                        const cx = rect.left + rect.width / 2;
+                        const cy = rect.top + rect.height / 2;
+                        const mx = e.clientX;
+                        const my = e.clientY;
+                        const ang = (state.rotationAngle * Math.PI) / 180;
+                        const cos = Math.cos(ang),
+                            sin = Math.sin(ang);
+                        // Screen delta to current local (pre-scale, pre-rotate) around center and pan
+                        const dx = mx - cx - state.panX;
+                        const dy = my - cy - state.panY;
+                        const localX =
+                            (cos * dx + sin * dy) / (state.scale || 1);
+                        const localY =
+                            (-sin * dx + cos * dy) / (state.scale || 1);
+                        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                        const newScale = Math.max(
+                            0.25,
+                            Math.min(4, (state.scale || 1) * factor),
+                        );
+                        if (newScale === state.scale) return;
+                        state.scale = newScale;
+                        // Compute new screen delta for same local point, adjust pan to keep cursor locked
+                        const ndx = (cos * localX - sin * localY) * state.scale;
+                        const ndy = (sin * localX + cos * localY) * state.scale;
+                        state.panX += dx - ndx;
+                        state.panY += dy - ndy;
+                        els.zoomRange.value = Math.round(state.scale * 100);
+                        updateTransform();
+                    };
+                    els.mapContainer.addEventListener("wheel", onWheel, {
+                        passive: false,
+                    });
+
+                    // Drag to pan (LMB)
+                    let dragging = false,
+                        lastX = 0,
+                        lastY = 0;
+                    els.mapContainer.addEventListener("mousedown", (e) => {
+                        if (e.button !== 0) return;
+                        dragging = true;
+                        lastX = e.clientX;
+                        lastY = e.clientY;
+                        e.preventDefault();
+                    });
+                    window.addEventListener("mousemove", (e) => {
+                        if (!dragging) return;
+                        const dx = e.clientX - lastX;
+                        const dy = e.clientY - lastY;
+                        lastX = e.clientX;
+                        lastY = e.clientY;
+                        state.panX += dx;
+                        state.panY += dy;
+                        updateTransform();
+                    });
+                    window.addEventListener("mouseup", () => {
+                        dragging = false;
+                    });
+                })();
                 // Lock rotation to 45° and hide the dropdown if present
                 state.rotationAngle = 45;
                 (function () {
@@ -1201,9 +1307,8 @@
                         const grp = rot.closest(".control-group") || rot;
                         grp.style.display = "none";
                     }
-                    const scale = els.zoomRange.value / 100;
-                    els.mapDisplay.style.transform = `rotate(${state.rotationAngle}deg) scale(${scale})`;
-                    updateLabelTransforms();
+                    state.scale = (els.zoomRange.value || 100) / 100;
+                    updateTransform();
                 })();
 
                 init();
