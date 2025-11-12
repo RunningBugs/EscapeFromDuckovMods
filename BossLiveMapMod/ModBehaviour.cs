@@ -683,7 +683,7 @@ namespace BossLiveMapMod
             marker.Poi.ShadowDistance = 0f;
 
             // Respect config: show names or hide them
-            var nameToUse = ModConfig.ShowMarkers ? displayName : string.Empty;
+            var nameToUse = ModConfig.ShowMarkerNames ? displayName : string.Empty;
             // Use followActiveScene: true so POI system tracks the game object
             // The Live toggle controls per-frame updates in LateUpdate()
             marker.Poi.Setup(characterType.GetMarkerIcon(), nameToUse, followActiveScene: true);

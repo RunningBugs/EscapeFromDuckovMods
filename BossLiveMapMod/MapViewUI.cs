@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using Duckov.MiniMaps.UI;
 using System.IO;
@@ -9,6 +10,46 @@ using SodaCraft.Localizations;
 
 namespace BossLiveMapMod
 {
+    /// <summary>
+    /// Properly handles scroll wheel events by calculating scroll amount based on content size.
+    /// </summary>
+    public sealed class BossListScrollHandler : MonoBehaviour, IScrollHandler
+    {
+        private ScrollRect _scrollRect;
+        private RectTransform _content;
+        private RectTransform _viewport;
+
+        public void Initialize(ScrollRect scrollRect, RectTransform content, RectTransform viewport)
+        {
+            _scrollRect = scrollRect;
+            _content = content;
+            _viewport = viewport;
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            if (_scrollRect == null || _content == null || _viewport == null)
+                return;
+
+            // Calculate scroll amount based on content and viewport size
+            float contentHeight = _content.rect.height;
+            float viewportHeight = _viewport.rect.height;
+
+            if (contentHeight <= viewportHeight)
+                return; // No need to scroll if content fits
+
+            // Calculate normalized scroll step
+            // Each scroll tick should move approximately 3% of the viewport
+            // float scrollStep = (viewportHeight * 0.01f) / (contentHeight - viewportHeight);
+            float scrollStep = 0.001f;
+            float delta = eventData.scrollDelta.y * scrollStep;
+            // float delta = 10f;
+
+            float newPosition = _scrollRect.verticalNormalizedPosition + delta;
+            _scrollRect.verticalNormalizedPosition = Mathf.Clamp01(newPosition);
+        }
+    }
+
     /// <summary>
     /// Runtime UI component attached to the MiniMapView to add live controls and the boss list scroll view.
     /// </summary>
@@ -22,9 +63,13 @@ namespace BossLiveMapMod
         private Toggle _toggleNames;
         private Toggle _toggleNearby;
         private Toggle _toggleBossList;
+        private Toggle _toggleMarkerNames;
 
         private Slider _alphaSlider;
         private TextMeshProUGUI _alphaPct;
+
+        private Slider _fontSizeSlider;
+        private TextMeshProUGUI _fontSizePct;
 
         // Boss list UI elements (scroll view)
         private ScrollRect _bossScrollRect;
@@ -180,6 +225,16 @@ namespace BossLiveMapMod
                             _lastBossListContent = newContent;
                         }
 
+                        // Apply font scale
+                        if (_bossListText != null)
+                        {
+                            float baseFontSize = 28f;
+                            float dpi = Screen.dpi > 0f ? Screen.dpi : 96f;
+                            float dpiScale = Mathf.Clamp(dpi / 96f, 0.75f, 3.0f);
+                            int fontSize = Mathf.RoundToInt(baseFontSize * dpiScale * ModConfig.BossFontScale);
+                            _bossListText.fontSize = fontSize;
+                        }
+
                         // Only rebuild layout when content changed
                         if (contentChanged && _bossContent != null && _bossListText != null)
                         {
@@ -283,25 +338,41 @@ namespace BossLiveMapMod
             fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            // Checkbox row
-            var checkboxRow = new GameObject("CheckboxRow", typeof(RectTransform));
-            checkboxRow.transform.SetParent(panelGO.transform, false);
-            var rowRT = checkboxRow.GetComponent<RectTransform>();
-            rowRT.sizeDelta = new Vector2(500f, 48f);
-            var rowLayout = checkboxRow.AddComponent<HorizontalLayoutGroup>();
-            rowLayout.spacing = 8f;
-            rowLayout.childForceExpandHeight = false;
-            rowLayout.childForceExpandWidth = false;
-            rowLayout.childAlignment = TextAnchor.MiddleLeft;
-            var rowLayoutElement = checkboxRow.AddComponent<LayoutElement>();
-            rowLayoutElement.preferredWidth = 500f;
-            rowLayoutElement.preferredHeight = 48f;
+            // Checkbox row 1
+            var checkboxRow1 = new GameObject("CheckboxRow1", typeof(RectTransform));
+            checkboxRow1.transform.SetParent(panelGO.transform, false);
+            var row1RT = checkboxRow1.GetComponent<RectTransform>();
+            row1RT.sizeDelta = new Vector2(400f, 36f);
+            var row1Layout = checkboxRow1.AddComponent<HorizontalLayoutGroup>();
+            row1Layout.spacing = 8f;
+            row1Layout.childForceExpandHeight = false;
+            row1Layout.childForceExpandWidth = false;
+            row1Layout.childAlignment = TextAnchor.MiddleLeft;
+            var row1LayoutElement = checkboxRow1.AddComponent<LayoutElement>();
+            row1LayoutElement.preferredWidth = 400f;
+            row1LayoutElement.preferredHeight = 36f;
 
-            _toggleAll = CreateToggle(checkboxRow.transform, GetLocalizedText("mobs", "Mobs"), ModConfig.ShowAllEnemies, v => ModConfig.SetShowAllEnemies(v));
-            _toggleNearby = CreateToggle(checkboxRow.transform, GetLocalizedText("nearby", "Nearby"), ModConfig.ShowNearbyOnly, v => ModConfig.SetShowNearbyOnly(v));
-            _toggleLive = CreateToggle(checkboxRow.transform, GetLocalizedText("live", "Live"), ModConfig.ShowLivePositions, v => ModConfig.SetShowLivePositions(v));
-            _toggleNames = CreateToggle(checkboxRow.transform, GetLocalizedText("markers", "Markers"), ModConfig.ShowMarkers, v => ModConfig.SetShowMarkers(v));
-            _toggleBossList = CreateToggle(checkboxRow.transform, GetLocalizedText("bosslist", "Boss List"), ModConfig.ShowBossList, v => ModConfig.SetShowBossList(v));
+            _toggleAll = CreateToggle(checkboxRow1.transform, GetLocalizedText("mobs", "Mobs"), ModConfig.ShowAllEnemies, v => ModConfig.SetShowAllEnemies(v));
+            _toggleNearby = CreateToggle(checkboxRow1.transform, GetLocalizedText("nearby", "Nearby"), ModConfig.ShowNearbyOnly, v => ModConfig.SetShowNearbyOnly(v));
+            _toggleLive = CreateToggle(checkboxRow1.transform, GetLocalizedText("live", "Live"), ModConfig.ShowLivePositions, v => ModConfig.SetShowLivePositions(v));
+
+            // Checkbox row 2
+            var checkboxRow2 = new GameObject("CheckboxRow2", typeof(RectTransform));
+            checkboxRow2.transform.SetParent(panelGO.transform, false);
+            var row2RT = checkboxRow2.GetComponent<RectTransform>();
+            row2RT.sizeDelta = new Vector2(400f, 36f);
+            var row2Layout = checkboxRow2.AddComponent<HorizontalLayoutGroup>();
+            row2Layout.spacing = 8f;
+            row2Layout.childForceExpandHeight = false;
+            row2Layout.childForceExpandWidth = false;
+            row2Layout.childAlignment = TextAnchor.MiddleLeft;
+            var row2LayoutElement = checkboxRow2.AddComponent<LayoutElement>();
+            row2LayoutElement.preferredWidth = 400f;
+            row2LayoutElement.preferredHeight = 36f;
+
+            _toggleNames = CreateToggle(checkboxRow2.transform, GetLocalizedText("markers", "Markers"), ModConfig.ShowMarkers, v => ModConfig.SetShowMarkers(v));
+            _toggleBossList = CreateToggle(checkboxRow2.transform, GetLocalizedText("bosslist", "Boss List"), ModConfig.ShowBossList, v => ModConfig.SetShowBossList(v));
+            _toggleMarkerNames = CreateToggle(checkboxRow2.transform, GetLocalizedText("markernames", "Names"), ModConfig.ShowMarkerNames, v => ModConfig.SetShowMarkerNames(v));
 
             // Alpha slider
             var sliderContainer = new GameObject("AlphaContainer", typeof(RectTransform));
@@ -412,6 +483,106 @@ namespace BossLiveMapMod
             pctRt.anchoredPosition = new Vector2(-6f, 0f);
             pctRt.sizeDelta = new Vector2(48f, 28f);
 
+            // Font Size slider
+            var fontSizeContainer = new GameObject("FontSizeContainer", typeof(RectTransform));
+            fontSizeContainer.transform.SetParent(panelGO.transform, false);
+            var fontSizeContainerRT = fontSizeContainer.GetComponent<RectTransform>();
+            fontSizeContainerRT.sizeDelta = new Vector2(380f, 40f);
+            var fontSizeLayout = fontSizeContainer.AddComponent<LayoutElement>();
+            fontSizeLayout.preferredWidth = 380f;
+            fontSizeLayout.preferredHeight = 40f;
+
+            var fontLabelGO = new GameObject("FontSizeLabel", typeof(RectTransform));
+            fontLabelGO.transform.SetParent(fontSizeContainer.transform, false);
+            var fontLabel = fontLabelGO.AddComponent<TextMeshProUGUI>();
+            fontLabel.text = GetLocalizedText("fontsize", "Font Size");
+            fontLabel.fontSize = 14;
+            fontLabel.color = Color.white;
+            fontLabel.alignment = TextAlignmentOptions.MidlineLeft;
+            fontLabel.raycastTarget = false;
+            var fontLabelRT = fontLabelGO.GetComponent<RectTransform>();
+            fontLabelRT.anchorMin = new Vector2(0f, 0.5f);
+            fontLabelRT.anchorMax = new Vector2(0f, 0.5f);
+            fontLabelRT.pivot = new Vector2(0f, 0.5f);
+            fontLabelRT.anchoredPosition = new Vector2(8f, 0f);
+            fontLabelRT.sizeDelta = new Vector2(70f, 28f);
+
+            var fontSliderGO = new GameObject("FontSizeSlider", typeof(RectTransform));
+            fontSliderGO.transform.SetParent(fontSizeContainer.transform, false);
+            var fontSliderRT = fontSliderGO.GetComponent<RectTransform>();
+            fontSliderRT.anchorMin = new Vector2(0f, 0.5f);
+            fontSliderRT.anchorMax = new Vector2(1f, 0.5f);
+            fontSliderRT.pivot = new Vector2(0f, 0.5f);
+            fontSliderRT.anchoredPosition = new Vector2(85f, 0f);
+            fontSliderRT.sizeDelta = new Vector2(-145f, 20f);
+
+            _fontSizeSlider = fontSliderGO.AddComponent<Slider>();
+            _fontSizeSlider.minValue = 0.5f;
+            _fontSizeSlider.maxValue = 2.0f;
+            _fontSizeSlider.value = ModConfig.BossFontScale;
+            _fontSizeSlider.onValueChanged.AddListener(OnFontSizeChanged);
+
+            var fontBgGO = new GameObject("Background", typeof(RectTransform));
+            fontBgGO.transform.SetParent(fontSliderGO.transform, false);
+            var fontBgImg = fontBgGO.AddComponent<Image>();
+            fontBgImg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            var fontBgRT = fontBgGO.GetComponent<RectTransform>();
+            fontBgRT.anchorMin = new Vector2(0f, 0.25f);
+            fontBgRT.anchorMax = new Vector2(1f, 0.75f);
+            fontBgRT.offsetMin = Vector2.zero;
+            fontBgRT.offsetMax = Vector2.zero;
+
+            var fontFillAreaGO = new GameObject("FillArea", typeof(RectTransform));
+            fontFillAreaGO.transform.SetParent(fontSliderGO.transform, false);
+            var fontFillAreaRT = fontFillAreaGO.GetComponent<RectTransform>();
+            fontFillAreaRT.anchorMin = new Vector2(0f, 0.25f);
+            fontFillAreaRT.anchorMax = new Vector2(1f, 0.75f);
+            fontFillAreaRT.offsetMin = Vector2.zero;
+            fontFillAreaRT.offsetMax = Vector2.zero;
+
+            var fontFillGO = new GameObject("Fill", typeof(RectTransform));
+            fontFillGO.transform.SetParent(fontFillAreaGO.transform, false);
+            var fontFillImg = fontFillGO.AddComponent<Image>();
+            fontFillImg.color = new Color(0.3f, 0.6f, 1f, 0.9f);
+            var fontFillRT = fontFillGO.GetComponent<RectTransform>();
+            fontFillRT.sizeDelta = Vector2.zero;
+            _fontSizeSlider.fillRect = fontFillRT;
+
+            var fontHandleAreaGO = new GameObject("HandleArea", typeof(RectTransform));
+            fontHandleAreaGO.transform.SetParent(fontSliderGO.transform, false);
+            var fontHandleAreaRT = fontHandleAreaGO.GetComponent<RectTransform>();
+            fontHandleAreaRT.anchorMin = new Vector2(0f, 0f);
+            fontHandleAreaRT.anchorMax = new Vector2(1f, 1f);
+            fontHandleAreaRT.offsetMin = Vector2.zero;
+            fontHandleAreaRT.offsetMax = Vector2.zero;
+
+            var fontHandleGO = new GameObject("Handle", typeof(RectTransform));
+            fontHandleGO.transform.SetParent(fontHandleAreaGO.transform, false);
+            var fontHandleImg = fontHandleGO.AddComponent<Image>();
+            fontHandleImg.color = Color.white;
+            var fontHandleRT = fontHandleGO.GetComponent<RectTransform>();
+            fontHandleRT.anchorMin = new Vector2(0f, 0.5f);
+            fontHandleRT.anchorMax = new Vector2(0f, 0.5f);
+            fontHandleRT.pivot = new Vector2(0.5f, 0.5f);
+            fontHandleRT.sizeDelta = new Vector2(12f, 12f);
+
+            _fontSizeSlider.handleRect = fontHandleRT;
+
+            var fontPctGO = new GameObject("FontSizePct", typeof(RectTransform));
+            fontPctGO.transform.SetParent(fontSizeContainer.transform, false);
+            _fontSizePct = fontPctGO.AddComponent<TextMeshProUGUI>();
+            _fontSizePct.text = $"{Mathf.RoundToInt(ModConfig.BossFontScale * 100f)}%";
+            _fontSizePct.fontSize = 14;
+            _fontSizePct.color = Color.white;
+            _fontSizePct.alignment = TextAlignmentOptions.MidlineRight;
+            _fontSizePct.raycastTarget = false;
+            var fontPctRT = fontPctGO.GetComponent<RectTransform>();
+            fontPctRT.anchorMin = new Vector2(1f, 0.5f);
+            fontPctRT.anchorMax = new Vector2(1f, 0.5f);
+            fontPctRT.pivot = new Vector2(1f, 0.5f);
+            fontPctRT.anchoredPosition = new Vector2(-6f, 0f);
+            fontPctRT.sizeDelta = new Vector2(48f, 28f);
+
             // Boss list scroll view setup
             float dpi = 0f;
             try { dpi = Screen.dpi; } catch { dpi = 0f; }
@@ -454,23 +625,24 @@ namespace BossLiveMapMod
             }
             catch { }
 
+            // Add visible light grey background for raycasting
+            var scrollBgImg = bossScrollRootGO.AddComponent<Image>();
+            scrollBgImg.color = new Color(0.2f, 0.2f, 0.2f, 0.3f); // Light grey, 30% opacity
+            scrollBgImg.raycastTarget = true;
+
             _bossScrollRect = bossScrollRootGO.AddComponent<ScrollRect>();
             _bossScrollRect.horizontal = false;
             _bossScrollRect.vertical = true;
             _bossScrollRect.movementType = ScrollRect.MovementType.Clamped;
-            _bossScrollRect.scrollSensitivity = 5f;
+            _bossScrollRect.scrollSensitivity = 0f; // Disabled - we handle scrolling manually
 
-            // Create simple scrollbar indicator (right side) - must be created AFTER viewport
-
-            var viewportGO = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+            var viewportGO = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
             viewportGO.transform.SetParent(bossScrollRootGO.transform, false);
             var viewportRT = viewportGO.GetComponent<RectTransform>();
             viewportRT.anchorMin = new Vector2(0f, 0f);
             viewportRT.anchorMax = new Vector2(1f, 1f);
             viewportRT.pivot = new Vector2(0.5f, 0.5f);
             viewportRT.sizeDelta = Vector2.zero;
-            var viewportImg = viewportGO.GetComponent<Image>();
-            viewportImg.color = new Color(0f, 0f, 0f, 0f);
 
             _bossScrollRect.viewport = viewportRT;
 
@@ -514,20 +686,57 @@ namespace BossLiveMapMod
             _bossScrollRect.content = _bossContent;
             _bossScrollRect.verticalNormalizedPosition = 1f;
 
-            // Create simple scrollbar indicator AFTER viewport (so it renders on top)
-            var scrollbarGO = new GameObject("ScrollbarIndicator", typeof(RectTransform));
-            scrollbarGO.transform.SetParent(bossScrollRootGO.transform, false);
-            scrollbarGO.transform.SetAsLastSibling(); // Render on top
-            var scrollbarRT = scrollbarGO.GetComponent<RectTransform>();
-            scrollbarRT.anchorMin = new Vector2(1f, 0f);
-            scrollbarRT.anchorMax = new Vector2(1f, 1f);
-            scrollbarRT.pivot = new Vector2(1f, 0.5f);
-            scrollbarRT.sizeDelta = new Vector2(8f, 0f);
-            scrollbarRT.anchoredPosition = new Vector2(-4f, 0f);
+            // Create proper scrollbar (based on reference implementation)
+            var scrollbarBgGO = new GameObject("Scrollbar_Background", typeof(RectTransform));
+            scrollbarBgGO.transform.SetParent(bossScrollRootGO.transform, false);
+            var scrollbarBgRT = scrollbarBgGO.GetComponent<RectTransform>();
+            scrollbarBgRT.anchorMin = new Vector2(1f, 0f);
+            scrollbarBgRT.anchorMax = new Vector2(1f, 1f);
+            scrollbarBgRT.pivot = new Vector2(1f, 1f);
+            scrollbarBgRT.offsetMin = new Vector2(-13f, 10f);
+            scrollbarBgRT.offsetMax = new Vector2(-5f, -10f);
+            var scrollbarBgImg = scrollbarBgGO.AddComponent<Image>();
+            scrollbarBgImg.color = new Color(0.1f, 0.1f, 0.1f, 0.5f);
 
-            var scrollbarImg = scrollbarGO.AddComponent<Image>();
-            scrollbarImg.color = new Color(0.7f, 0.7f, 0.7f, 0.6f);
-            scrollbarImg.raycastTarget = false;
+            var scrollbarGO = new GameObject("Scrollbar", typeof(RectTransform));
+            scrollbarGO.transform.SetParent(scrollbarBgGO.transform, false);
+            var scrollbar = scrollbarGO.AddComponent<Scrollbar>();
+            var scrollbarRT = scrollbarGO.GetComponent<RectTransform>();
+            scrollbarRT.anchorMin = Vector2.zero;
+            scrollbarRT.anchorMax = Vector2.one;
+            scrollbarRT.offsetMin = Vector2.zero;
+            scrollbarRT.offsetMax = Vector2.zero;
+
+            var slidingAreaGO = new GameObject("Sliding Area", typeof(RectTransform));
+            slidingAreaGO.transform.SetParent(scrollbarGO.transform, false);
+            var slidingAreaRT = slidingAreaGO.GetComponent<RectTransform>();
+            slidingAreaRT.anchorMin = Vector2.zero;
+            slidingAreaRT.anchorMax = Vector2.one;
+            slidingAreaRT.offsetMin = Vector2.zero;
+            slidingAreaRT.offsetMax = Vector2.zero;
+
+            var scrollbarHandleGO = new GameObject("Handle", typeof(RectTransform));
+            scrollbarHandleGO.transform.SetParent(slidingAreaGO.transform, false);
+            var scrollbarHandleRT = scrollbarHandleGO.GetComponent<RectTransform>();
+            scrollbarHandleRT.anchorMin = Vector2.zero;
+            scrollbarHandleRT.anchorMax = Vector2.one;
+            scrollbarHandleRT.offsetMin = new Vector2(0f, 0f);
+            scrollbarHandleRT.offsetMax = new Vector2(0f, 0f);
+            var scrollbarHandleImg = scrollbarHandleGO.AddComponent<Image>();
+            scrollbarHandleImg.color = new Color(0.6f, 0.6f, 0.6f, 0.5f);
+            scrollbarHandleImg.raycastTarget = true;
+
+            scrollbar.handleRect = scrollbarHandleRT;
+            scrollbar.targetGraphic = scrollbarHandleImg;
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+
+            _bossScrollRect.verticalScrollbar = scrollbar;
+            _bossScrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+            _bossScrollRect.verticalScrollbarSpacing = -3f;
+
+            // Add scroll handler to manually control scrolling
+            var scrollHandler = bossScrollRootGO.AddComponent<BossListScrollHandler>();
+            scrollHandler.Initialize(_bossScrollRect, _bossContent, viewportRT);
 
             _bossScrollRoot.gameObject.SetActive(ModConfig.ShowBossList);
         }
@@ -621,6 +830,13 @@ namespace BossLiveMapMod
             var alpha = Mathf.Clamp01(sliderValue / 10f);
             ModConfig.SetTransparency(alpha);
             if (_alphaPct != null) _alphaPct.text = $"{Mathf.RoundToInt(alpha * 100f)}%";
+        }
+
+        private void OnFontSizeChanged(float sliderValue)
+        {
+            var scale = Mathf.Clamp(sliderValue, 0.5f, 2.0f);
+            ModConfig.SetBossFontScale(scale);
+            if (_fontSizePct != null) _fontSizePct.text = $"{Mathf.RoundToInt(scale * 100f)}%";
         }
 
         private void OnScalePercentChanged(float valuePercent)

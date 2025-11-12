@@ -18,9 +18,11 @@ namespace BossLiveMapMod
         internal static bool ShowBossList { get; private set; } = true;
         internal static bool ShowNearbyEnemies { get; private set; } = false;
         internal static bool ShowNearbyOnly { get; private set; } = false;
+        internal static bool ShowMarkerNames { get; private set; } = true;
         internal static float Transparency { get; private set; } = 1f; // 0..1
         internal static float UiScale { get; private set; } = 1f;      // 0.5..2.0
         internal static bool UiScaleAuto { get; private set; } = true;
+        internal static float BossFontScale { get; private set; } = 1f; // 0.5..2.0
 
         // Pending values read from config file watcher (applied on next Update cycle)
         internal static bool PendingShowNearbyEnemies { get; private set; }
@@ -29,9 +31,11 @@ namespace BossLiveMapMod
         internal static bool PendingShowMarkers { get; private set; }
         internal static bool PendingShowBossList { get; private set; }
         internal static bool PendingShowNearbyOnly { get; private set; }
+        internal static bool PendingShowMarkerNames { get; private set; }
         internal static float PendingTransparency { get; private set; }
         internal static float PendingUiScale { get; private set; }
         internal static bool PendingUiScaleAuto { get; private set; }
+        internal static float PendingBossFontScale { get; private set; }
 
         internal static bool HasPendingUpdate { get; private set; }
 
@@ -53,9 +57,11 @@ namespace BossLiveMapMod
                 PendingShowMarkers = ShowMarkers;
                 PendingShowBossList = ShowBossList;
                 PendingShowNearbyOnly = ShowNearbyOnly;
+                PendingShowMarkerNames = ShowMarkerNames;
                 PendingTransparency = Transparency;
                 PendingUiScale = UiScale;
                 PendingUiScaleAuto = UiScaleAuto;
+                PendingBossFontScale = BossFontScale;
 
                 if (!File.Exists(_configPath))
                 {
@@ -64,7 +70,7 @@ namespace BossLiveMapMod
                 }
                 else
                 {
-                    if (TryReadConfig(out var parsedNearby, out var parsedAll, out var parsedLive, out var parsedMarkers, out var parsedBossList, out var parsedNearbyOnly, out var parsedTransparency, out var parsedUiScale, out var parsedUiScaleAuto))
+                    if (TryReadConfig(out var parsedNearby, out var parsedAll, out var parsedLive, out var parsedMarkers, out var parsedBossList, out var parsedNearbyOnly, out var parsedMarkerNames, out var parsedTransparency, out var parsedUiScale, out var parsedUiScaleAuto, out var parsedBossFontScale))
                     {
                         PendingShowNearbyEnemies = parsedNearby;
                         PendingShowAllEnemies = parsedAll;
@@ -72,9 +78,11 @@ namespace BossLiveMapMod
                         PendingShowMarkers = parsedMarkers;
                         PendingShowBossList = parsedBossList;
                         PendingShowNearbyOnly = parsedNearbyOnly;
+                        PendingShowMarkerNames = parsedMarkerNames;
                         PendingTransparency = parsedTransparency;
                         PendingUiScale = parsedUiScale;
                         PendingUiScaleAuto = parsedUiScaleAuto;
+                        PendingBossFontScale = parsedBossFontScale;
                     }
                 }
 
@@ -85,9 +93,11 @@ namespace BossLiveMapMod
                 ShowMarkers = PendingShowMarkers;
                 ShowBossList = PendingShowBossList;
                 ShowNearbyOnly = PendingShowNearbyOnly;
+                ShowMarkerNames = PendingShowMarkerNames;
                 Transparency = PendingTransparency;
                 UiScale = PendingUiScale;
                 UiScaleAuto = PendingUiScaleAuto;
+                BossFontScale = PendingBossFontScale;
                 if (UiScaleAuto)
                 {
                     var autoScale = ComputeAutoUiScale();
@@ -169,6 +179,16 @@ namespace BossLiveMapMod
             Save();
         }
 
+        internal static void SetShowMarkerNames(bool value)
+        {
+            if (ShowMarkerNames == value)
+                return;
+            ShowMarkerNames = value;
+            PendingShowMarkerNames = value;
+            HasPendingUpdate = true;
+            Save();
+        }
+
         internal static void SetTransparency(float value)
         {
             // clamp 0..1
@@ -209,6 +229,18 @@ namespace BossLiveMapMod
             Save();
         }
 
+        internal static void SetBossFontScale(float value)
+        {
+            // clamp 0.5..2.0
+            var clamped = Math.Max(0.5f, Math.Min(2.0f, value));
+            if (Math.Abs(BossFontScale - clamped) < 0.0001f)
+                return;
+            BossFontScale = clamped;
+            PendingBossFontScale = clamped;
+            HasPendingUpdate = true;
+            Save();
+        }
+
         private static void Save()
         {
             try
@@ -231,9 +263,11 @@ namespace BossLiveMapMod
                     $"ShowMarkers={ShowMarkers}",
                     $"ShowBossList={ShowBossList}",
                     $"ShowNearbyOnly={ShowNearbyOnly}",
+                    $"ShowMarkerNames={ShowMarkerNames}",
                     "Transparency=" + Transparency.ToString("0.00", CultureInfo.InvariantCulture),
                     "UiScale=" + UiScale.ToString("0.00", CultureInfo.InvariantCulture),
                     $"UiScaleAuto={UiScaleAuto}",
+                    "BossFontScale=" + BossFontScale.ToString("0.00", CultureInfo.InvariantCulture),
                 });
 
                 _lastWriteTimeUtc = File.Exists(_configPath) ? File.GetLastWriteTimeUtc(_configPath) : DateTime.UtcNow;
@@ -266,7 +300,7 @@ namespace BossLiveMapMod
         }
 
         // Parse the config file and return parsed values for all keys.
-        private static bool TryReadConfig(out bool showNearbyEnemies, out bool showAllEnemies, out bool showLivePositions, out bool showMarkers, out bool showBossList, out bool showNearbyOnly, out float transparency, out float uiScale, out bool uiScaleAuto)
+        private static bool TryReadConfig(out bool showNearbyEnemies, out bool showAllEnemies, out bool showLivePositions, out bool showMarkers, out bool showBossList, out bool showNearbyOnly, out bool showMarkerNames, out float transparency, out float uiScale, out bool uiScaleAuto, out float bossFontScale)
         {
             showNearbyEnemies = ShowNearbyEnemies;
             showAllEnemies = ShowAllEnemies;
@@ -274,9 +308,11 @@ namespace BossLiveMapMod
             showMarkers = ShowMarkers;
             showBossList = ShowBossList;
             showNearbyOnly = ShowNearbyOnly;
+            showMarkerNames = ShowMarkerNames;
             transparency = Transparency;
             uiScale = UiScale;
             uiScaleAuto = UiScaleAuto;
+            bossFontScale = BossFontScale;
 
             EnsurePath();
             if (!File.Exists(_configPath))
@@ -344,6 +380,16 @@ namespace BossLiveMapMod
                             && bool.TryParse(value, out var parsedUiScaleAuto))
                         {
                             uiScaleAuto = parsedUiScaleAuto;
+                        }
+                        else if (string.Equals(key, "ShowMarkerNames", StringComparison.OrdinalIgnoreCase)
+                            && bool.TryParse(value, out var parsedShowMarkerNames))
+                        {
+                            showMarkerNames = parsedShowMarkerNames;
+                        }
+                        else if (string.Equals(key, "BossFontScale", StringComparison.OrdinalIgnoreCase)
+                            && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedBossFontScale))
+                        {
+                            bossFontScale = Math.Max(0.5f, Math.Min(2.0f, parsedBossFontScale));
                         }
                     }
                     return true;
@@ -423,7 +469,7 @@ namespace BossLiveMapMod
 
                 _lastWriteTimeUtc = writeTime;
 
-                if (TryReadConfig(out var parsedNearby, out var parsedAll, out var parsedLive, out var parsedMarkers, out var parsedBossList, out var parsedNearbyOnly, out var parsedTransparency, out var parsedUiScale, out var parsedUiScaleAuto))
+                if (TryReadConfig(out var parsedNearby, out var parsedAll, out var parsedLive, out var parsedMarkers, out var parsedBossList, out var parsedNearbyOnly, out var parsedMarkerNames, out var parsedTransparency, out var parsedUiScale, out var parsedUiScaleAuto, out var parsedBossFontScale))
                 {
                     PendingShowNearbyEnemies = parsedNearby;
                     PendingShowAllEnemies = parsedAll;
@@ -431,7 +477,9 @@ namespace BossLiveMapMod
                     PendingShowMarkers = parsedMarkers;
                     PendingShowBossList = parsedBossList;
                     PendingShowNearbyOnly = parsedNearbyOnly;
+                    PendingShowMarkerNames = parsedMarkerNames;
                     PendingTransparency = parsedTransparency;
+                    PendingBossFontScale = parsedBossFontScale;
                     PendingUiScale = parsedUiScale;
                     PendingUiScaleAuto = parsedUiScaleAuto;
                     HasPendingUpdate = true;
@@ -455,7 +503,9 @@ namespace BossLiveMapMod
             ShowMarkers = PendingShowMarkers;
             ShowBossList = PendingShowBossList;
             ShowNearbyOnly = PendingShowNearbyOnly;
+            ShowMarkerNames = PendingShowMarkerNames;
             Transparency = PendingTransparency;
+            BossFontScale = PendingBossFontScale;
             UiScaleAuto = PendingUiScaleAuto;
             if (UiScaleAuto)
             {
