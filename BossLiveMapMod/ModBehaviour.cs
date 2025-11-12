@@ -97,12 +97,146 @@ namespace BossLiveMapMod
         private readonly Dictionary<CharacterMainControl, CharacterMarker> _markers =
             new Dictionary<CharacterMainControl, CharacterMarker>();
 
+        // Tracked boss instances (allow duplicates) and a view for UI with strike-through for dead ones.
+        public sealed class BossEntry
+        {
+            public CharacterMainControl Character;
+            public string DisplayName;
+            public bool Alive;
+        }
+
+        // Backing list of boss instances (allow duplicates)
+        public static readonly List<BossEntry> BossList = new List<BossEntry>();
+
+        // UI-facing list of strings (includes strike-through for dead bosses).
+        public static List<string> BossNames
+        {
+            get
+            {
+                var res = new List<string>();
+                try
+                {
+                    lock (BossList)
+                    {
+                        foreach (var be in BossList)
+                        {
+                            if (be == null) continue;
+                            var name = be.DisplayName ?? string.Empty;
+                            // Use TextMeshPro strikethrough tag when dead
+                            if (!be.Alive)
+                                res.Add($"<s>{name}</s>");
+                            else
+                                res.Add(name);
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore
+                }
+                return res;
+            }
+        }
+
         public static bool ShowNearbyEnemies = false;
 
         private bool _mapActive;
         private CharacterSpawnerRoot[] _cachedSpawnerRoots;
         private float _scanCooldown;
         private const float ScanIntervalSeconds = 0.5f;
+
+        // Special preset names loaded from text file (one name per line). Comparisons are case-insensitive.
+        private static readonly HashSet<string> _specialPresetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // Watcher for auto-reloading the special_presets.txt file
+        private static FileSystemWatcher _specialPresetsWatcher;
+        private static readonly object _specialPresetsWatcherLock = new object();
+        private static DateTime _specialPresetsLastWriteUtc = DateTime.MinValue;
+
+        private void LoadSpecialPresets(string modFolder)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(modFolder))
+                    return;
+                var filePath = Path.Combine(modFolder, "special_presets.txt");
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        var lines = File.ReadAllLines(filePath);
+                        lock (_specialPresetNames)
+                        {
+                            _specialPresetNames.Clear();
+                            foreach (var raw in lines)
+                            {
+                                if (string.IsNullOrWhiteSpace(raw)) continue;
+                                var t = raw.Trim();
+                                if (t.StartsWith("#")) continue;
+                                _specialPresetNames.Add(t);
+                            }
+                        }
+                        // store last write time to avoid duplicate reloads
+                        try { _specialPresetsLastWriteUtc = File.GetLastWriteTimeUtc(filePath); } catch { }
+                    }
+                    catch { /* ignore read errors */ }
+                }
+
+                // Ensure a watcher is watching the file so changes auto-reload
+                try { EnsureSpecialPresetsWatcher(filePath); } catch { }
+            }
+            catch
+            {
+                // ignore load errors
+            }
+        }
+
+        private void EnsureSpecialPresetsWatcher(string filePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath))
+                    return;
+                var dir = Path.GetDirectoryName(filePath);
+                var fname = Path.GetFileName(filePath);
+                if (string.IsNullOrEmpty(dir) || string.IsNullOrEmpty(fname))
+                    return;
+
+                lock (_specialPresetsWatcherLock)
+                {
+                    if (_specialPresetsWatcher != null)
+                        return;
+
+                    var watcher = new FileSystemWatcher(dir, fname)
+                    {
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime,
+                        EnableRaisingEvents = true
+                    };
+                    watcher.Changed += OnSpecialPresetsFileChanged;
+                    watcher.Created += OnSpecialPresetsFileChanged;
+                    watcher.Renamed += OnSpecialPresetsFileChanged;
+                    _specialPresetsWatcher = watcher;
+                }
+            }
+            catch { /* ignore watcher errors */ }
+        }
+
+        private void OnSpecialPresetsFileChanged(object sender, FileSystemEventArgs e)
+        {
+            try
+            {
+                // Debounce using last write time
+                var write = File.GetLastWriteTimeUtc(e.FullPath);
+                if (write <= _specialPresetsLastWriteUtc)
+                    return;
+                _specialPresetsLastWriteUtc = write;
+
+                // Reload from file directory (modFolder isn't strictly needed because we have full path)
+                var modFolder = Path.GetDirectoryName(e.FullPath);
+                LoadSpecialPresets(modFolder);
+                Debug.Log("[BossLiveMapMod] special_presets.txt reloaded");
+            }
+            catch { /* ignore file watch handling errors */ }
+        }
 
         private void Awake()
         {
@@ -119,6 +253,8 @@ namespace BossLiveMapMod
                 var assemblyLocation = typeof(ModBehaviour).Assembly.Location;
                 var modFolder = Path.GetDirectoryName(assemblyLocation);
                 ModLocalization.Initialize(modFolder);
+                // Load special preset tracking list (text file in the same folder as Lang.ini)
+                try { LoadSpecialPresets(modFolder); } catch { }
             }
             catch
             {
@@ -147,6 +283,28 @@ namespace BossLiveMapMod
             SceneLoader.onFinishedLoadingScene -= OnSceneFinishedLoading;
             Health.OnDead -= OnAnyHealthDead;
             EndTracking();
+
+            // Dispose special presets watcher if present
+            try
+            {
+                lock (_specialPresetsWatcherLock)
+                {
+                    if (_specialPresetsWatcher != null)
+                    {
+                        try
+                        {
+                            _specialPresetsWatcher.EnableRaisingEvents = false;
+                        }
+                        catch { }
+                        try { _specialPresetsWatcher.Changed -= OnSpecialPresetsFileChanged; } catch { }
+                        try { _specialPresetsWatcher.Created -= OnSpecialPresetsFileChanged; } catch { }
+                        try { _specialPresetsWatcher.Renamed -= OnSpecialPresetsFileChanged; } catch { }
+                        try { _specialPresetsWatcher.Dispose(); } catch { }
+                        _specialPresetsWatcher = null;
+                    }
+                }
+            }
+            catch { }
         }
 
         private void OnSceneStartedLoading(SceneLoadingContext context)
@@ -203,6 +361,16 @@ namespace BossLiveMapMod
             _cachedSpawnerRoots = null;
             // Don't reset markers on map close - preserve last known positions when Live is OFF
             // ResetMarkers();
+
+            // Clear boss list when tracking ends (map closed)
+            try
+            {
+                lock (BossList)
+                {
+                    BossList.Clear();
+                }
+            }
+            catch { }
         }
 
 
@@ -214,13 +382,57 @@ namespace BossLiveMapMod
             }
             _markers.Clear();
 
+            // Clear boss list as markers and scene are being reset
+            try
+            {
+                lock (BossList)
+                {
+                    BossList.Clear();
+                }
+            }
+            catch { }
         }
 
         private void ScanCharacters()
         {
-            foreach (var character in EnumerateSpawnedCharacters())
+            // Rebuild boss list from current spawned characters so it reflects current scene
+            try
             {
-                AddOrUpdateMarker(character);
+                lock (BossList)
+                {
+                    BossList.Clear();
+                }
+
+                foreach (var character in EnumerateSpawnedCharacters())
+                {
+                    // RuntimeDumper.DumpCharacterFields(character); // disabled (too verbose). Uncomment for debugging.
+
+                    // Ensure boss list stays up-to-date regardless of marker settings
+                    try
+                    {
+                        var ct = GetCharacterType(character);
+                        if (ct == CharacterType.Boss)
+                        {
+                            var displayName = GetDisplayName(character);
+                            lock (BossList)
+                            {
+                                BossList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
+                            }
+                        }
+                    }
+                    catch { }
+
+                    AddOrUpdateMarker(character);
+                }
+            }
+            catch
+            {
+                // Fallback: call original behavior if something goes wrong
+                foreach (var character in EnumerateSpawnedCharacters())
+                {
+                    // RuntimeDumper.DumpCharacterFields(character); // disabled (too verbose). Uncomment for debugging.
+                    AddOrUpdateMarker(character);
+                }
             }
         }
 
@@ -298,6 +510,13 @@ namespace BossLiveMapMod
                 return;
             }
 
+            // Only create marker objects when Markers toggle is enabled; BossList is updated separately by ScanCharacters
+            if (!ModConfig.ShowMarkers)
+            {
+                // Do not create marker objects, but boss list is handled in ScanCharacters to always reflect current scene
+                return;
+            }
+
             var markerObject = new GameObject($"CharacterMarker:{displayName}");
             markerObject.transform.position = character.transform.position;
             if (MultiSceneCore.MainScene.HasValue)
@@ -348,7 +567,7 @@ namespace BossLiveMapMod
             marker.Poi.ShadowDistance = 0f;
 
             // Respect config: show names or hide them
-            var nameToUse = ModConfig.ShowNames ? displayName : string.Empty;
+            var nameToUse = ModConfig.ShowMarkers ? displayName : string.Empty;
             // Use followActiveScene: true so POI system tracks the game object
             // The Live toggle controls per-frame updates in LateUpdate()
             marker.Poi.Setup(characterType.GetMarkerIcon(), nameToUse, followActiveScene: true);
@@ -436,6 +655,64 @@ namespace BossLiveMapMod
             if (!go.scene.IsValid() || !go.scene.isLoaded)
                 return false;
 
+            // Quick preset-name override: if this character's preset name matches our special list, treat it as valid.
+            try
+            {
+                var preset = character.characterPreset;
+                if (preset != null)
+                {
+                    string presetName = null;
+
+                    // Attempt to read common property names using reflection (safe fallbacks).
+                    // If you later publicize the preset fields via Krafs.Publicizer, you can replace these
+                    // reflection calls with direct property access for performance.
+                    try
+                    {
+                        // Use publicized direct access to the preset name (Krafs.Publicizer makes private members accessible)
+                        presetName = preset.name;
+                    }
+                    catch { /* ignore */ }
+
+                    // Fallback: try common alternatives
+                    if (string.IsNullOrEmpty(presetName))
+                    {
+                        try
+                        {
+                            // Publicized direct access to common alternative key
+                            presetName = preset.nameKey;
+                        }
+                        catch { }
+                    }
+
+                    if (string.IsNullOrEmpty(presetName))
+                    {
+                        try
+                        {
+                            // Publicized direct access to DisplayName
+                            presetName = preset.DisplayName;
+                        }
+                        catch { }
+                    }
+
+                    if (!string.IsNullOrEmpty(presetName))
+                    {
+                        try
+                        {
+                            lock (_specialPresetNames)
+                            {
+                                if (_specialPresetNames.Contains(presetName))
+                                {
+                                    // Force valid if preset is explicitly tracked
+                                    return true;
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
             // Only check GetComponent during initial scan, cache the result
             hasPreexistingPoi = character.GetComponent<SimplePointOfInterest>() != null;
 
@@ -477,6 +754,31 @@ namespace BossLiveMapMod
                 return;
 
             _markers.Remove(character);
+
+            // If this was a boss entry, mark corresponding BossList entries as dead (strike-through in UI)
+            try
+            {
+                if (entry != null && entry.Type == CharacterType.Boss && !string.IsNullOrEmpty(entry.DisplayName))
+                {
+                    lock (BossList)
+                    {
+                        for (int i = 0; i < BossList.Count; i++)
+                        {
+                            var be = BossList[i];
+                            if (be != null && be.Character == character)
+                            {
+                                be.Alive = false;
+                                // keep entry for display with strike-through
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore removal errors
+            }
+
             if (entry.MarkerObject != null)
             {
                 DestroySafely(entry.MarkerObject);

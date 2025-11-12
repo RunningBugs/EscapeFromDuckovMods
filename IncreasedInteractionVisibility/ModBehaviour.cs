@@ -10,8 +10,8 @@ namespace IncreasedInteractionVisibility
     /// </summary>
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
-        private const float MARKER_VISIBILITY_FAR = 1000f;  // Distance where marker starts to appear
-        private const float MARKER_VISIBILITY_NEAR = 900f;  // Distance where marker is fully visible
+        private const float MARKER_VISIBILITY_FAR = 30f;  // Distance where marker is fully visible
+        private const float MARKER_VISIBILITY_NEAR = 30f;  // Distance where marker starts to appear
         private const string HARMONY_ID = "com.duckov.increasedinteractionvisibility";
 
         private Harmony harmony;

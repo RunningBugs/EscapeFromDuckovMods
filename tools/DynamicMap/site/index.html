@@ -195,6 +195,13 @@
                 background: #4fc3f7;
                 border: 2px solid rgba(255, 255, 255, 0.9);
                 box-shadow: 0 2px 8px rgba(79, 195, 247, 0.6);
+                transition:
+                    transform 120ms ease,
+                    box-shadow 120ms ease;
+            }
+            .poi.poi-highlight .poi-dot {
+                transform: scale(1.25);
+                box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
             }
             .poi.blueprint .poi-dot {
                 background: #f44336;
@@ -405,6 +412,8 @@
                     scale: 1,
                     panX: 0,
                     panY: 0,
+                    searchIndex: [],
+                    pendingFocusId: null,
                     mapParams: {
                         centerX: 0,
                         centerY: 0,
@@ -550,6 +559,162 @@
                     applyMapParams: document.getElementById("applyMapParams"),
                     autoCalcParams: document.getElementById("autoCalcParams"),
                 };
+
+                // Create and insert search UI under Load Map button
+                (function setupSearchUI() {
+                    const loadGroup = els.loadBtn
+                        ? els.loadBtn.closest(".control-group")
+                        : null;
+                    if (!loadGroup) return;
+                    const searchGroup = document.createElement("div");
+                    searchGroup.className = "control-group";
+                    const label = document.createElement("label");
+                    label.htmlFor = "searchInput";
+                    label.textContent = "Search POIs";
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.id = "searchInput";
+                    input.placeholder = "Search all maps...";
+                    const results = document.createElement("div");
+                    results.id = "searchResults";
+                    results.className = "control-group";
+                    results.style.maxHeight = "180px";
+                    results.style.overflow = "auto";
+                    results.style.fontSize = "12px";
+                    results.style.padding = "4px 0";
+                    searchGroup.appendChild(label);
+                    searchGroup.appendChild(input);
+                    loadGroup.parentNode.insertBefore(
+                        searchGroup,
+                        loadGroup.nextSibling,
+                    );
+                    loadGroup.parentNode.insertBefore(
+                        results,
+                        searchGroup.nextSibling,
+                    );
+                })();
+
+                // Search helpers
+                function buildSearchIndex() {
+                    state.searchIndex = [];
+                    state.mapScenes.forEach((mapData, filename) => {
+                        (mapData.pois || []).forEach((p) => {
+                            const nameZh = p.display_name_zh || "";
+                            const nameEn = p.display_name_en || "";
+                            const key = p.display_name_key || "";
+                            const text = (
+                                nameZh +
+                                " " +
+                                nameEn +
+                                " " +
+                                key
+                            ).toLowerCase();
+                            const id =
+                                p.row_uuid ||
+                                (key
+                                    ? key + "|" + filename
+                                    : filename + "|" + (nameEn || nameZh));
+                            state.searchIndex.push({
+                                id,
+                                nameZh,
+                                nameEn,
+                                key,
+                                map: filename,
+                                text,
+                            });
+                        });
+                    });
+                }
+
+                function renderSearchResults(query) {
+                    const box = document.getElementById("searchResults");
+                    if (!box) return;
+                    box.innerHTML = "";
+                    const q = (query || "").trim().toLowerCase();
+                    if (!q) return;
+                    const hits = state.searchIndex
+                        .filter((e) => e.text.includes(q))
+                        .slice(0, 50);
+                    hits.forEach((h) => {
+                        const item = document.createElement("div");
+                        item.style.padding = "4px 6px";
+                        item.style.cursor = "pointer";
+                        item.style.borderRadius = "4px";
+                        item.style.display = "flex";
+                        item.style.justifyContent = "space-between";
+                        item.style.gap = "8px";
+                        item.onmouseenter = () =>
+                            (item.style.background = "rgba(255,255,255,0.08)");
+                        item.onmouseleave = () =>
+                            (item.style.background = "transparent");
+                        const left = document.createElement("span");
+                        const display =
+                            state.lang === "zh"
+                                ? h.nameZh || h.nameEn || h.key || "POI"
+                                : h.nameEn || h.nameZh || h.key || "POI";
+                        left.textContent = display;
+                        const right = document.createElement("span");
+                        right.textContent = h.map;
+                        right.style.opacity = "0.7";
+                        right.style.fontSize = "11px";
+                        item.appendChild(left);
+                        item.appendChild(right);
+                        item.addEventListener("click", () => {
+                            navigateToSearchResult(h);
+                        });
+                        box.appendChild(item);
+                    });
+                }
+
+                function focusOnPOIById(id) {
+                    const tryOnce = () => {
+                        const el = document.querySelector(
+                            '.poi[data-id="' + id + '"]',
+                        );
+                        if (!el) return false;
+                        const w =
+                            els.mapImage.clientWidth ||
+                            els.mapImage.naturalWidth;
+                        const h =
+                            els.mapImage.clientHeight ||
+                            els.mapImage.naturalHeight;
+                        const u = parseFloat(el.style.left) || 0;
+                        const v = parseFloat(el.style.top) || 0;
+                        const dx = u - w / 2;
+                        const dy = v - h / 2;
+                        const ang = (state.rotationAngle * Math.PI) / 180;
+                        const cos = Math.cos(ang),
+                            sin = Math.sin(ang);
+                        // pan to center this POI under current rotation+scale (origin at center)
+                        const rx = (cos * dx - sin * dy) * (state.scale || 1);
+                        const ry = (sin * dx + cos * dy) * (state.scale || 1);
+                        state.panX = -rx;
+                        state.panY = -ry;
+                        updateTransform();
+                        el.classList.add("poi-highlight");
+                        setTimeout(
+                            () => el.classList.remove("poi-highlight"),
+                            1200,
+                        );
+                        return true;
+                    };
+                    if (!tryOnce()) {
+                        let n = 0;
+                        const iv = setInterval(() => {
+                            if (tryOnce() || ++n >= 30) clearInterval(iv);
+                        }, 100);
+                    }
+                }
+
+                function navigateToSearchResult(hit) {
+                    if (!hit) return;
+                    if (state.currentScene === hit.map) {
+                        focusOnPOIById(hit.id);
+                    } else {
+                        state.pendingFocusId = hit.id;
+                        loadMapByFilename(hit.map);
+                    }
+                }
 
                 function setStatus(msg, type = "info") {
                     els.status.textContent = msg;
@@ -864,6 +1029,7 @@
                             (p.blueprint_flag === "True" ? " blueprint" : "");
                         poi.style.left = u + "px";
                         poi.style.top = v + "px";
+                        if (p.row_uuid) poi.dataset.id = p.row_uuid;
 
                         const dot = document.createElement("div");
                         dot.className = "poi-dot";
@@ -1046,6 +1212,14 @@
 
                         renderPOIs(state.currentPOIs);
                         updateLabelTransforms();
+
+                        // If a search selected a target, focus it now
+                        if (state.pendingFocusId) {
+                            const targetId = state.pendingFocusId;
+                            state.pendingFocusId = null;
+                            focusOnPOIById(targetId);
+                        }
+
                         setStatus(
                             "Map loaded successfully: " + mapFilename,
                             "success",
@@ -1119,6 +1293,28 @@
                             "success",
                         );
 
+                        // Build search index and wire search input
+                        buildSearchIndex();
+                        const si = document.getElementById("searchInput");
+                        if (si) {
+                            si.addEventListener("input", (e) =>
+                                renderSearchResults(e.target.value),
+                            );
+                            // Enter-to-go: navigate to the first match on Enter
+                            si.addEventListener("keydown", (e) => {
+                                if (e.key === "Enter") {
+                                    const q = (si.value || "")
+                                        .trim()
+                                        .toLowerCase();
+                                    if (!q) return;
+                                    const first = state.searchIndex.find((r) =>
+                                        r.text.includes(q),
+                                    );
+                                    if (first) navigateToSearchResult(first);
+                                }
+                            });
+                        }
+
                         if (state.mapScenes.size > 0) {
                             const first = Array.from(state.mapScenes.keys())[0];
                             els.sceneSelect.value = first;
@@ -1142,6 +1338,10 @@
                 els.langSelect.addEventListener("change", () => {
                     state.lang = els.langSelect.value;
                     if (state.currentScene) renderPOIs(state.currentPOIs);
+                    // Rebuild search index for new language and refresh results
+                    buildSearchIndex();
+                    const si = document.getElementById("searchInput");
+                    if (si) renderSearchResults(si.value);
                 });
 
                 els.zoomRange.addEventListener("input", (e) => {

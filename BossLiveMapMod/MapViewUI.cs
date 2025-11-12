@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -12,58 +10,61 @@ using SodaCraft.Localizations;
 namespace BossLiveMapMod
 {
     /// <summary>
-    /// Runtime UI component attached to the MiniMapView to add live controls.
+    /// Runtime UI component attached to the MiniMapView to add live controls and the boss list scroll view.
     /// </summary>
     public sealed class MapViewUI : MonoBehaviour
     {
         private MiniMapView _view;
         private RectTransform _panel;
         private RectTransform _titleRT;
+
         private Toggle _toggleAll;
         private Toggle _toggleLive;
         private Toggle _toggleNames;
         private Toggle _toggleNearby;
+        private Toggle _toggleBossList;
+
         private Slider _alphaSlider;
         private TextMeshProUGUI _alphaPct;
+
+        // Boss list UI elements (scroll view)
+        private ScrollRect _bossScrollRect;
+        private RectTransform _bossScrollRoot;
+        private RectTransform _bossContent;
+        private TextMeshProUGUI _bossListText;
+
+        // Maximum height the scroll rect may reach (screen-space)
+        private float _bossScrollMaxHeight;
+
+        // Local copy of special preset names to display under boss list
+        private List<string> _specialPresetList = new List<string>();
+
         private float _scale = 1f;
-        // Guard so we don't rebuild UI multiple times and can detect reused instances
         private bool _initialized = false;
 
-        /// <summary>
-        /// Ensure that a MapViewUI exists on the current MiniMapView instance.
-        /// </summary>
         public static MapViewUI Ensure()
         {
             var view = MiniMapView.Instance;
-            if (view == null)
-                return null;
+            if (view == null) return null;
 
-            // If the view already has our component, use it
             var existing = view.GetComponent<MapViewUI>();
-            if (existing != null)
-                return existing;
+            if (existing != null) return existing;
 
-            // Check for any existing MapViewUI in the scene to avoid creating duplicates
             var all = FindObjectsOfType<MapViewUI>();
             if (all != null && all.Length > 0)
             {
-                // Prefer one already associated with this view
                 foreach (var m in all)
                 {
                     if (m == null) continue;
                     if (m._view == view)
                     {
-                        // Ensure it's parented to the current view transform
                         m.transform.SetParent(view.transform, false);
                         return m;
                     }
                 }
 
-                // Reuse the first found instance: reparent and initialize for this view
                 var pick = all[0];
                 pick.transform.SetParent(view.transform, false);
-                // Initialize will be a no-op if already initialized for the same view,
-                // or will attach the UI to the new view when needed
                 pick.Initialize(view);
                 return pick;
             }
@@ -84,37 +85,28 @@ namespace BossLiveMapMod
 
         private void Initialize(MiniMapView view)
         {
-            // If already initialized for this view, nothing to do
-            if (_initialized && _view == view)
-                return;
+            if (_initialized && _view == view) return;
 
             _view = view;
             InitializeLocalization();
 
             if (!_initialized)
             {
-                // First-time build
                 Build();
                 _initialized = true;
             }
             else
             {
-                // Already had UI built previously; ensure the panel is parented correctly
                 try
                 {
                     var mapCanvas = _view.GetComponentInChildren<Canvas>();
                     var parentTransform = (mapCanvas != null) ? mapCanvas.transform : _view.transform;
-                    if (_panel != null)
-                        _panel.transform.SetParent(parentTransform, false);
+                    if (_panel != null) _panel.transform.SetParent(parentTransform, false);
                 }
-                catch
-                {
-                    // swallow failures to avoid breaking initialization
-                }
+                catch { }
             }
 
             var viewActive = (_view != null && _view.gameObject.activeInHierarchy);
-            // Keep this component active; toggle only the panel visibility
             if (_panel != null) _panel.gameObject.SetActive(viewActive);
         }
 
@@ -126,21 +118,100 @@ namespace BossLiveMapMod
                 var modFolder = Path.GetDirectoryName(assemblyLocation);
                 ModLocalization.Initialize(modFolder);
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         private void Update()
         {
-            // Keep visibility in sync with map view (toggle only panel so this component stays active)
-            if (_panel != null)
+            try
             {
-                bool shouldBeActive = _view != null && _view.gameObject.activeInHierarchy;
-                if (_panel.gameObject.activeSelf != shouldBeActive)
+                if (_panel != null)
                 {
-                    _panel.gameObject.SetActive(shouldBeActive);
+                    bool shouldBeActive = _view != null && _view.gameObject.activeInHierarchy;
+                    if (_panel.gameObject.activeSelf != shouldBeActive)
+                    {
+                        _panel.gameObject.SetActive(shouldBeActive);
+                    }
                 }
+
+                // Update boss list content and adjust scroll height to fit content up to max
+                if (_bossScrollRoot != null && _bossListText != null)
+                {
+                    bool shouldShow = ModConfig.ShowBossList;
+                    if (_bossScrollRoot.gameObject.activeSelf != shouldShow)
+                        _bossScrollRoot.gameObject.SetActive(shouldShow);
+
+                    if (shouldShow)
+                    {
+                        // Compose lines: bosses then separator then special presets
+                        var bossLines = ModBehaviour.BossNames ?? new List<string>();
+                        var combined = new List<string>();
+                        if (bossLines.Count > 0) combined.AddRange(bossLines);
+                        // Build special lines from BossList entries whose preset name is in _specialPresetList
+                        var specialLines = new List<string>();
+                        try
+                        {
+                            var bl = ModBehaviour.BossList;
+                            if (bl != null && _specialPresetList != null && _specialPresetList.Count > 0)
+                            {
+                                foreach (var be in bl)
+                                {
+                                    if (be == null) continue;
+                                    try
+                                    {
+                                        var preset = be.Character?.characterPreset;
+                                        if (preset == null) continue;
+                                        string presetName = null;
+                                        try { presetName = preset.name; } catch { }
+                                        try { if (string.IsNullOrEmpty(presetName)) presetName = preset.nameKey; } catch { }
+                                        try { if (string.IsNullOrEmpty(presetName)) presetName = preset.DisplayName; } catch { }
+                                        if (string.IsNullOrEmpty(presetName)) continue;
+                                        if (_specialPresetList.Exists(x => string.Equals(x, presetName, StringComparison.OrdinalIgnoreCase)))
+                                        {
+                                            var disp = string.IsNullOrEmpty(be.DisplayName) ? "*" : be.DisplayName;
+                                            if (!be.Alive) disp = $"<s>{disp}</s>";
+                                            specialLines.Add(disp);
+                                        }
+                                    }
+                                    catch { }
+                                }
+                            }
+                        }
+                        catch { }
+                        if (specialLines.Count > 0)
+                        {
+                            if (combined.Count > 0) combined.Add("───────────");
+                            combined.AddRange(specialLines);
+                        }
+
+                        _bossListText.richText = true;
+                        _bossListText.text = combined.Count > 0 ? string.Join("\n", combined) : string.Empty;
+
+                        // Force layout rebuild then compute preferred height
+                        if (_bossContent != null)
+                        {
+                            LayoutRebuilder.ForceRebuildLayoutImmediate(_bossContent);
+                            float preferred = LayoutUtility.GetPreferredHeight(_bossContent);
+                            float padding = 8f;
+                            float contentHeight = Mathf.Ceil(preferred + padding);
+                            float desiredScrollH = Mathf.Min(contentHeight, _bossScrollMaxHeight > 0f ? _bossScrollMaxHeight : Screen.height * 0.62f);
+                            desiredScrollH = Mathf.Max(28f, desiredScrollH);
+
+                            var rd = _bossScrollRoot.sizeDelta;
+                            _bossScrollRoot.sizeDelta = new Vector2(rd.x, desiredScrollH);
+
+                            // Adjust ScrollRect viewport and content if needed
+                            if (_bossScrollRect != null)
+                            {
+                                _bossScrollRect.verticalNormalizedPosition = 1f;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // swallow UI layout errors to avoid disrupting game
             }
         }
 
@@ -150,103 +221,42 @@ namespace BossLiveMapMod
             if (_toggleLive != null) _toggleLive.onValueChanged.RemoveAllListeners();
             if (_toggleNames != null) _toggleNames.onValueChanged.RemoveAllListeners();
             if (_toggleNearby != null) _toggleNearby.onValueChanged.RemoveAllListeners();
+            if (_toggleBossList != null) _toggleBossList.onValueChanged.RemoveAllListeners();
             if (_alphaSlider != null) _alphaSlider.onValueChanged.RemoveAllListeners();
 
-            // Destroy the generated panel so re-opening the map doesn't leave orphaned UI
-            if (_panel != null && _panel.gameObject != null)
-            {
-                try { Destroy(_panel.gameObject); } catch { }
-                _panel = null;
-            }
-
+            try { if (_panel != null && _panel.gameObject != null) Destroy(_panel.gameObject); } catch { }
+            _panel = null;
             _initialized = false;
         }
 
         private void Build()
         {
-            // Root panel setup
-            // Determine parent early so we can look for an existing panel under it and remove it to avoid duplicates
             Transform parentTransform = _view.transform;
             Canvas mapCanvas = _view.GetComponentInChildren<Canvas>();
-            if (mapCanvas != null)
-            {
-                parentTransform = mapCanvas.transform;
-            }
-            // Check for an existing panel under the intended parent and remove it to avoid duplicates
+            if (mapCanvas != null) parentTransform = mapCanvas.transform;
+
             var existingPanel = FindChildByName(parentTransform, "BLM_ControlsPanel");
-            if (existingPanel != null)
-            {
-                try { Destroy(existingPanel.gameObject); } catch { }
-            }
+            if (existingPanel != null) { try { Destroy(existingPanel.gameObject); } catch { } }
 
             var panelGO = new GameObject("BLM_ControlsPanel", typeof(RectTransform));
-
-            // Find the map title for reference (optional - helps with positioning)
-            _titleRT = null;
-            try
-            {
-                if (_view != null)
-                {
-                    var all = _view.GetComponentsInChildren<Transform>(true);
-                    foreach (var t in all)
-                    {
-                        var n = t.name;
-                        if (string.Equals(n, "mapNameText", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(n, "mapName", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(n, "MapNameText", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _titleRT = t.GetComponent<TextMeshProUGUI>()?.rectTransform;
-                            break;
-                        }
-                    }
-
-                    // If not found, fall back to any child that has a TextMeshProUGUI component
-                    if (_titleRT == null)
-                    {
-                        foreach (var t in all)
-                        {
-                            var tmp = t.GetComponent<TextMeshProUGUI>();
-                            if (tmp != null)
-                            {
-                                _titleRT = tmp.rectTransform;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                _titleRT = null;
-            }
-
-            // Parent directly to the map view to keep controls attached to it
-            // (parentTransform already determined above)
             panelGO.transform.SetParent(parentTransform, false);
-            _scale = Mathf.Clamp(ModConfig.UiScale, 0.5f, 2f);
             _panel = panelGO.GetComponent<RectTransform>();
+
+            _scale = Mathf.Clamp(ModConfig.UiScale, 0.5f, 2f);
             _panel.localScale = new Vector3(_scale, _scale, 1f);
 
-            // Anchor to top-left corner of the map view with padding
-            // This keeps the controls attached to the map view itself
             _panel.anchorMin = new Vector2(0f, 1f);
             _panel.anchorMax = new Vector2(0f, 1f);
             _panel.pivot = new Vector2(0f, 1f);
-            _panel.anchoredPosition = new Vector2(10f, -10f); // 10px padding from top-left
-            _panel.sizeDelta = new Vector2(400f, 120f);
-
-            // Ensure panel renders above other siblings
+            _panel.anchoredPosition = new Vector2(10f, -10f);
+            _panel.sizeDelta = new Vector2(420f, 420f);
             panelGO.transform.SetAsLastSibling();
 
-            // Add CanvasGroup to help visibility and input handling
             var cg = panelGO.AddComponent<CanvasGroup>();
             cg.interactable = true;
             cg.blocksRaycasts = true;
             cg.alpha = 1f;
 
-            // No background - transparent
-
-            // Vertical layout - checkboxes on top, slider below
             var v = panelGO.AddComponent<VerticalLayoutGroup>();
             v.spacing = 8f;
             v.childForceExpandHeight = false;
@@ -258,29 +268,27 @@ namespace BossLiveMapMod
             fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            // Create horizontal row for checkboxes
+            // Checkbox row
             var checkboxRow = new GameObject("CheckboxRow", typeof(RectTransform));
             checkboxRow.transform.SetParent(panelGO.transform, false);
             var rowRT = checkboxRow.GetComponent<RectTransform>();
             rowRT.sizeDelta = new Vector2(500f, 48f);
-
             var rowLayout = checkboxRow.AddComponent<HorizontalLayoutGroup>();
             rowLayout.spacing = 8f;
             rowLayout.childForceExpandHeight = false;
             rowLayout.childForceExpandWidth = false;
             rowLayout.childAlignment = TextAnchor.MiddleLeft;
-
             var rowLayoutElement = checkboxRow.AddComponent<LayoutElement>();
             rowLayoutElement.preferredWidth = 500f;
             rowLayoutElement.preferredHeight = 48f;
 
-            // Create toggles in the horizontal row
             _toggleAll = CreateToggle(checkboxRow.transform, GetLocalizedText("mobs", "Mobs"), ModConfig.ShowAllEnemies, v => ModConfig.SetShowAllEnemies(v));
             _toggleNearby = CreateToggle(checkboxRow.transform, GetLocalizedText("nearby", "Nearby"), ModConfig.ShowNearbyOnly, v => ModConfig.SetShowNearbyOnly(v));
             _toggleLive = CreateToggle(checkboxRow.transform, GetLocalizedText("live", "Live"), ModConfig.ShowLivePositions, v => ModConfig.SetShowLivePositions(v));
-            _toggleNames = CreateToggle(checkboxRow.transform, GetLocalizedText("names", "Names"), ModConfig.ShowNames, v => ModConfig.SetShowNames(v));
+            _toggleNames = CreateToggle(checkboxRow.transform, GetLocalizedText("markers", "Markers"), ModConfig.ShowMarkers, v => ModConfig.SetShowMarkers(v));
+            _toggleBossList = CreateToggle(checkboxRow.transform, GetLocalizedText("bosslist", "Boss List"), ModConfig.ShowBossList, v => ModConfig.SetShowBossList(v));
 
-            // Create alpha slider container
+            // Alpha slider
             var sliderContainer = new GameObject("AlphaContainer", typeof(RectTransform));
             sliderContainer.transform.SetParent(panelGO.transform, false);
             var srt = sliderContainer.GetComponent<RectTransform>();
@@ -289,7 +297,6 @@ namespace BossLiveMapMod
             sliderLayout.preferredWidth = 380f;
             sliderLayout.preferredHeight = 40f;
 
-            // Label for slider
             var labelGO = new GameObject("AlphaLabel", typeof(RectTransform));
             labelGO.transform.SetParent(sliderContainer.transform, false);
             var label = labelGO.AddComponent<TextMeshProUGUI>();
@@ -305,7 +312,6 @@ namespace BossLiveMapMod
             lrt.anchoredPosition = new Vector2(8f, 0f);
             lrt.sizeDelta = new Vector2(50f, 28f);
 
-            // Slider
             var sliderGO = new GameObject("AlphaSlider", typeof(RectTransform));
             sliderGO.transform.SetParent(sliderContainer.transform, false);
             var sliderRT = sliderGO.GetComponent<RectTransform>();
@@ -322,7 +328,7 @@ namespace BossLiveMapMod
             _alphaSlider.value = Mathf.RoundToInt(ModConfig.Transparency * 10f);
             _alphaSlider.onValueChanged.AddListener(OnAlphaChanged);
 
-            // Slider background track
+            // Background track
             var sliderBgGO = new GameObject("Background", typeof(RectTransform));
             sliderBgGO.transform.SetParent(sliderGO.transform, false);
             var sliderBg = sliderBgGO.AddComponent<Image>();
@@ -376,7 +382,6 @@ namespace BossLiveMapMod
 
             _alphaSlider.handleRect = handleRT;
 
-            // percentage text
             var pctGO = new GameObject("AlphaPct", typeof(RectTransform));
             pctGO.transform.SetParent(sliderContainer.transform, false);
             _alphaPct = pctGO.AddComponent<TextMeshProUGUI>();
@@ -392,7 +397,106 @@ namespace BossLiveMapMod
             pctRt.anchoredPosition = new Vector2(-6f, 0f);
             pctRt.sizeDelta = new Vector2(48f, 28f);
 
+            // Boss list scroll view setup
+            float dpi = 0f;
+            try { dpi = Screen.dpi; } catch { dpi = 0f; }
+            float dpiScale = 1f;
+            if (dpi > 0f) dpiScale = Mathf.Clamp(dpi / 96f, 0.75f, 3.0f);
+            const float baseFontSize = 56f;
+            float screenH = (Screen.height > 0) ? Screen.height : 1080f;
+            float maxScrollHeight = Mathf.Clamp(screenH * 0.62f, 120f, screenH * 0.9f);
+            int fontSize = Mathf.RoundToInt(baseFontSize * dpiScale);
 
+            var bossScrollRootGO = new GameObject("BossListScroll", typeof(RectTransform));
+            bossScrollRootGO.transform.SetParent(panelGO.transform, false);
+            _bossScrollRoot = bossScrollRootGO.GetComponent<RectTransform>();
+            _bossScrollMaxHeight = maxScrollHeight;
+            _bossScrollRoot.sizeDelta = new Vector2(380f, maxScrollHeight);
+            var bossScrollLayoutElement = bossScrollRootGO.AddComponent<LayoutElement>();
+            bossScrollLayoutElement.preferredWidth = 380f;
+            bossScrollLayoutElement.preferredHeight = maxScrollHeight;
+
+            // Load special preset list for UI display
+            try
+            {
+                _specialPresetList.Clear();
+                var assemblyLocation = typeof(MapViewUI).Assembly.Location;
+                var modFolder = Path.GetDirectoryName(assemblyLocation);
+                if (!string.IsNullOrEmpty(modFolder))
+                {
+                    var specialPath = Path.Combine(modFolder, "special_presets.txt");
+                    if (File.Exists(specialPath))
+                    {
+                        foreach (var raw in File.ReadAllLines(specialPath))
+                        {
+                            if (string.IsNullOrWhiteSpace(raw)) continue;
+                            var t = raw.Trim();
+                            if (t.StartsWith("#")) continue;
+                            _specialPresetList.Add(t);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            _bossScrollRect = bossScrollRootGO.AddComponent<ScrollRect>();
+            _bossScrollRect.horizontal = false;
+            _bossScrollRect.vertical = true;
+            _bossScrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+            var viewportGO = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+            viewportGO.transform.SetParent(bossScrollRootGO.transform, false);
+            var viewportRT = viewportGO.GetComponent<RectTransform>();
+            viewportRT.anchorMin = new Vector2(0f, 0f);
+            viewportRT.anchorMax = new Vector2(1f, 1f);
+            viewportRT.pivot = new Vector2(0.5f, 0.5f);
+            viewportRT.sizeDelta = Vector2.zero;
+            var viewportImg = viewportGO.GetComponent<Image>();
+            viewportImg.color = new Color(0f, 0f, 0f, 0f);
+
+            _bossScrollRect.viewport = viewportRT;
+
+            var contentGO = new GameObject("Content", typeof(RectTransform));
+            contentGO.transform.SetParent(viewportGO.transform, false);
+            _bossContent = contentGO.GetComponent<RectTransform>();
+            _bossContent.anchorMin = new Vector2(0f, 1f);
+            _bossContent.anchorMax = new Vector2(1f, 1f);
+            _bossContent.pivot = new Vector2(0.5f, 1f);
+            _bossContent.anchoredPosition = Vector2.zero;
+            _bossContent.sizeDelta = new Vector2(0f, 0f);
+
+            var vlg = contentGO.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandHeight = false;
+            vlg.childForceExpandWidth = true;
+            vlg.childAlignment = TextAnchor.UpperLeft;
+            vlg.spacing = 0f;
+
+            var contentFitter = contentGO.AddComponent<ContentSizeFitter>();
+            contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            contentFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            var bossTextGO = new GameObject("BossListText", typeof(RectTransform));
+            bossTextGO.transform.SetParent(contentGO.transform, false);
+            _bossListText = bossTextGO.AddComponent<TextMeshProUGUI>();
+            _bossListText.text = string.Empty;
+            _bossListText.fontSize = fontSize;
+            _bossListText.color = Color.white;
+            _bossListText.enableWordWrapping = true;
+            _bossListText.raycastTarget = false;
+            _bossListText.richText = true;
+
+            var uiOutline = bossTextGO.AddComponent<UnityEngine.UI.Outline>();
+            uiOutline.effectColor = Color.black;
+            uiOutline.effectDistance = new Vector2(Mathf.Max(1f, dpiScale), -Mathf.Max(1f, dpiScale));
+
+            var textLayout = bossTextGO.AddComponent<LayoutElement>();
+            textLayout.preferredWidth = 0;
+            textLayout.flexibleWidth = 1f;
+
+            _bossScrollRect.content = _bossContent;
+            _bossScrollRect.verticalNormalizedPosition = 1f;
+
+            _bossScrollRoot.gameObject.SetActive(ModConfig.ShowBossList);
         }
 
         private static Transform FindChildByName(Transform parent, string name)
@@ -408,33 +512,6 @@ namespace BossLiveMapMod
             return null;
         }
 
-        private static Transform FindChildWithTMP(Transform parent)
-        {
-            if (parent == null) return null;
-            foreach (Transform child in parent)
-            {
-                if (child.GetComponent<TextMeshProUGUI>() != null)
-                    return child;
-                var res = FindChildWithTMP(child);
-                if (res != null) return res;
-            }
-            return null;
-        }
-
-
-        // Build a simple hierarchy path for diagnostics
-        private static string GetHierarchyPath(Transform t)
-        {
-            if (t == null) return "<null>";
-            var path = t.name;
-            while (t.parent != null)
-            {
-                t = t.parent;
-                path = t.name + "/" + path;
-            }
-            return string.IsNullOrEmpty(path) ? "<null>" : path;
-        }
-
         private Toggle CreateToggle(Transform parent, string labelText, bool startValue, Action<bool> onChanged)
         {
             var go = new GameObject("Toggle_" + labelText, typeof(RectTransform));
@@ -448,7 +525,6 @@ namespace BossLiveMapMod
 
             var toggle = go.AddComponent<Toggle>();
 
-            // Background image
             var bgGO = new GameObject("Background", typeof(RectTransform));
             bgGO.transform.SetParent(go.transform, false);
             var bg = bgGO.AddComponent<Image>();
@@ -461,7 +537,6 @@ namespace BossLiveMapMod
 
             toggle.targetGraphic = bg;
 
-            // Checkbox area on the left
             var checkboxGO = new GameObject("Checkbox", typeof(RectTransform));
             checkboxGO.transform.SetParent(go.transform, false);
             var checkboxRT = checkboxGO.GetComponent<RectTransform>();
@@ -471,11 +546,9 @@ namespace BossLiveMapMod
             checkboxRT.anchoredPosition = new Vector2(8f, 0f);
             checkboxRT.sizeDelta = new Vector2(20f, 20f);
 
-            // Checkbox background
             var checkboxBg = checkboxGO.AddComponent<Image>();
             checkboxBg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
 
-            // Checkmark (visible when toggled on)
             var checkmarkGO = new GameObject("Checkmark", typeof(RectTransform));
             checkmarkGO.transform.SetParent(checkboxGO.transform, false);
             var checkmarkRT = checkmarkGO.GetComponent<RectTransform>();
@@ -485,11 +558,10 @@ namespace BossLiveMapMod
             checkmarkRT.offsetMax = new Vector2(-3f, -3f);
 
             var checkmark = checkmarkGO.AddComponent<Image>();
-            checkmark.color = new Color(0.2f, 1f, 0.3f, 1f); // Green checkmark
+            checkmark.color = new Color(0.2f, 1f, 0.3f, 1f);
 
             toggle.graphic = checkmark;
 
-            // Label (positioned after checkbox)
             var labelGO = new GameObject("Label", typeof(RectTransform));
             labelGO.transform.SetParent(go.transform, false);
             var label = labelGO.AddComponent<TextMeshProUGUI>();
@@ -506,10 +578,7 @@ namespace BossLiveMapMod
             labelRt.sizeDelta = new Vector2(-44f, 24f);
 
             toggle.isOn = startValue;
-            toggle.onValueChanged.AddListener(v =>
-            {
-                onChanged?.Invoke(v);
-            });
+            toggle.onValueChanged.AddListener(v => { onChanged?.Invoke(v); });
 
             return toggle;
         }
@@ -518,21 +587,24 @@ namespace BossLiveMapMod
         {
             var alpha = Mathf.Clamp01(sliderValue / 10f);
             ModConfig.SetTransparency(alpha);
-            if (_alphaPct != null)
-                _alphaPct.text = $"{Mathf.RoundToInt(alpha * 100f)}%";
+            if (_alphaPct != null) _alphaPct.text = $"{Mathf.RoundToInt(alpha * 100f)}%";
         }
 
         private void OnScalePercentChanged(float valuePercent)
         {
             _scale = Mathf.Clamp(valuePercent / 100f, 0.5f, 2f);
             ModConfig.SetUiScale(_scale);
-            if (_panel != null)
-                _panel.localScale = new Vector3(_scale, _scale, 1f);
+            if (_panel != null) _panel.localScale = new Vector3(_scale, _scale, 1f);
         }
 
         private static string GetLocalizedText(string key, string fallback)
         {
-            return ModLocalization.GetText(key, LocalizationManager.CurrentLanguage, fallback);
+            try
+            {
+                return ModLocalization.GetText(key, LocalizationManager.CurrentLanguage, fallback);
+            }
+            catch { }
+            return fallback;
         }
     }
 }
