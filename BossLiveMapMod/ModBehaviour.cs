@@ -108,6 +108,9 @@ namespace BossLiveMapMod
         // Backing list of boss instances (allow duplicates)
         public static readonly List<BossEntry> BossList = new List<BossEntry>();
 
+        // Backing list of special preset instances (allow duplicates)
+        public static readonly List<BossEntry> SpecialList = new List<BossEntry>();
+
         // UI-facing list of strings (includes strike-through for dead bosses).
         public static List<string> BossNames
         {
@@ -174,11 +177,16 @@ namespace BossLiveMapMod
                                 if (t.StartsWith("#")) continue;
                                 _specialPresetNames.Add(t);
                             }
+                            Debug.Log($"[BossLiveMapMod] Loaded {_specialPresetNames.Count} special preset names from {filePath}");
                         }
                         // store last write time to avoid duplicate reloads
                         try { _specialPresetsLastWriteUtc = File.GetLastWriteTimeUtc(filePath); } catch { }
                     }
                     catch { /* ignore read errors */ }
+                }
+                else
+                {
+                    Debug.Log($"[BossLiveMapMod] special_presets.txt not found at {filePath}");
                 }
 
                 // Ensure a watcher is watching the file so changes auto-reload
@@ -395,12 +403,16 @@ namespace BossLiveMapMod
 
         private void ScanCharacters()
         {
-            // Rebuild boss list from current spawned characters so it reflects current scene
+            // Rebuild boss list and special list from current spawned characters so it reflects current scene
             try
             {
                 lock (BossList)
                 {
                     BossList.Clear();
+                }
+                lock (SpecialList)
+                {
+                    SpecialList.Clear();
                 }
 
                 foreach (var character in EnumerateSpawnedCharacters())
@@ -419,6 +431,48 @@ namespace BossLiveMapMod
                                 BossList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
                             }
                         }
+
+                        // Check if character's preset is in special presets list
+                        try
+                        {
+                            var preset = character?.characterPreset;
+                            if (preset != null)
+                            {
+                                string presetName = null;
+                                try { presetName = preset.name; } catch { }
+                                if (string.IsNullOrEmpty(presetName))
+                                {
+                                    try { presetName = preset.nameKey; } catch { }
+                                }
+                                if (string.IsNullOrEmpty(presetName))
+                                {
+                                    try { presetName = preset.DisplayName; } catch { }
+                                }
+
+                                if (!string.IsNullOrEmpty(presetName))
+                                {
+                                    bool isSpecial = false;
+                                    lock (_specialPresetNames)
+                                    {
+                                        isSpecial = _specialPresetNames.Contains(presetName);
+                                    }
+
+                                    if (isSpecial)
+                                    {
+                                        var displayName = GetDisplayName(character);
+                                        lock (SpecialList)
+                                        {
+                                            SpecialList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
+                                        }
+                                        Debug.Log($"[BossLiveMapMod] Added special character: {displayName} (preset: {presetName})");
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"[BossLiveMapMod] Error checking special preset: {ex.Message}");
+                        }
                     }
                     catch { }
 
@@ -434,6 +488,19 @@ namespace BossLiveMapMod
                     AddOrUpdateMarker(character);
                 }
             }
+
+            // Debug log special list count
+            try
+            {
+                lock (SpecialList)
+                {
+                    if (SpecialList.Count > 0)
+                    {
+                        Debug.Log($"[BossLiveMapMod] SpecialList contains {SpecialList.Count} entries");
+                    }
+                }
+            }
+            catch { }
         }
 
         private IEnumerable<CharacterMainControl> EnumerateSpawnedCharacters()
@@ -768,6 +835,30 @@ namespace BossLiveMapMod
                             if (be != null && be.Character == character)
                             {
                                 be.Alive = false;
+                                // keep entry for display with strike-through
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore removal errors
+            }
+
+            // Also mark SpecialList entries as dead
+            try
+            {
+                if (entry != null && !string.IsNullOrEmpty(entry.DisplayName))
+                {
+                    lock (SpecialList)
+                    {
+                        for (int i = 0; i < SpecialList.Count; i++)
+                        {
+                            var se = SpecialList[i];
+                            if (se != null && se.Character == character)
+                            {
+                                se.Alive = false;
                                 // keep entry for display with strike-through
                             }
                         }

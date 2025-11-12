@@ -16,7 +16,6 @@ namespace BossLiveMapMod
     {
         private MiniMapView _view;
         private RectTransform _panel;
-        private RectTransform _titleRT;
 
         private Toggle _toggleAll;
         private Toggle _toggleLive;
@@ -32,6 +31,7 @@ namespace BossLiveMapMod
         private RectTransform _bossScrollRoot;
         private RectTransform _bossContent;
         private TextMeshProUGUI _bossListText;
+        private LayoutElement _bossScrollLayoutElement;
 
         // Maximum height the scroll rect may reach (screen-space)
         private float _bossScrollMaxHeight;
@@ -148,40 +148,36 @@ namespace BossLiveMapMod
                         var bossLines = ModBehaviour.BossNames ?? new List<string>();
                         var combined = new List<string>();
                         if (bossLines.Count > 0) combined.AddRange(bossLines);
-                        // Build special lines from BossList entries whose preset name is in _specialPresetList
+                        // Build special lines from SpecialList (already filtered in ModBehaviour)
                         var specialLines = new List<string>();
                         try
                         {
-                            var bl = ModBehaviour.BossList;
-                            if (bl != null && _specialPresetList != null && _specialPresetList.Count > 0)
+                            var sl = ModBehaviour.SpecialList;
+                            if (sl != null)
                             {
-                                foreach (var be in bl)
+                                lock (sl)
                                 {
-                                    if (be == null) continue;
-                                    try
+                                    foreach (var be in sl)
                                     {
-                                        var preset = be.Character?.characterPreset;
-                                        if (preset == null) continue;
-                                        string presetName = null;
-                                        try { presetName = preset.name; } catch { }
-                                        try { if (string.IsNullOrEmpty(presetName)) presetName = preset.nameKey; } catch { }
-                                        try { if (string.IsNullOrEmpty(presetName)) presetName = preset.DisplayName; } catch { }
-                                        if (string.IsNullOrEmpty(presetName)) continue;
-                                        if (_specialPresetList.Exists(x => string.Equals(x, presetName, StringComparison.OrdinalIgnoreCase)))
+                                        if (be == null) continue;
+                                        try
                                         {
                                             var disp = string.IsNullOrEmpty(be.DisplayName) ? "*" : be.DisplayName;
                                             if (!be.Alive) disp = $"<s>{disp}</s>";
                                             specialLines.Add(disp);
                                         }
+                                        catch { }
                                     }
-                                    catch { }
                                 }
                             }
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"[BossLiveMapMod UI] Error building special lines: {ex.Message}");
+                        }
                         if (specialLines.Count > 0)
                         {
-                            if (combined.Count > 0) combined.Add("───────────");
+                            if (combined.Count > 0) combined.Add("──────");
                             combined.AddRange(specialLines);
                         }
 
@@ -191,18 +187,37 @@ namespace BossLiveMapMod
                         _bossListText.text = newContent;
                         _lastBossListContent = newContent;
 
-                        // Force layout rebuild then compute preferred height
-                        if (_bossContent != null)
+                        // Debug log content when it changes
+                        if (contentChanged && specialLines.Count > 0)
+                        {
+                            Debug.Log($"[BossLiveMapMod UI] Display updated - Boss count: {bossLines.Count}, Special count: {specialLines.Count}");
+                        }
+
+                        // Force layout rebuild then compute preferred height and width
+                        if (_bossContent != null && _bossListText != null)
                         {
                             LayoutRebuilder.ForceRebuildLayoutImmediate(_bossContent);
-                            float preferred = LayoutUtility.GetPreferredHeight(_bossContent);
-                            float padding = 8f;
-                            float contentHeight = Mathf.Ceil(preferred + padding);
+
+                            // Calculate height
+                            float preferredHeight = LayoutUtility.GetPreferredHeight(_bossContent);
+                            float paddingH = 8f;
+                            float contentHeight = Mathf.Ceil(preferredHeight + paddingH);
                             float desiredScrollH = Mathf.Min(contentHeight, _bossScrollMaxHeight > 0f ? _bossScrollMaxHeight : Screen.height * 0.62f);
                             desiredScrollH = Mathf.Max(28f, desiredScrollH);
 
-                            var rd = _bossScrollRoot.sizeDelta;
-                            _bossScrollRoot.sizeDelta = new Vector2(rd.x, desiredScrollH);
+                            // Calculate width based on text content
+                            float preferredWidth = _bossListText.preferredWidth;
+                            float paddingW = 20f; // Padding for scrollbar and margins
+                            float contentWidth = Mathf.Ceil(preferredWidth + paddingW);
+                            float desiredScrollW = Mathf.Clamp(contentWidth, 280f, 600f); // Min 280, Max 600
+
+                            _bossScrollRoot.sizeDelta = new Vector2(desiredScrollW, desiredScrollH);
+
+                            // Update layout element to match
+                            if (_bossScrollLayoutElement != null)
+                            {
+                                _bossScrollLayoutElement.preferredWidth = desiredScrollW;
+                            }
 
                             // Only reset scroll position when content actually changes
                             if (contentChanged && _bossScrollRect != null)
@@ -415,10 +430,10 @@ namespace BossLiveMapMod
             bossScrollRootGO.transform.SetParent(panelGO.transform, false);
             _bossScrollRoot = bossScrollRootGO.GetComponent<RectTransform>();
             _bossScrollMaxHeight = maxScrollHeight;
-            _bossScrollRoot.sizeDelta = new Vector2(380f, maxScrollHeight);
-            var bossScrollLayoutElement = bossScrollRootGO.AddComponent<LayoutElement>();
-            bossScrollLayoutElement.preferredWidth = 380f;
-            bossScrollLayoutElement.preferredHeight = maxScrollHeight;
+            _bossScrollRoot.sizeDelta = new Vector2(280f, maxScrollHeight); // Start with min width, will adjust dynamically
+            _bossScrollLayoutElement = bossScrollRootGO.AddComponent<LayoutElement>();
+            _bossScrollLayoutElement.preferredWidth = 280f;
+            _bossScrollLayoutElement.preferredHeight = maxScrollHeight;
 
             // Load special preset list for UI display
             try
@@ -488,7 +503,7 @@ namespace BossLiveMapMod
             _bossListText.text = string.Empty;
             _bossListText.fontSize = fontSize;
             _bossListText.color = Color.white;
-            _bossListText.enableWordWrapping = true;
+            _bossListText.enableWordWrapping = false;
             _bossListText.raycastTarget = false;
             _bossListText.richText = true;
 
