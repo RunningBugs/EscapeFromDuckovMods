@@ -41,6 +41,7 @@ namespace BossLiveMapMod
 
         private float _scale = 1f;
         private bool _initialized = false;
+        private string _lastBossListContent = string.Empty;
 
         public static MapViewUI Ensure()
         {
@@ -185,7 +186,10 @@ namespace BossLiveMapMod
                         }
 
                         _bossListText.richText = true;
-                        _bossListText.text = combined.Count > 0 ? string.Join("\n", combined) : string.Empty;
+                        var newContent = combined.Count > 0 ? string.Join("\n", combined) : string.Empty;
+                        bool contentChanged = newContent != _lastBossListContent;
+                        _bossListText.text = newContent;
+                        _lastBossListContent = newContent;
 
                         // Force layout rebuild then compute preferred height
                         if (_bossContent != null)
@@ -200,8 +204,8 @@ namespace BossLiveMapMod
                             var rd = _bossScrollRoot.sizeDelta;
                             _bossScrollRoot.sizeDelta = new Vector2(rd.x, desiredScrollH);
 
-                            // Adjust ScrollRect viewport and content if needed
-                            if (_bossScrollRect != null)
+                            // Only reset scroll position when content actually changes
+                            if (contentChanged && _bossScrollRect != null)
                             {
                                 _bossScrollRect.verticalNormalizedPosition = 1f;
                             }
@@ -443,6 +447,9 @@ namespace BossLiveMapMod
             _bossScrollRect.horizontal = false;
             _bossScrollRect.vertical = true;
             _bossScrollRect.movementType = ScrollRect.MovementType.Clamped;
+            _bossScrollRect.scrollSensitivity = 5f;
+
+            // Create simple scrollbar indicator (right side) - must be created AFTER viewport
 
             var viewportGO = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
             viewportGO.transform.SetParent(bossScrollRootGO.transform, false);
@@ -495,6 +502,21 @@ namespace BossLiveMapMod
 
             _bossScrollRect.content = _bossContent;
             _bossScrollRect.verticalNormalizedPosition = 1f;
+
+            // Create simple scrollbar indicator AFTER viewport (so it renders on top)
+            var scrollbarGO = new GameObject("ScrollbarIndicator", typeof(RectTransform));
+            scrollbarGO.transform.SetParent(bossScrollRootGO.transform, false);
+            scrollbarGO.transform.SetAsLastSibling(); // Render on top
+            var scrollbarRT = scrollbarGO.GetComponent<RectTransform>();
+            scrollbarRT.anchorMin = new Vector2(1f, 0f);
+            scrollbarRT.anchorMax = new Vector2(1f, 1f);
+            scrollbarRT.pivot = new Vector2(1f, 0.5f);
+            scrollbarRT.sizeDelta = new Vector2(8f, 0f);
+            scrollbarRT.anchoredPosition = new Vector2(-4f, 0f);
+
+            var scrollbarImg = scrollbarGO.AddComponent<Image>();
+            scrollbarImg.color = new Color(0.7f, 0.7f, 0.7f, 0.6f);
+            scrollbarImg.raycastTarget = false;
 
             _bossScrollRoot.gameObject.SetActive(ModConfig.ShowBossList);
         }
