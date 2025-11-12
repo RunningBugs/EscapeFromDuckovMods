@@ -111,33 +111,105 @@ namespace BossLiveMapMod
         // Backing list of special preset instances (allow duplicates)
         public static readonly List<BossEntry> SpecialList = new List<BossEntry>();
 
+        // Cached formatted boss names to avoid allocations every frame
+        private static List<string> _cachedBossNames = new List<string>();
+        private static int _cachedBossNamesHash = 0;
+
+        // Cached formatted special names
+        private static List<string> _cachedSpecialNames = new List<string>();
+        private static int _cachedSpecialNamesHash = 0;
+
         // UI-facing list of strings (includes strike-through for dead bosses).
         public static List<string> BossNames
         {
             get
             {
-                var res = new List<string>();
                 try
                 {
                     lock (BossList)
                     {
-                        foreach (var be in BossList)
+                        int currentHash = ComputeBossListHash();
+                        if (currentHash != _cachedBossNamesHash)
                         {
-                            if (be == null) continue;
-                            var name = be.DisplayName ?? string.Empty;
-                            // Use TextMeshPro strikethrough tag when dead
-                            if (!be.Alive)
-                                res.Add($"<s>{name}</s>");
-                            else
-                                res.Add(name);
+                            _cachedBossNames.Clear();
+                            foreach (var be in BossList)
+                            {
+                                if (be == null) continue;
+                                var name = be.DisplayName ?? string.Empty;
+                                if (!be.Alive)
+                                    _cachedBossNames.Add($"<s>{name}</s>");
+                                else
+                                    _cachedBossNames.Add(name);
+                            }
+                            _cachedBossNamesHash = currentHash;
                         }
                     }
                 }
-                catch
+                catch { }
+                return _cachedBossNames;
+            }
+        }
+
+        // UI-facing list of strings for special presets
+        public static List<string> SpecialNames
+        {
+            get
+            {
+                try
                 {
-                    // ignore
+                    lock (SpecialList)
+                    {
+                        int currentHash = ComputeSpecialListHash();
+                        if (currentHash != _cachedSpecialNamesHash)
+                        {
+                            _cachedSpecialNames.Clear();
+                            foreach (var be in SpecialList)
+                            {
+                                if (be == null) continue;
+                                var name = be.DisplayName ?? string.Empty;
+                                if (!be.Alive)
+                                    _cachedSpecialNames.Add($"<s>{name}</s>");
+                                else
+                                    _cachedSpecialNames.Add(name);
+                            }
+                            _cachedSpecialNamesHash = currentHash;
+                        }
+                    }
                 }
-                return res;
+                catch { }
+                return _cachedSpecialNames;
+            }
+        }
+
+        private static int ComputeBossListHash()
+        {
+            unchecked
+            {
+                int hash = 17;
+                foreach (var be in BossList)
+                {
+                    if (be == null) continue;
+                    hash = hash * 31 + (be.Character?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (be.DisplayName?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (be.Alive ? 1 : 0);
+                }
+                return hash;
+            }
+        }
+
+        private static int ComputeSpecialListHash()
+        {
+            unchecked
+            {
+                int hash = 17;
+                foreach (var se in SpecialList)
+                {
+                    if (se == null) continue;
+                    hash = hash * 31 + (se.Character?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (se.DisplayName?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (se.Alive ? 1 : 0);
+                }
+                return hash;
             }
         }
 
@@ -177,16 +249,11 @@ namespace BossLiveMapMod
                                 if (t.StartsWith("#")) continue;
                                 _specialPresetNames.Add(t);
                             }
-                            Debug.Log($"[BossLiveMapMod] Loaded {_specialPresetNames.Count} special preset names from {filePath}");
                         }
                         // store last write time to avoid duplicate reloads
                         try { _specialPresetsLastWriteUtc = File.GetLastWriteTimeUtc(filePath); } catch { }
                     }
                     catch { /* ignore read errors */ }
-                }
-                else
-                {
-                    Debug.Log($"[BossLiveMapMod] special_presets.txt not found at {filePath}");
                 }
 
                 // Ensure a watcher is watching the file so changes auto-reload
@@ -241,7 +308,6 @@ namespace BossLiveMapMod
                 // Reload from file directory (modFolder isn't strictly needed because we have full path)
                 var modFolder = Path.GetDirectoryName(e.FullPath);
                 LoadSpecialPresets(modFolder);
-                Debug.Log("[BossLiveMapMod] special_presets.txt reloaded");
             }
             catch { /* ignore file watch handling errors */ }
         }
@@ -464,15 +530,11 @@ namespace BossLiveMapMod
                                         {
                                             SpecialList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
                                         }
-                                        Debug.Log($"[BossLiveMapMod] Added special character: {displayName} (preset: {presetName})");
                                     }
                                 }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"[BossLiveMapMod] Error checking special preset: {ex.Message}");
-                        }
+                        catch { }
                     }
                     catch { }
 
@@ -488,19 +550,6 @@ namespace BossLiveMapMod
                     AddOrUpdateMarker(character);
                 }
             }
-
-            // Debug log special list count
-            try
-            {
-                lock (SpecialList)
-                {
-                    if (SpecialList.Count > 0)
-                    {
-                        Debug.Log($"[BossLiveMapMod] SpecialList contains {SpecialList.Count} entries");
-                    }
-                }
-            }
-            catch { }
         }
 
         private IEnumerable<CharacterMainControl> EnumerateSpawnedCharacters()

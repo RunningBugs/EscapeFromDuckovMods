@@ -43,6 +43,14 @@ namespace BossLiveMapMod
         private bool _initialized = false;
         private string _lastBossListContent = string.Empty;
 
+        // UI update cooldown to reduce per-frame overhead
+        private float _uiUpdateCooldown = 0f;
+        private const float UiUpdateInterval = 0.3f; // Update every 0.3 seconds
+
+        // Cached layout dimensions to avoid unnecessary rebuilds
+        private float _lastScrollWidth = -1f;
+        private float _lastScrollHeight = -1f;
+
         public static MapViewUI Ensure()
         {
             var view = MiniMapView.Instance;
@@ -135,7 +143,13 @@ namespace BossLiveMapMod
                     }
                 }
 
-                // Update boss list content and adjust scroll height to fit content up to max
+                // Update boss list content with cooldown to reduce per-frame overhead
+                _uiUpdateCooldown -= Time.deltaTime;
+                if (_uiUpdateCooldown > 0f)
+                    return;
+
+                _uiUpdateCooldown = UiUpdateInterval;
+
                 if (_bossScrollRoot != null && _bossListText != null)
                 {
                     bool shouldShow = ModConfig.ShowBossList;
@@ -144,37 +158,12 @@ namespace BossLiveMapMod
 
                     if (shouldShow)
                     {
-                        // Compose lines: bosses then separator then special presets
+                        // Use cached formatted lists (no allocations if unchanged)
                         var bossLines = ModBehaviour.BossNames ?? new List<string>();
+                        var specialLines = ModBehaviour.SpecialNames ?? new List<string>();
+
                         var combined = new List<string>();
                         if (bossLines.Count > 0) combined.AddRange(bossLines);
-                        // Build special lines from SpecialList (already filtered in ModBehaviour)
-                        var specialLines = new List<string>();
-                        try
-                        {
-                            var sl = ModBehaviour.SpecialList;
-                            if (sl != null)
-                            {
-                                lock (sl)
-                                {
-                                    foreach (var be in sl)
-                                    {
-                                        if (be == null) continue;
-                                        try
-                                        {
-                                            var disp = string.IsNullOrEmpty(be.DisplayName) ? "*" : be.DisplayName;
-                                            if (!be.Alive) disp = $"<s>{disp}</s>";
-                                            specialLines.Add(disp);
-                                        }
-                                        catch { }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"[BossLiveMapMod UI] Error building special lines: {ex.Message}");
-                        }
                         if (specialLines.Count > 0)
                         {
                             if (combined.Count > 0) combined.Add("──────");
@@ -184,17 +173,15 @@ namespace BossLiveMapMod
                         _bossListText.richText = true;
                         var newContent = combined.Count > 0 ? string.Join("\n", combined) : string.Empty;
                         bool contentChanged = newContent != _lastBossListContent;
-                        _bossListText.text = newContent;
-                        _lastBossListContent = newContent;
 
-                        // Debug log content when it changes
-                        if (contentChanged && specialLines.Count > 0)
+                        if (contentChanged)
                         {
-                            Debug.Log($"[BossLiveMapMod UI] Display updated - Boss count: {bossLines.Count}, Special count: {specialLines.Count}");
+                            _bossListText.text = newContent;
+                            _lastBossListContent = newContent;
                         }
 
-                        // Force layout rebuild then compute preferred height and width
-                        if (_bossContent != null && _bossListText != null)
+                        // Only rebuild layout when content changed
+                        if (contentChanged && _bossContent != null && _bossListText != null)
                         {
                             LayoutRebuilder.ForceRebuildLayoutImmediate(_bossContent);
 
@@ -207,20 +194,29 @@ namespace BossLiveMapMod
 
                             // Calculate width based on text content
                             float preferredWidth = _bossListText.preferredWidth;
-                            float paddingW = 20f; // Padding for scrollbar and margins
+                            float paddingW = 20f;
                             float contentWidth = Mathf.Ceil(preferredWidth + paddingW);
-                            float desiredScrollW = Mathf.Clamp(contentWidth, 280f, 600f); // Min 280, Max 600
+                            float desiredScrollW = Mathf.Clamp(contentWidth, 280f, 600f);
 
-                            _bossScrollRoot.sizeDelta = new Vector2(desiredScrollW, desiredScrollH);
+                            // Only update dimensions if they actually changed
+                            bool dimensionsChanged = Mathf.Abs(_lastScrollWidth - desiredScrollW) > 0.5f ||
+                                                    Mathf.Abs(_lastScrollHeight - desiredScrollH) > 0.5f;
 
-                            // Update layout element to match
-                            if (_bossScrollLayoutElement != null)
+                            if (dimensionsChanged)
                             {
-                                _bossScrollLayoutElement.preferredWidth = desiredScrollW;
+                                _bossScrollRoot.sizeDelta = new Vector2(desiredScrollW, desiredScrollH);
+
+                                if (_bossScrollLayoutElement != null)
+                                {
+                                    _bossScrollLayoutElement.preferredWidth = desiredScrollW;
+                                }
+
+                                _lastScrollWidth = desiredScrollW;
+                                _lastScrollHeight = desiredScrollH;
                             }
 
-                            // Only reset scroll position when content actually changes
-                            if (contentChanged && _bossScrollRect != null)
+                            // Reset scroll position when content changes
+                            if (_bossScrollRect != null)
                             {
                                 _bossScrollRect.verticalNormalizedPosition = 1f;
                             }
