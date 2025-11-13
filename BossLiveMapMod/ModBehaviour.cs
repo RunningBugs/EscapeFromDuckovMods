@@ -452,6 +452,10 @@ namespace BossLiveMapMod
         {
             foreach (var marker in _markers.Values)
             {
+                if(marker.Poi != null)
+                {
+                    PointsOfInterests.Unregister(marker.Poi);
+                }
                 DestroySafely(marker?.MarkerObject);
             }
             _markers.Clear();
@@ -919,6 +923,10 @@ namespace BossLiveMapMod
                 // ignore removal errors
             }
 
+            if(entry.Poi != null)
+            {
+                PointsOfInterests.Unregister(entry.Poi);
+            }
             if (entry.MarkerObject != null)
             {
                 DestroySafely(entry.MarkerObject);
