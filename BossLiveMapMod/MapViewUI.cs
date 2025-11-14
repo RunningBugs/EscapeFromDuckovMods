@@ -201,6 +201,31 @@ namespace BossLiveMapMod
             return pixels / denom;
         }
 
+        private float GetCurrentScreenWidth()
+        {
+            if (_lastScreenWidth > 0)
+                return _lastScreenWidth;
+
+            int width = Screen.width;
+            if (width <= 0) width = 1920;
+            _lastScreenWidth = width;
+            return width;
+        }
+
+        private void GetBossScrollWidthBounds(out float minWidthUi, out float maxWidthUi)
+        {
+            float screenWidth = GetCurrentScreenWidth();
+
+            const float minWidthPixels = 280f;
+            float maxWidthPixels = Mathf.Clamp(screenWidth * 0.55f, 600f, screenWidth - 120f);
+
+            if (maxWidthPixels < minWidthPixels + 40f)
+                maxWidthPixels = minWidthPixels + 40f;
+
+            minWidthUi = PixelsToUiUnits(minWidthPixels);
+            maxWidthUi = PixelsToUiUnits(maxWidthPixels);
+        }
+
         private float ComputeDefaultMaxHeightPixels()
         {
             float screenHeight = Screen.height > 0 ? Screen.height : 1080f;
@@ -257,6 +282,17 @@ namespace BossLiveMapMod
             }
 
             return false;
+        }
+
+        private float GetBossTextPreferredWidth()
+        {
+            if (_bossListText == null)
+                return 0f;
+
+            // Force mesh update so preferred values reflect the latest text and scale
+            _bossListText.ForceMeshUpdate(ignoreActiveState: true, forceTextReparsing: true);
+            var preferred = _bossListText.GetPreferredValues(float.PositiveInfinity, float.PositiveInfinity);
+            return Mathf.Max(0f, preferred.x);
         }
 
         private void Initialize(MiniMapView view)
@@ -379,9 +415,9 @@ namespace BossLiveMapMod
                             desiredScrollH = Mathf.Max(minHeightUi, desiredScrollH);
 
                             float paddingW = PixelsToUiUnits(20f);
-                            float minWidthUi = PixelsToUiUnits(280f);
-                            float maxWidthUi = PixelsToUiUnits(600f);
-                            float contentWidth = Mathf.Ceil(_bossListText.preferredWidth + paddingW);
+                            GetBossScrollWidthBounds(out float minWidthUi, out float maxWidthUi);
+                            float preferredWidth = GetBossTextPreferredWidth();
+                            float contentWidth = Mathf.Ceil(preferredWidth + paddingW);
                             float desiredScrollW = Mathf.Clamp(contentWidth, minWidthUi, maxWidthUi);
 
                             bool dimensionsChanged = Mathf.Abs(_lastScrollWidth - desiredScrollW) > 0.5f ||

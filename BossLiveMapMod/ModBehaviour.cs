@@ -10,24 +10,30 @@ using UnityEngine.SceneManagement;
 
 namespace BossLiveMapMod
 {
-    public enum CharacterType
+    public enum CharacterRole
     {
         Boss,
-        Friend,
-        Neutral,
-        Mobs,
+        NonBoss,
         None
     }
 
-    public static class CharacterTypeExtensions
+    public enum TeamRelation
     {
-        public static Sprite GetMarkerIcon(this CharacterType characterType)
+        SameTeam,
+        Neutral,
+        Hostile,
+        Unknown
+    }
+
+    public static class MarkerVisuals
+    {
+        public static Sprite GetMarkerIcon(CharacterRole role, TeamRelation relation)
         {
             var icons = MapMarkerManager.Icons;
             if (icons == null)
                 return TryGetSelectedIcon();
 
-            var targetIndex = GetIconIndex(characterType);
+            var targetIndex = GetIconIndex(role, relation);
             if (targetIndex.HasValue)
             {
                 var index = targetIndex.Value;
@@ -48,31 +54,45 @@ namespace BossLiveMapMod
             return TryGetSelectedIcon();
         }
 
+        public static Color GetMarkerColor(CharacterRole role, TeamRelation relation)
+        {
+            switch (relation)
+            {
+                case TeamRelation.SameTeam:
+                    return ApplyRoleTint(role, new Color(0.3f, 0.85f, 0.3f));
+                case TeamRelation.Neutral:
+                    return ApplyRoleTint(role, new Color(1f, 0.9f, 0.3f));
+                case TeamRelation.Hostile:
+                    return ApplyRoleTint(role, new Color(1f, 0.3f, 0.3f));
+                default:
+                    return ApplyRoleTint(role, Color.red);
+            }
+        }
+
+        private static Color ApplyRoleTint(CharacterRole role, Color baseColor)
+        {
+            return role == CharacterRole.Boss ? baseColor : ModBehaviour.AdjustNonBossColor(baseColor);
+        }
+
+        private static int? GetIconIndex(CharacterRole role, TeamRelation relation)
+        {
+            if (role == CharacterRole.Boss)
+                return 3;
+
+            return relation switch
+            {
+                TeamRelation.SameTeam => 1,
+                TeamRelation.Neutral => 6,
+                TeamRelation.Hostile => 2,
+                _ => 2
+            };
+        }
+
         private static Sprite TryGetSelectedIcon()
         {
             try { return MapMarkerManager.SelectedIcon; }
             catch { return null; }
         }
-
-        private static int? GetIconIndex(CharacterType type) =>
-            type switch
-            {
-                CharacterType.Friend => 0,
-                CharacterType.Mobs => 2,
-                CharacterType.Boss => 3,
-                CharacterType.Neutral => 6,
-                _ => null,
-            };
-
-        public static Color GetMarkerColor(this CharacterType characterType) =>
-            characterType switch
-            {
-                CharacterType.Boss => Color.red,
-                CharacterType.Friend => ModBehaviour.AdjustNonBossColor(new Color(0.3f, 0.85f, 0.3f)),
-                CharacterType.Neutral => ModBehaviour.AdjustNonBossColor(new Color(1f, 0.9f, 0.3f)),
-                CharacterType.Mobs => ModBehaviour.AdjustNonBossColor(new Color(1f, 0.3f, 0.3f)),
-                _ => ModBehaviour.AdjustNonBossColor(Color.red),
-            };
     }
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
@@ -85,10 +105,14 @@ namespace BossLiveMapMod
             public CharacterMainControl Character;
             public GameObject MarkerObject;
             public SimplePointOfInterest Poi;
-            public CharacterType Type;
+            public CharacterRole Role;
+            public TeamRelation Relation;
             public string DisplayName;
             public bool IsActive; // Whether character is active (within 100 distance)
             public bool HasPreexistingPoi; // Cached flag to avoid GetComponent calls
+            public Teams LastKnownTeam;
+            public Action<Teams> TeamChangedHandler;
+            public Color LastAppliedColor;
         }
 
         /// <summary>
@@ -118,6 +142,9 @@ namespace BossLiveMapMod
         // Cached formatted special names
         private static List<string> _cachedSpecialNames = new List<string>();
         private static int _cachedSpecialNamesHash = 0;
+
+        private CharacterMainControl _mainCharacter;
+        private Teams _playerTeam = Teams.player;
 
         // UI-facing list of strings (includes strike-through for dead bosses).
         public static List<string> BossNames
@@ -211,6 +238,18 @@ namespace BossLiveMapMod
                 }
                 return hash;
             }
+        }
+
+        private readonly struct CharacterClassification
+        {
+            public CharacterClassification(CharacterRole role, TeamRelation relation)
+            {
+                Role = role;
+                Relation = relation;
+            }
+
+            public CharacterRole Role { get; }
+            public TeamRelation Relation { get; }
         }
 
         public static bool ShowNearbyEnemies = false;
@@ -317,7 +356,7 @@ namespace BossLiveMapMod
             InitializeLocalization();
             ModConfig.Load();
             ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
-
+            RefreshMainCharacterReference();
         }
 
         private void InitializeLocalization()
@@ -357,6 +396,12 @@ namespace BossLiveMapMod
             SceneLoader.onFinishedLoadingScene -= OnSceneFinishedLoading;
             Health.OnDead -= OnAnyHealthDead;
             EndTracking();
+            if (_mainCharacter != null)
+            {
+                try { _mainCharacter.OnTeamChanged -= OnMainCharacterTeamChanged; }
+                catch { }
+                _mainCharacter = null;
+            }
 
             // Dispose special presets watcher if present
             try
@@ -415,6 +460,7 @@ namespace BossLiveMapMod
             // Don't reset markers on map open - preserve last known positions when Live is OFF
             // ResetMarkers();
             _mapActive = true;
+            RefreshMainCharacterReference();
             // Ensure our runtime UI is present when the map opens
             MapViewUI.Ensure();
             _cachedSpawnerRoots = null;
@@ -452,7 +498,8 @@ namespace BossLiveMapMod
         {
             foreach (var marker in _markers.Values)
             {
-                if(marker.Poi != null)
+                UnsubscribeFromTeamChanges(marker);
+                if (marker.Poi != null)
                 {
                     PointsOfInterests.Unregister(marker.Poi);
                 }
@@ -476,6 +523,8 @@ namespace BossLiveMapMod
             // Rebuild boss list and special list from current spawned characters so it reflects current scene
             try
             {
+                RefreshMainCharacterReference();
+                RefreshAllMarkerRelations(forceVisualUpdate: false);
                 lock (BossList)
                 {
                     BossList.Clear();
@@ -492,8 +541,8 @@ namespace BossLiveMapMod
                     // Ensure boss list stays up-to-date regardless of marker settings
                     try
                     {
-                        var ct = GetCharacterType(character);
-                        if (ct == CharacterType.Boss)
+                        var classification = ClassifyCharacter(character);
+                        if (classification.Role == CharacterRole.Boss)
                         {
                             var displayName = GetDisplayName(character);
                             lock (BossList)
@@ -588,20 +637,194 @@ namespace BossLiveMapMod
             return _cachedSpawnerRoots;
         }
 
-        public static CharacterType GetCharacterType(CharacterMainControl c)
+        private CharacterClassification ClassifyCharacter(CharacterMainControl character)
         {
-            if (c == null)
-                return CharacterType.None;
+            var role = GetCharacterRole(character);
+            var relation = GetTeamRelation(character);
+            return new CharacterClassification(role, relation);
+        }
 
-            var preset = c.characterPreset;
-            return c.Team switch
+        private static CharacterRole GetCharacterRole(CharacterMainControl character)
+        {
+            if (character == null)
+                return CharacterRole.None;
+
+            var preset = character.characterPreset;
+            if (preset != null && preset.characterIconType == CharacterIconTypes.boss)
+                return CharacterRole.Boss;
+
+            return CharacterRole.NonBoss;
+        }
+
+        private TeamRelation GetTeamRelation(CharacterMainControl character)
+        {
+            if (character == null)
+                return TeamRelation.Unknown;
+
+            if (_mainCharacter == null)
+                return TeamRelation.Hostile;
+
+            var targetTeam = character.Team;
+            var playerTeam = _playerTeam;
+
+            if (targetTeam == playerTeam)
+                return TeamRelation.SameTeam;
+
+            bool playerSeesEnemy = SafeIsEnemy(playerTeam, targetTeam);
+            bool targetSeesEnemy = SafeIsEnemy(targetTeam, playerTeam);
+
+            if (!playerSeesEnemy && !targetSeesEnemy)
+                return TeamRelation.Neutral;
+
+            return TeamRelation.Hostile;
+        }
+
+        private static bool SafeIsEnemy(Teams selfTeam, Teams targetTeam)
+        {
+            try
             {
-                Teams.player => CharacterType.Friend,
-                Teams.all => CharacterType.Neutral,
-                _ when preset != null && preset.characterIconType == CharacterIconTypes.boss
-                    => CharacterType.Boss,
-                _ => CharacterType.Mobs,
-            };
+                return Team.IsEnemy(selfTeam, targetTeam);
+            }
+            catch
+            {
+                return selfTeam != targetTeam;
+            }
+        }
+
+        private void RefreshMainCharacterReference()
+        {
+            CharacterMainControl current = null;
+            try { current = CharacterMainControl.Main; }
+            catch { }
+
+            if (current == null)
+            {
+                try { current = LevelManager.Instance?.MainCharacter; }
+                catch { }
+            }
+
+            if (ReferenceEquals(current, _mainCharacter))
+            {
+                if (_mainCharacter != null)
+                    _playerTeam = _mainCharacter.Team;
+                return;
+            }
+
+            if (_mainCharacter != null)
+            {
+                try { _mainCharacter.OnTeamChanged -= OnMainCharacterTeamChanged; }
+                catch { }
+            }
+
+            _mainCharacter = current;
+            _playerTeam = _mainCharacter != null ? _mainCharacter.Team : Teams.player;
+
+            if (_mainCharacter != null)
+            {
+                try { _mainCharacter.OnTeamChanged += OnMainCharacterTeamChanged; }
+                catch { }
+            }
+
+            RefreshAllMarkerRelations(forceVisualUpdate: true);
+        }
+
+        private void OnMainCharacterTeamChanged(Teams team)
+        {
+            _playerTeam = team;
+            RefreshAllMarkerRelations(forceVisualUpdate: true);
+        }
+
+        private void RefreshAllMarkerRelations(bool forceVisualUpdate)
+        {
+            if (_markers.Count == 0)
+                return;
+
+            List<CharacterMainControl> stale = null;
+
+            foreach (var kv in _markers)
+            {
+                var character = kv.Key;
+                var marker = kv.Value;
+                if (marker == null || character == null)
+                {
+                    stale ??= new List<CharacterMainControl>();
+                    stale.Add(character);
+                    continue;
+                }
+
+                var classification = ClassifyCharacter(character);
+                if (!ShouldTrack(classification.Role, classification.Relation, character))
+                {
+                    stale ??= new List<CharacterMainControl>();
+                    stale.Add(character);
+                    continue;
+                }
+
+                var relationChanged = marker.Relation != classification.Relation || marker.Role != classification.Role;
+                if (!forceVisualUpdate && !relationChanged)
+                    continue;
+
+                var displayName = GetDisplayName(character);
+                var isActive = IsCharacterActive(character);
+                UpdateMarker(marker, classification.Role, classification.Relation, displayName, isActive, ModConfig.ShowLivePositions, forceVisualUpdate);
+            }
+
+            if (stale != null)
+            {
+                foreach (var character in stale)
+                {
+                    DestroyMarker(character);
+                }
+            }
+        }
+
+        private void SubscribeToTeamChanges(CharacterMarker marker)
+        {
+            if (marker?.Character == null)
+                return;
+
+            UnsubscribeFromTeamChanges(marker);
+
+            Action<Teams> handler = null;
+            handler = newTeam => OnTrackedCharacterTeamChanged(marker, newTeam);
+            marker.TeamChangedHandler = handler;
+            marker.LastKnownTeam = marker.Character.Team;
+
+            try { marker.Character.OnTeamChanged += handler; }
+            catch { marker.TeamChangedHandler = null; }
+        }
+
+        private void UnsubscribeFromTeamChanges(CharacterMarker marker)
+        {
+            if (marker == null)
+                return;
+
+            if (marker.TeamChangedHandler != null && marker.Character != null)
+            {
+                try { marker.Character.OnTeamChanged -= marker.TeamChangedHandler; }
+                catch { }
+            }
+
+            marker.TeamChangedHandler = null;
+        }
+
+        private void OnTrackedCharacterTeamChanged(CharacterMarker marker, Teams newTeam)
+        {
+            if (marker?.Character == null)
+                return;
+
+            marker.LastKnownTeam = newTeam;
+
+            var classification = ClassifyCharacter(marker.Character);
+            if (!ShouldTrack(classification.Role, classification.Relation, marker.Character))
+            {
+                DestroyMarker(marker.Character);
+                return;
+            }
+
+            var displayName = GetDisplayName(marker.Character);
+            var isActive = IsCharacterActive(marker.Character);
+            UpdateMarker(marker, classification.Role, classification.Relation, displayName, isActive, ModConfig.ShowLivePositions, forceVisualUpdate: true);
         }
 
         private void AddOrUpdateMarker(CharacterMainControl character)
@@ -613,8 +836,8 @@ namespace BossLiveMapMod
             if (hasPreexistingPoi)
                 return;
 
-            var characterType = GetCharacterType(character);
-            if (!ShouldTrack(characterType, character))
+            var classification = ClassifyCharacter(character);
+            if (!ShouldTrack(classification.Role, classification.Relation, character))
                 return;
 
             var displayName = GetDisplayName(character);
@@ -622,11 +845,8 @@ namespace BossLiveMapMod
             // If marker already exists, update it only if Live is ON
             if (_markers.TryGetValue(character, out var marker))
             {
-                // When Live is OFF, skip position updates for existing markers
-                if (!ModConfig.ShowLivePositions)
-                    return;
-
-                UpdateMarker(marker, characterType, displayName, isActive);
+                var allowPositionUpdate = ModConfig.ShowLivePositions;
+                UpdateMarker(marker, classification.Role, classification.Relation, displayName, isActive, allowPositionUpdate);
                 return;
             }
 
@@ -651,49 +871,60 @@ namespace BossLiveMapMod
                 Character = character,
                 MarkerObject = markerObject,
                 Poi = poi,
-                Type = characterType,
+                Role = classification.Role,
+                Relation = classification.Relation,
                 DisplayName = displayName,
                 HasPreexistingPoi = hasPreexistingPoi,
+                LastKnownTeam = character.Team
             };
 
             _markers[character] = marker;
+            SubscribeToTeamChanges(marker);
 
-            UpdateMarker(marker, characterType, displayName, isActive, forceVisualUpdate: true);
+            UpdateMarker(marker, classification.Role, classification.Relation, displayName, isActive, allowPositionUpdate: true, forceVisualUpdate: true);
         }
 
-        private void UpdateMarker(CharacterMarker marker, CharacterType characterType, string displayName, bool isActive, bool forceVisualUpdate = false)
+        private void UpdateMarker(CharacterMarker marker, CharacterRole role, TeamRelation relation, string displayName, bool isActive, bool allowPositionUpdate, bool forceVisualUpdate = false)
         {
             if (marker?.MarkerObject == null || marker.Poi == null || marker.Character == null)
                 return;
 
             // Keep GameObject name updated (displayName may be empty depending on config)
             marker.MarkerObject.name = $"CharacterMarker:{displayName}";
-            // Always update position when called (whether from scan or per-frame update)
-            if (marker.Character != null && marker.Character.transform != null)
+            // Update position only when allowed (Live toggle controls per-frame updates)
+            if (allowPositionUpdate && marker.Character != null && marker.Character.transform != null)
                 marker.MarkerObject.transform.position = marker.Character.transform.position;
-            if (!forceVisualUpdate && marker.Type == characterType && marker.DisplayName == displayName && marker.IsActive == isActive)
+            if (!forceVisualUpdate && marker.Role == role && marker.Relation == relation && marker.DisplayName == displayName && marker.IsActive == isActive)
                 return;
 
-            marker.Type = characterType;
+            marker.Role = role;
+            marker.Relation = relation;
             marker.DisplayName = displayName;
             marker.IsActive = isActive;
+            marker.LastKnownTeam = marker.Character.Team;
 
             // Marker color respects global transparency setting (mod config)
-            var color = characterType.GetMarkerColor();
+            var color = MarkerVisuals.GetMarkerColor(role, relation);
             const float baseAlpha = 1f;
             color.a = baseAlpha * ModConfig.Transparency;
-            marker.Poi.Color = color;
-            marker.Poi.ShadowColor = Color.clear;
-            marker.Poi.ShadowDistance = 0f;
+            bool colorChanged = forceVisualUpdate || !ColorsApproximatelyEqual(marker.LastAppliedColor, color);
 
-            // Respect config: show names or hide them
-            var nameToUse = ModConfig.ShowMarkerNames ? displayName : string.Empty;
-            // Use followActiveScene: true so POI system tracks the game object
-            // The Live toggle controls per-frame updates in LateUpdate()
-            marker.Poi.Setup(characterType.GetMarkerIcon(), nameToUse, followActiveScene: true);
+            if (colorChanged)
+            {
+                marker.Poi.Color = color;
+                marker.Poi.ShadowColor = Color.clear;
+                marker.Poi.ShadowDistance = 0f;
 
-            // Always show markers (they show last known position when Live is off)
-            marker.Poi.HideIcon = false;
+                // Respect config: show names or hide them
+                var nameToUse = ModConfig.ShowMarkerNames ? displayName : string.Empty;
+                // Use followActiveScene: true so POI system tracks the game object
+                // The Live toggle controls per-frame updates in LateUpdate()
+                marker.Poi.Setup(MarkerVisuals.GetMarkerIcon(role, relation), nameToUse, followActiveScene: true);
+
+                // Always show markers (they show last known position when Live is off)
+                marker.Poi.HideIcon = false;
+                marker.LastAppliedColor = color;
+            }
         }
 
         /// <summary>
@@ -735,24 +966,33 @@ namespace BossLiveMapMod
                 var character = entry?.Character;
 
                 // Use lightweight validation without GetComponent check
-                if (!IsCharacterValidLightweight(character, entry) || !ShouldTrack(entry.Type, character))
+                if (!IsCharacterValidLightweight(character, entry))
                 {
                     stale ??= new List<CharacterMainControl>();
                     stale.Add(kv.Key);
                     continue;
                 }
 
-                // Skip per-frame position updates when Live is OFF
-                if (!ModConfig.ShowLivePositions)
+                var classification = ClassifyCharacter(character);
+                entry.Role = classification.Role;
+                entry.Relation = classification.Relation;
+
+                if (!ShouldTrack(classification.Role, classification.Relation, character))
+                {
+                    stale ??= new List<CharacterMainControl>();
+                    stale.Add(kv.Key);
                     continue;
+                }
 
-                // Only update position for active characters when Live is on
-                // Inactive mobs don't need real-time tracking
                 bool isActive = IsCharacterActive(character);
-                if (entry.Type == CharacterType.Mobs && !isActive)
-                    continue; // Skip per-frame updates for inactive mobs
+                bool allowPositionUpdate = ModConfig.ShowLivePositions;
+                bool skipPositionUpdate = allowPositionUpdate &&
+                                          classification.Role == CharacterRole.NonBoss &&
+                                          classification.Relation == TeamRelation.Hostile &&
+                                          !isActive;
+                var applyPositionUpdate = skipPositionUpdate ? false : allowPositionUpdate;
 
-                UpdateMarker(entry, entry.Type, entry.DisplayName, isActive);
+                UpdateMarker(entry, classification.Role, classification.Relation, entry.DisplayName, isActive, applyPositionUpdate);
             }
 
             if (stale != null)
@@ -873,12 +1113,13 @@ namespace BossLiveMapMod
             if (!_markers.TryGetValue(character, out var entry))
                 return;
 
+            UnsubscribeFromTeamChanges(entry);
             _markers.Remove(character);
 
             // If this was a boss entry, mark corresponding BossList entries as dead (strike-through in UI)
             try
             {
-                if (entry != null && entry.Type == CharacterType.Boss && !string.IsNullOrEmpty(entry.DisplayName))
+                if (entry != null && entry.Role == CharacterRole.Boss && !string.IsNullOrEmpty(entry.DisplayName))
                 {
                     lock (BossList)
                     {
@@ -923,7 +1164,7 @@ namespace BossLiveMapMod
                 // ignore removal errors
             }
 
-            if(entry.Poi != null)
+            if (entry.Poi != null)
             {
                 PointsOfInterests.Unregister(entry.Poi);
             }
@@ -977,23 +1218,35 @@ namespace BossLiveMapMod
         public static Color AdjustNonBossColor(Color baseColor) =>
             Color.Lerp(baseColor, Color.white, 0.35f);
 
-        private static bool ShouldTrack(CharacterType type, CharacterMainControl character)
+        private static bool ColorsApproximatelyEqual(Color a, Color b)
         {
-            // Always show: Boss, Neutral, Friend
-            if (type == CharacterType.Boss || type == CharacterType.Neutral || type == CharacterType.Friend)
+            const float epsilon = 0.01f;
+            return Mathf.Abs(a.r - b.r) < epsilon &&
+                   Mathf.Abs(a.g - b.g) < epsilon &&
+                   Mathf.Abs(a.b - b.b) < epsilon &&
+                   Mathf.Abs(a.a - b.a) < epsilon;
+        }
+
+        private static bool ShouldTrack(CharacterRole role, TeamRelation relation, CharacterMainControl character)
+        {
+            if (role == CharacterRole.Boss)
                 return true;
 
-            // Mobs: only show when "Mobs" toggle is enabled
-            if (type == CharacterType.Mobs)
+            if (role != CharacterRole.NonBoss)
+                return false;
+
+            if (relation == TeamRelation.SameTeam || relation == TeamRelation.Neutral)
+                return true;
+
+            if (relation == TeamRelation.Hostile || relation == TeamRelation.Unknown)
             {
                 if (!ModConfig.ShowAllEnemies)
-                    return false; // Mobs toggle is OFF
+                    return false;
 
-                // Mobs toggle is ON - check Nearby filter
                 if (ModConfig.ShowNearbyOnly)
-                    return IsCharacterActive(character); // Only show active mobs
+                    return IsCharacterActive(character);
 
-                return true; // Show all mobs
+                return true;
             }
 
             return false;
