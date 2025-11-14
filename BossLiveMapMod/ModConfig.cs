@@ -22,7 +22,7 @@ namespace BossLiveMapMod
         internal static float Transparency { get; private set; } = 1f; // 0..1
         internal static float UiScale { get; private set; } = 1f;      // 0.5..2.0
         internal static bool UiScaleAuto { get; private set; } = true;
-        internal static float BossFontScale { get; private set; } = 1f; // 0.5..2.0
+        internal static float BossFontScale { get; private set; } = 1f; // 0.1..1.5
 
         // Pending values read from config file watcher (applied on next Update cycle)
         internal static bool PendingShowNearbyEnemies { get; private set; }
@@ -231,8 +231,8 @@ namespace BossLiveMapMod
 
         internal static void SetBossFontScale(float value)
         {
-            // clamp 0.5..2.0
-            var clamped = Math.Max(0.5f, Math.Min(2.0f, value));
+            // clamp 0.1..1.5
+            var clamped = Math.Max(0.1f, Math.Min(1.5f, value));
             if (Math.Abs(BossFontScale - clamped) < 0.0001f)
                 return;
             BossFontScale = clamped;
@@ -389,7 +389,7 @@ namespace BossLiveMapMod
                         else if (string.Equals(key, "BossFontScale", StringComparison.OrdinalIgnoreCase)
                             && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedBossFontScale))
                         {
-                            bossFontScale = Math.Max(0.5f, Math.Min(2.0f, parsedBossFontScale));
+                            bossFontScale = Math.Max(0.1f, Math.Min(1.5f, parsedBossFontScale));
                         }
                     }
                     return true;

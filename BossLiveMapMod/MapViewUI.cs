@@ -78,8 +78,8 @@ namespace BossLiveMapMod
         private TextMeshProUGUI _bossListText;
         private LayoutElement _bossScrollLayoutElement;
 
-        // Maximum height the scroll rect may reach (screen-space)
-        private float _bossScrollMaxHeight;
+        private float _bossScrollMaxHeightPixels;
+        private const float BossListBaseFontSize = 28f;
 
         // Local copy of special preset names to display under boss list
         private List<string> _specialPresetList = new List<string>();
@@ -95,6 +95,11 @@ namespace BossLiveMapMod
         // Cached layout dimensions to avoid unnecessary rebuilds
         private float _lastScrollWidth = -1f;
         private float _lastScrollHeight = -1f;
+        private float _lastCanvasScale = -1f;
+        private float _lastPanelScale = -1f;
+        private int _lastScreenWidth = -1;
+        private int _lastScreenHeight = -1;
+        private bool _forceLayoutPass;
 
         public static MapViewUI Ensure()
         {
@@ -135,6 +140,123 @@ namespace BossLiveMapMod
             var ui = go.AddComponent<MapViewUI>();
             ui.Initialize(view);
             return ui;
+        }
+
+        private Canvas GetRootCanvas()
+        {
+            if (_panel == null)
+                return null;
+
+            try
+            {
+                var canvas = _panel.GetComponentInParent<Canvas>();
+                if (canvas == null)
+                    return null;
+                return canvas.rootCanvas != null ? canvas.rootCanvas : canvas;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private float GetCanvasScaleFactor()
+        {
+            var canvas = GetRootCanvas();
+            if (canvas != null)
+            {
+                var scale = canvas.scaleFactor;
+                if (scale > 0.0001f)
+                    return scale;
+            }
+            return 1f;
+        }
+
+        private float GetPanelScale()
+        {
+            if (_panel == null)
+                return 1f;
+
+            try
+            {
+                var lossy = _panel.lossyScale;
+                var scale = Mathf.Abs(lossy.y);
+                if (scale < 0.0001f)
+                    scale = 1f;
+                return scale;
+            }
+            catch
+            {
+                return 1f;
+            }
+        }
+
+        private float PixelsToUiUnits(float pixels)
+        {
+            float canvasScale = GetCanvasScaleFactor();
+            float panelScale = GetPanelScale();
+            float denom = canvasScale * panelScale;
+            if (denom < 0.0001f)
+                denom = 1f;
+            return pixels / denom;
+        }
+
+        private float ComputeDefaultMaxHeightPixels()
+        {
+            float screenHeight = Screen.height > 0 ? Screen.height : 1080f;
+            return Mathf.Clamp(screenHeight * 0.62f, 120f, screenHeight * 0.9f);
+        }
+
+        private bool UpdateScreenCache()
+        {
+            int width = Screen.width > 0 ? Screen.width : (_lastScreenWidth > 0 ? _lastScreenWidth : 1920);
+            int height = Screen.height > 0 ? Screen.height : (_lastScreenHeight > 0 ? _lastScreenHeight : 1080);
+
+            if (width != _lastScreenWidth || height != _lastScreenHeight)
+            {
+                _lastScreenWidth = width;
+                _lastScreenHeight = height;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool UpdateScaleCache()
+        {
+            float canvasScale = GetCanvasScaleFactor();
+            float panelScale = GetPanelScale();
+
+            if (Mathf.Abs(canvasScale - _lastCanvasScale) > 0.001f ||
+                Mathf.Abs(panelScale - _lastPanelScale) > 0.001f)
+            {
+                _lastCanvasScale = canvasScale;
+                _lastPanelScale = panelScale;
+                return true;
+            }
+
+            return false;
+        }
+
+        private float GetBossFontSize()
+        {
+            float scale = Mathf.Clamp(ModConfig.BossFontScale, 0.1f, 1.5f);
+            return BossListBaseFontSize * scale;
+        }
+
+        private bool ApplyBossFontSize()
+        {
+            if (_bossListText == null)
+                return false;
+
+            float fontSize = GetBossFontSize();
+            if (Mathf.Abs(_bossListText.fontSize - fontSize) > 0.05f)
+            {
+                _bossListText.fontSize = fontSize;
+                return true;
+            }
+
+            return false;
         }
 
         private void Initialize(MiniMapView view)
@@ -199,7 +321,11 @@ namespace BossLiveMapMod
                 {
                     bool shouldShow = ModConfig.ShowBossList;
                     if (_bossScrollRoot.gameObject.activeSelf != shouldShow)
+                    {
                         _bossScrollRoot.gameObject.SetActive(shouldShow);
+                        if (shouldShow)
+                            _forceLayoutPass = true;
+                    }
 
                     if (shouldShow)
                     {
@@ -225,35 +351,39 @@ namespace BossLiveMapMod
                             _lastBossListContent = newContent;
                         }
 
-                        // Apply font scale
-                        if (_bossListText != null)
+                        bool fontSizeChanged = ApplyBossFontSize();
+                        bool scaleChanged = UpdateScaleCache();
+                        bool screenChanged = UpdateScreenCache();
+                        if (screenChanged)
                         {
-                            float baseFontSize = 28f;
-                            float dpi = Screen.dpi > 0f ? Screen.dpi : 96f;
-                            float dpiScale = Mathf.Clamp(dpi / 96f, 0.75f, 3.0f);
-                            int fontSize = Mathf.RoundToInt(baseFontSize * dpiScale * ModConfig.BossFontScale);
-                            _bossListText.fontSize = fontSize;
+                            _bossScrollMaxHeightPixels = ComputeDefaultMaxHeightPixels();
                         }
 
-                        // Only rebuild layout when content changed
-                        if (contentChanged && _bossContent != null && _bossListText != null)
+                        bool forceLayout = _forceLayoutPass;
+                        _forceLayoutPass = false;
+
+                        bool layoutNeedsUpdate = contentChanged || fontSizeChanged || scaleChanged || screenChanged || forceLayout;
+
+                        if (layoutNeedsUpdate && _bossContent != null)
                         {
                             LayoutRebuilder.ForceRebuildLayoutImmediate(_bossContent);
 
-                            // Calculate height
+                            float paddingH = PixelsToUiUnits(8f);
                             float preferredHeight = LayoutUtility.GetPreferredHeight(_bossContent);
-                            float paddingH = 8f;
                             float contentHeight = Mathf.Ceil(preferredHeight + paddingH);
-                            float desiredScrollH = Mathf.Min(contentHeight, _bossScrollMaxHeight > 0f ? _bossScrollMaxHeight : Screen.height * 0.62f);
-                            desiredScrollH = Mathf.Max(28f, desiredScrollH);
 
-                            // Calculate width based on text content
-                            float preferredWidth = _bossListText.preferredWidth;
-                            float paddingW = 20f;
-                            float contentWidth = Mathf.Ceil(preferredWidth + paddingW);
-                            float desiredScrollW = Mathf.Clamp(contentWidth, 280f, 600f);
+                            float maxHeightPixels = _bossScrollMaxHeightPixels > 0f ? _bossScrollMaxHeightPixels : ComputeDefaultMaxHeightPixels();
+                            float maxHeightUi = PixelsToUiUnits(maxHeightPixels);
+                            float minHeightUi = PixelsToUiUnits(28f);
+                            float desiredScrollH = Mathf.Min(contentHeight, maxHeightUi);
+                            desiredScrollH = Mathf.Max(minHeightUi, desiredScrollH);
 
-                            // Only update dimensions if they actually changed
+                            float paddingW = PixelsToUiUnits(20f);
+                            float minWidthUi = PixelsToUiUnits(280f);
+                            float maxWidthUi = PixelsToUiUnits(600f);
+                            float contentWidth = Mathf.Ceil(_bossListText.preferredWidth + paddingW);
+                            float desiredScrollW = Mathf.Clamp(contentWidth, minWidthUi, maxWidthUi);
+
                             bool dimensionsChanged = Mathf.Abs(_lastScrollWidth - desiredScrollW) > 0.5f ||
                                                     Mathf.Abs(_lastScrollHeight - desiredScrollH) > 0.5f;
 
@@ -264,14 +394,14 @@ namespace BossLiveMapMod
                                 if (_bossScrollLayoutElement != null)
                                 {
                                     _bossScrollLayoutElement.preferredWidth = desiredScrollW;
+                                    _bossScrollLayoutElement.preferredHeight = desiredScrollH;
                                 }
 
                                 _lastScrollWidth = desiredScrollW;
                                 _lastScrollHeight = desiredScrollH;
                             }
 
-                            // Reset scroll position when content changes
-                            if (_bossScrollRect != null)
+                            if (contentChanged && _bossScrollRect != null)
                             {
                                 _bossScrollRect.verticalNormalizedPosition = 1f;
                             }
@@ -517,9 +647,9 @@ namespace BossLiveMapMod
             fontSliderRT.sizeDelta = new Vector2(-145f, 20f);
 
             _fontSizeSlider = fontSliderGO.AddComponent<Slider>();
-            _fontSizeSlider.minValue = 0.5f;
-            _fontSizeSlider.maxValue = 2.0f;
-            _fontSizeSlider.value = ModConfig.BossFontScale;
+            _fontSizeSlider.minValue = 0.1f;
+            _fontSizeSlider.maxValue = 1.5f;
+            _fontSizeSlider.value = Mathf.Clamp(ModConfig.BossFontScale, 0.1f, 1.5f);
             _fontSizeSlider.onValueChanged.AddListener(OnFontSizeChanged);
 
             var fontBgGO = new GameObject("Background", typeof(RectTransform));
@@ -571,7 +701,7 @@ namespace BossLiveMapMod
             var fontPctGO = new GameObject("FontSizePct", typeof(RectTransform));
             fontPctGO.transform.SetParent(fontSizeContainer.transform, false);
             _fontSizePct = fontPctGO.AddComponent<TextMeshProUGUI>();
-            _fontSizePct.text = $"{Mathf.RoundToInt(ModConfig.BossFontScale * 100f)}%";
+            _fontSizePct.text = $"{Mathf.RoundToInt(Mathf.Clamp(ModConfig.BossFontScale, 0.1f, 1.5f) * 100f)}%";
             _fontSizePct.fontSize = 14;
             _fontSizePct.color = Color.white;
             _fontSizePct.alignment = TextAlignmentOptions.MidlineRight;
@@ -584,23 +714,18 @@ namespace BossLiveMapMod
             fontPctRT.sizeDelta = new Vector2(48f, 28f);
 
             // Boss list scroll view setup
-            float dpi = 0f;
-            try { dpi = Screen.dpi; } catch { dpi = 0f; }
-            float dpiScale = 1f;
-            if (dpi > 0f) dpiScale = Mathf.Clamp(dpi / 96f, 0.75f, 3.0f);
-            const float baseFontSize = 56f;
-            float screenH = (Screen.height > 0) ? Screen.height : 1080f;
-            float maxScrollHeight = Mathf.Clamp(screenH * 0.62f, 120f, screenH * 0.9f);
-            int fontSize = Mathf.RoundToInt(baseFontSize * dpiScale);
+            UpdateScreenCache();
+            _bossScrollMaxHeightPixels = ComputeDefaultMaxHeightPixels();
 
             var bossScrollRootGO = new GameObject("BossListScroll", typeof(RectTransform));
             bossScrollRootGO.transform.SetParent(panelGO.transform, false);
             _bossScrollRoot = bossScrollRootGO.GetComponent<RectTransform>();
-            _bossScrollMaxHeight = maxScrollHeight;
-            _bossScrollRoot.sizeDelta = new Vector2(280f, maxScrollHeight); // Start with min width, will adjust dynamically
+            float initialWidth = PixelsToUiUnits(280f);
+            float initialHeight = PixelsToUiUnits(_bossScrollMaxHeightPixels);
+            _bossScrollRoot.sizeDelta = new Vector2(initialWidth, initialHeight); // Start with min width, will adjust dynamically
             _bossScrollLayoutElement = bossScrollRootGO.AddComponent<LayoutElement>();
-            _bossScrollLayoutElement.preferredWidth = 280f;
-            _bossScrollLayoutElement.preferredHeight = maxScrollHeight;
+            _bossScrollLayoutElement.preferredWidth = initialWidth;
+            _bossScrollLayoutElement.preferredHeight = initialHeight;
 
             // Load special preset list for UI display
             try
@@ -669,7 +794,7 @@ namespace BossLiveMapMod
             bossTextGO.transform.SetParent(contentGO.transform, false);
             _bossListText = bossTextGO.AddComponent<TextMeshProUGUI>();
             _bossListText.text = string.Empty;
-            _bossListText.fontSize = fontSize;
+            _bossListText.fontSize = GetBossFontSize();
             _bossListText.color = Color.white;
             _bossListText.enableWordWrapping = false;
             _bossListText.raycastTarget = false;
@@ -677,7 +802,8 @@ namespace BossLiveMapMod
 
             var uiOutline = bossTextGO.AddComponent<UnityEngine.UI.Outline>();
             uiOutline.effectColor = Color.black;
-            uiOutline.effectDistance = new Vector2(Mathf.Max(1f, dpiScale), -Mathf.Max(1f, dpiScale));
+            float outlineSize = PixelsToUiUnits(1f);
+            uiOutline.effectDistance = new Vector2(outlineSize, -outlineSize);
 
             var textLayout = bossTextGO.AddComponent<LayoutElement>();
             textLayout.preferredWidth = 0;
@@ -738,6 +864,7 @@ namespace BossLiveMapMod
             var scrollHandler = bossScrollRootGO.AddComponent<BossListScrollHandler>();
             scrollHandler.Initialize(_bossScrollRect, _bossContent, viewportRT);
 
+            _forceLayoutPass = true;
             _bossScrollRoot.gameObject.SetActive(ModConfig.ShowBossList);
         }
 
@@ -834,9 +961,11 @@ namespace BossLiveMapMod
 
         private void OnFontSizeChanged(float sliderValue)
         {
-            var scale = Mathf.Clamp(sliderValue, 0.5f, 2.0f);
+            var scale = Mathf.Clamp(sliderValue, 0.1f, 1.5f);
             ModConfig.SetBossFontScale(scale);
             if (_fontSizePct != null) _fontSizePct.text = $"{Mathf.RoundToInt(scale * 100f)}%";
+            ApplyBossFontSize();
+            _forceLayoutPass = true;
         }
 
         private void OnScalePercentChanged(float valuePercent)
