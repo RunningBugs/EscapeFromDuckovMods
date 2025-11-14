@@ -127,6 +127,8 @@ namespace BossLiveMapMod
             public CharacterMainControl Character;
             public string DisplayName;
             public bool Alive;
+            public CharacterRole Role;
+            public TeamRelation Relation;
         }
 
         // Backing list of boss instances (allow duplicates)
@@ -162,11 +164,7 @@ namespace BossLiveMapMod
                             foreach (var be in BossList)
                             {
                                 if (be == null) continue;
-                                var name = be.DisplayName ?? string.Empty;
-                                if (!be.Alive)
-                                    _cachedBossNames.Add($"<s>{name}</s>");
-                                else
-                                    _cachedBossNames.Add(name);
+                                _cachedBossNames.Add(FormatListEntry(be));
                             }
                             _cachedBossNamesHash = currentHash;
                         }
@@ -193,11 +191,7 @@ namespace BossLiveMapMod
                             foreach (var be in SpecialList)
                             {
                                 if (be == null) continue;
-                                var name = be.DisplayName ?? string.Empty;
-                                if (!be.Alive)
-                                    _cachedSpecialNames.Add($"<s>{name}</s>");
-                                else
-                                    _cachedSpecialNames.Add(name);
+                                _cachedSpecialNames.Add(FormatListEntry(be));
                             }
                             _cachedSpecialNamesHash = currentHash;
                         }
@@ -219,6 +213,8 @@ namespace BossLiveMapMod
                     hash = hash * 31 + (be.Character?.GetHashCode() ?? 0);
                     hash = hash * 31 + (be.DisplayName?.GetHashCode() ?? 0);
                     hash = hash * 31 + (be.Alive ? 1 : 0);
+                    hash = hash * 31 + (int)be.Role;
+                    hash = hash * 31 + (int)be.Relation;
                 }
                 return hash;
             }
@@ -235,9 +231,34 @@ namespace BossLiveMapMod
                     hash = hash * 31 + (se.Character?.GetHashCode() ?? 0);
                     hash = hash * 31 + (se.DisplayName?.GetHashCode() ?? 0);
                     hash = hash * 31 + (se.Alive ? 1 : 0);
+                    hash = hash * 31 + (int)se.Role;
+                    hash = hash * 31 + (int)se.Relation;
                 }
                 return hash;
             }
+        }
+
+        private static string FormatListEntry(BossEntry entry)
+        {
+            if (entry == null)
+                return string.Empty;
+
+            var name = entry.DisplayName ?? string.Empty;
+            if (!entry.Alive)
+                name = $"<s>{name}</s>";
+
+            var color = GetBossListTextColor(entry);
+            var colorHex = ColorUtility.ToHtmlStringRGBA(color);
+            return $"<color=#{colorHex}>{name}</color>";
+        }
+
+        private static Color GetBossListTextColor(BossEntry entry)
+        {
+            if (entry == null)
+                return AdjustNonBossColor(Color.white);
+
+            var baseColor = MarkerVisuals.GetMarkerColor(entry.Role, entry.Relation);
+            return AdjustNonBossColor(baseColor);
         }
 
         private readonly struct CharacterClassification
@@ -547,7 +568,7 @@ namespace BossLiveMapMod
                             var displayName = GetDisplayName(character);
                             lock (BossList)
                             {
-                                BossList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
+                                BossList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true, Role = classification.Role, Relation = classification.Relation });
                             }
                         }
 
@@ -581,7 +602,7 @@ namespace BossLiveMapMod
                                         var displayName = GetDisplayName(character);
                                         lock (SpecialList)
                                         {
-                                            SpecialList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true });
+                                            SpecialList.Add(new BossEntry { Character = character, DisplayName = displayName, Alive = true, Role = classification.Role, Relation = classification.Relation });
                                         }
                                     }
                                 }
