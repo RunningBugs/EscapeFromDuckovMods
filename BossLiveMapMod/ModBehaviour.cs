@@ -953,7 +953,17 @@ namespace BossLiveMapMod
         /// </summary>
         private void Update()
         {
-            if (_mapActive && StepScanTimer())
+            if (!_mapActive)
+            {
+                if (ModConfig.HasPendingUpdate)
+                {
+                    ModConfig.ApplyPendingChanges();
+                    ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
+                }
+                return;
+            }
+
+            if (StepScanTimer())
             {
                 ScanCharacters();
             }
@@ -963,12 +973,9 @@ namespace BossLiveMapMod
 
             ModConfig.ApplyPendingChanges();
             ShowNearbyEnemies = ModConfig.ShowNearbyEnemies;
-            if (_mapActive)
-            {
-                ResetMarkers();
-                ScanCharacters();
-                _scanCooldown = ScanIntervalSeconds;
-            }
+            ResetMarkers();
+            ScanCharacters();
+            _scanCooldown = ScanIntervalSeconds;
         }
 
         /// <summary>
