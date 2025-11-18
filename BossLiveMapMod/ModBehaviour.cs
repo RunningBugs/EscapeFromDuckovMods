@@ -691,26 +691,17 @@ namespace BossLiveMapMod
             if (targetTeam == playerTeam)
                 return TeamRelation.SameTeam;
 
-            bool playerSeesEnemy = SafeIsEnemy(playerTeam, targetTeam);
-            bool targetSeesEnemy = SafeIsEnemy(targetTeam, playerTeam);
+            if (IsNeutralTeam(targetTeam))
+                return TeamRelation.Neutral;
 
-            if (!playerSeesEnemy && !targetSeesEnemy)
+            if (IsNeutralTeam(playerTeam))
                 return TeamRelation.Neutral;
 
             return TeamRelation.Hostile;
         }
 
-        private static bool SafeIsEnemy(Teams selfTeam, Teams targetTeam)
-        {
-            try
-            {
-                return Team.IsEnemy(selfTeam, targetTeam);
-            }
-            catch
-            {
-                return selfTeam != targetTeam;
-            }
-        }
+        private static bool IsNeutralTeam(Teams team) =>
+            team == Teams.middle || team == Teams.all;
 
         private void RefreshMainCharacterReference()
         {

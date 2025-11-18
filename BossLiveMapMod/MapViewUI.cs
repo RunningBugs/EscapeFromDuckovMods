@@ -201,15 +201,58 @@ namespace BossLiveMapMod
             return pixels / denom;
         }
 
+        private float GetEffectiveCanvasWidth()
+        {
+            var canvas = GetRootCanvas();
+            if (canvas != null)
+            {
+                try
+                {
+                    var rect = canvas.pixelRect;
+                    if (rect.width > 0f)
+                        return rect.width;
+                }
+                catch { }
+            }
+            return Screen.width > 0 ? Screen.width : 1920f;
+        }
+
+        private float GetEffectiveCanvasHeight()
+        {
+            var canvas = GetRootCanvas();
+            if (canvas != null)
+            {
+                try
+                {
+                    var rect = canvas.pixelRect;
+                    if (rect.height > 0f)
+                        return rect.height;
+                }
+                catch { }
+            }
+            return Screen.height > 0 ? Screen.height : 1080f;
+        }
+
         private float GetCurrentScreenWidth()
         {
             if (_lastScreenWidth > 0)
                 return _lastScreenWidth;
 
-            int width = Screen.width;
-            if (width <= 0) width = 1920;
-            _lastScreenWidth = width;
-            return width;
+            float width = GetEffectiveCanvasWidth();
+            if (width <= 0f) width = 1920f;
+            _lastScreenWidth = Mathf.RoundToInt(width);
+            return _lastScreenWidth;
+        }
+
+        private float GetCurrentScreenHeight()
+        {
+            if (_lastScreenHeight > 0)
+                return _lastScreenHeight;
+
+            float height = GetEffectiveCanvasHeight();
+            if (height <= 0f) height = 1080f;
+            _lastScreenHeight = Mathf.RoundToInt(height);
+            return _lastScreenHeight;
         }
 
         private void GetBossScrollWidthBounds(out float minWidthUi, out float maxWidthUi)
@@ -228,14 +271,16 @@ namespace BossLiveMapMod
 
         private float ComputeDefaultMaxHeightPixels()
         {
-            float screenHeight = Screen.height > 0 ? Screen.height : 1080f;
+            float screenHeight = GetCurrentScreenHeight();
             return Mathf.Clamp(screenHeight * 0.62f, 120f, screenHeight * 0.9f);
         }
 
         private bool UpdateScreenCache()
         {
-            int width = Screen.width > 0 ? Screen.width : (_lastScreenWidth > 0 ? _lastScreenWidth : 1920);
-            int height = Screen.height > 0 ? Screen.height : (_lastScreenHeight > 0 ? _lastScreenHeight : 1080);
+            int width = Mathf.RoundToInt(GetEffectiveCanvasWidth());
+            if (width <= 0) width = _lastScreenWidth > 0 ? _lastScreenWidth : 1920;
+            int height = Mathf.RoundToInt(GetEffectiveCanvasHeight());
+            if (height <= 0) height = _lastScreenHeight > 0 ? _lastScreenHeight : 1080;
 
             if (width != _lastScreenWidth || height != _lastScreenHeight)
             {
@@ -417,7 +462,8 @@ namespace BossLiveMapMod
                             float paddingW = PixelsToUiUnits(20f);
                             GetBossScrollWidthBounds(out float minWidthUi, out float maxWidthUi);
                             float preferredWidth = GetBossTextPreferredWidth();
-                            float contentWidth = Mathf.Ceil(preferredWidth + paddingW);
+                            float scrollbarPadding = PixelsToUiUnits(28f);
+                            float contentWidth = Mathf.Ceil(preferredWidth + paddingW + scrollbarPadding);
                             float desiredScrollW = Mathf.Clamp(contentWidth, minWidthUi, maxWidthUi);
 
                             bool dimensionsChanged = Mathf.Abs(_lastScrollWidth - desiredScrollW) > 0.5f ||
@@ -803,7 +849,8 @@ namespace BossLiveMapMod
             viewportRT.anchorMin = new Vector2(0f, 0f);
             viewportRT.anchorMax = new Vector2(1f, 1f);
             viewportRT.pivot = new Vector2(0.5f, 0.5f);
-            viewportRT.sizeDelta = Vector2.zero;
+            viewportRT.offsetMin = Vector2.zero;
+            viewportRT.offsetMax = new Vector2(-18f, 0f);
 
             _bossScrollRect.viewport = viewportRT;
 
