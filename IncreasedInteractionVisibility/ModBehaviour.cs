@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using HarmonyLib;
 
 namespace IncreasedInteractionVisibility
@@ -141,6 +142,11 @@ namespace IncreasedInteractionVisibility
                                 mat.SetFloat("_Far", MARKER_VISIBILITY_FAR);
                                 modified = true;
                             }
+
+                            // Try to disable depth testing so markers show through walls
+                            mat.SetInt("_ZTest", (int)CompareFunction.Always);
+                            mat.renderQueue = 4000;
+                            modified = true;
                         }
 
                         // Update renderer with modified materials if we changed anything
