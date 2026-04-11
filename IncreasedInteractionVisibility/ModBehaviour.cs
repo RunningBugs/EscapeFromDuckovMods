@@ -58,34 +58,25 @@ namespace IncreasedInteractionVisibility
         }
 
         /// <summary>
-        /// Harmony Postfix patch for InteractablePickup.OnInit()
-        /// This ensures pickups have an interaction marker, creating one if missing.
+        /// Harmony Postfix patch for InteractableBase.Start()
+        /// If the pickup has a SodaPointLight in its hierarchy, force the interact marker
+        /// visible — overriding the interactMarkerVisible=0 that Start() just applied.
         /// </summary>
-        [HarmonyPatch(typeof(InteractablePickup), "OnInit")]
-        public static class InteractablePickup_OnInit_Patch
+        [HarmonyPatch(typeof(InteractableBase), "Start")]
+        public static class InteractableBase_Start_Patch
         {
             [HarmonyPostfix]
-            public static void Postfix(InteractablePickup __instance)
+            public static void Postfix(InteractableBase __instance)
             {
                 try
                 {
-                    if (__instance == null)
-                    {
-                        return;
-                    }
+                    if (__instance is not InteractablePickup) return;
 
-                    // Check if marker already exists (using publicized field)
-                    if (__instance.markerObject != null && __instance.markerObject.gameObject != null)
-                    {
-                        return;
-                    }
-
-                    // No marker exists, force enable it
                     __instance.MarkerActive = true;
                 }
                 catch (System.Exception ex)
                 {
-                    Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to ensure pickup marker: {ex.Message}");
+                    Debug.LogWarning($"[IncreasedInteractionVisibility] Failed to force marker on SodaPointLight pickup: {ex.Message}");
                 }
             }
         }
